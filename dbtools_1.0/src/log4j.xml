@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+	<appender name="debugappender" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${user.dir}/log/debug.log"/>
+		<param name="MaxFileSize" value="5120KB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<param name="Encoding" value="UTF-8"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %m (%F:%M:%L)%n"/>
+		</layout>
+	</appender>
+
+	<logger name="com.dbm">
+		<level value="debug" />
+		<appender-ref ref="debugappender" />
+	</logger>
+
+	<logger name="mongo.jdbc.wrapper">
+		<level value="debug" />
+		<appender-ref ref="debugappender" />
+	</logger>
+	<logger name="sqlite.jdbc.wrapper">
+		<level value="debug" />
+		<appender-ref ref="debugappender" />
+	</logger>
+
+</log4j:configuration>
