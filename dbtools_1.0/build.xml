@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="build" basedir=".">
+
+<property name="dest.dir" location="./build"/>
+<property name="claz.dir" location="./bin"/>
+
+<!-- 生成zip文件-->
+<target name="build">
+	<delete file="app.zip"/>
+	<mkdir dir="${dest.dir}" />
+
+	<copy file="readme.html" todir="${dest.dir}" />
+	<copy file="settings.db" todir="${dest.dir}" />
+	<copy file="run.bat" todir="${dest.dir}" />
+	<copy file="run.sh"  todir="${dest.dir}" />
+
+	<copy todir="${dest.dir}/lib">
+		<fileset dir="lib"/>
+	</copy>
+		<copy todir="${dest.dir}/doc">
+		<fileset dir="doc"/>
+	</copy>
+
+	<jar destfile="${dest.dir}/lib/app.jar"
+		 basedir="${claz.dir}"
+		 includes="**/*.*" />
+
+	<zip destfile="app.zip" basedir="${dest.dir}" />
+	<delete dir="${dest.dir}" />
+</target>
+
+</project>
