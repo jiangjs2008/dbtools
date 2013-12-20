@@ -4,10 +4,14 @@
 package com.dbm.client.util;
 
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
-import javax.sql.rowset.CachedRowSet;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -20,8 +24,11 @@ import javax.swing.table.TableColumn;
 
 import com.dbm.client.action.data.PageJumpActionListener;
 import com.dbm.client.action.data.UpdActionListener;
+import com.dbm.client.db.DbClient;
 import com.dbm.client.db.DbClientFactory;
+import com.dbm.client.error.BaseExceptionWrapper;
 import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Session;
 import com.dbm.client.ui.tbldata.MyDefaultTableModel;
 
 /**
@@ -37,16 +44,9 @@ import com.dbm.client.ui.tbldata.MyDefaultTableModel;
 public final class TableUtil {
 
 	/**
-	 * set db data to JTable cell
-	 *
-	 * @param jTable1 JTable object
-	 * @param rslt    db data
+	 * instances of the log class
 	 */
-	public static void setTableData(CachedRowSet rs, boolean hasRowId) {
-		// 如果分页与否，全都交由PageJumpActionListener处理
-		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
-		pageAction.setTableData(rs, hasRowId);
-	}
+	private static LoggerWrapper logger = new LoggerWrapper(TableUtil.class); 
 
 	/**
 	 * set db data to JTable cell
@@ -111,17 +111,30 @@ public final class TableUtil {
 				int col = jTable1.getSelectedColumn();
 				int row = jTable1.getSelectedRow() + 1;
 
-				String value = DbClientFactory.getDbClient().getTableDataAt(row, col);
-				if (!obj.equals(value)) {
-					UpdActionListener updMng = UpdActionListener.getInstance();
+				// 先判断是更新数据还是插入数据
+				// 判断当前更该行是否大于该表的数据总件数
+				PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
+				int dataCnt = pageAction.getAllRowSize();
+				int pageNum = pageAction.getCurrPageNum();
+
+				UpdActionListener updMng = UpdActionListener.getInstance();
+				if ((pageNum - 1) * Session.PageDataLimit + row > dataCnt) {
+					// 插入数据
 					updMng.addTblParams(row, col, (String) obj);
+
+				} else {
+					// 更新数据
+					String value = DbClientFactory.getDbClient().getTableDataAt(row, col);
+					if (!obj.equals(value)) {
+						updMng = UpdActionListener.getInstance();
+						updMng.addTblParams(row, col, (String) obj);
+					}
 				}
 			}
 
 			public void editingCanceled(ChangeEvent e) {
 			}
 		});
-		myTable.setCellEditor(editor);
 
 		JTableHeader header = myTable.getTableHeader();
 		int rowCount = myTable.getRowCount();

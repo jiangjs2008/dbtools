@@ -95,7 +95,7 @@ public class UpdActionListener extends AbstractActionListener {
 
 		// 更新后再刷新画面
 		DbClient dbClient = DbClientFactory.getDbClient();
-		dbClient.execute(9, tblName);
+		dbClient.executeQuery(tblName);
 	}
 
 }

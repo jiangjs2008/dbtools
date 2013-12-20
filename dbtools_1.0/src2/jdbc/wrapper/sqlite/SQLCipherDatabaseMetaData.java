@@ -464,9 +464,9 @@ public class SQLCipherDatabaseMetaData implements DatabaseMetaData {
 		sb.append(" order by tbl_name ");
 
 		DbClient dbClient = DbClientFactory.getDbClient();
-		// query
-		ArrayList<TreeMap<Integer, String>> rslt =
-			(ArrayList<TreeMap<Integer, String>>) dbClient.execute(8, sb.toString());
+		// // TODO -- 此处需修改，直接使用SQL文查询 query
+		ArrayList<TreeMap<Integer, String>> rslt = new ArrayList<TreeMap<Integer, String>>();
+		//	(ArrayList<TreeMap<Integer, String>>) dbClient.execute(8, sb.toString());
 
 		if (rslt == null || rslt.size() == 0) {
 			return new SQLCipherResultSet(null, null);

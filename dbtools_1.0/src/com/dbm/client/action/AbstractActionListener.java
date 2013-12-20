@@ -12,7 +12,7 @@ public abstract class AbstractActionListener implements ActionListener{
 	/**
 	 * instances of the log class
 	 */
-	protected static LoggerWrapper logger = new LoggerWrapper(AbstractActionListener.class); 
+	protected final static LoggerWrapper logger = new LoggerWrapper(AbstractActionListener.class); 
 
 
 	@Deprecated

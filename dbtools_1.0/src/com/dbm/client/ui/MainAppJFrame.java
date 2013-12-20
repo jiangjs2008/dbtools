@@ -255,6 +255,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 
 		jBtnUpdate.addActionListener(updAction);
 		jBtnPanel.add(jBtnUpdate);
+		AppUIAdapter.setUIObj(AppUIAdapter.BTN_UPDATE, jBtnUpdate);
 
 		// [删除]按钮
 		JButton jBtnDelete = new JButton();
@@ -268,12 +269,13 @@ public class MainAppJFrame extends javax.swing.JFrame {
 
 		jBtnDelete.addActionListener(delAction);
 		jBtnPanel.add(jBtnDelete);
+		AppUIAdapter.setUIObj(AppUIAdapter.BTN_DELETE, jBtnDelete);
 
 		// 分页相关组件 STA#####################################
 		JPanel pagejumpPanel = new JPanel();
 		pagejumpPanel.setLayout(null);
 		pagejumpPanel.setBounds(335, 0, 415, 50);
-		//pagejumpPanel.setVisible(false);
+		pagejumpPanel.setVisible(false);
 		jBtnPanel.add(pagejumpPanel);
 
 		// 翻页控制
@@ -303,6 +305,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 
 		PageJumpActionListener pagejumpAction = new PageJumpActionListener(pagejumpPanel, jTextField2, jTextField1);
 		AppUIAdapter.setUIObj(AppUIAdapter.PageAction, pagejumpAction);
+		AppUIAdapter.setUIObj(AppUIAdapter.PagePanel, pagejumpPanel);
 
 		// 翻页按钮
 		jLabel1 = new JButton();
@@ -359,7 +362,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jMenu1.setMnemonic(KeyEvent.VK_F);
 		jMenuBar1.add(jMenu1);
 
-		JMenuItem jMenuItem3 = new JMenuItem("DisConnect");
+		JMenuItem jMenuItem3 = new JMenuItem("Close Connection");
 		jMenu1.add(jMenuItem3);
 
 		ActionListener closeAction = new CloseActionListener();
@@ -384,14 +387,33 @@ public class MainAppJFrame extends javax.swing.JFrame {
 			}
 		});
 
+		// Edit menu =========================================================================
+		JMenu jMenu12 = new JMenu("    Edit    ");
+		jMenuBar1.add(jMenu12);
+
+		JMenuItem jMenuItem121 = new JMenuItem("Cut");
+		jMenu12.add(jMenuItem121);
+		JMenuItem jMenuItem122 = new JMenuItem("Copy");
+		jMenu12.add(jMenuItem122);
+		JMenuItem jMenuItem123 = new JMenuItem("Paste");
+		jMenu12.add(jMenuItem123);
+
+		// separate line
+		jMenu12.add(new JSeparator());
+
+		JMenuItem jMenuItem124 = new JMenuItem("Last Script");
+		jMenu12.add(jMenuItem124);
+		JMenuItem jMenuItem125 = new JMenuItem("Next Script");
+		jMenu12.add(jMenuItem125);
+
+
 		// Favorites menu =========================================================================
 		JMenu jMenu2 = new JMenu("   Favorites   ");
 		jMenu2.setMnemonic(KeyEvent.VK_V);
 		jMenuBar1.add(jMenu2);
 
-		JMenuItem jMenuItem23 = new JMenuItem();
+		JMenuItem jMenuItem23 = new JMenuItem("Add to Favorites");
 		jMenu2.add(jMenuItem23);
-		jMenuItem23.setText("Add to Favorites");
 		jMenuItem23.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -399,9 +421,8 @@ public class MainAppJFrame extends javax.swing.JFrame {
 			}
 		});
 
-		JMenuItem jMenuItem21 = new JMenuItem();
+		JMenuItem jMenuItem21 = new JMenuItem("Favorites Manage");
 		jMenu2.add(jMenuItem21);
-		jMenuItem21.setText("Favorites Manage");
 		jMenuItem21.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -426,9 +447,8 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jMenu3.setMnemonic(KeyEvent.VK_B);
 		jMenuBar1.add(jMenu3);
 
-		JMenuItem jMenuItem31 = new JMenuItem();
+		JMenuItem jMenuItem31 = new JMenuItem("New Db Driver");
 		jMenu3.add(jMenuItem31);
-		jMenuItem31.setText("Connection Manage");
 		jMenuItem31.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -453,9 +473,8 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jMenu4.setMnemonic(KeyEvent.VK_H);
 		jMenuBar1.add(jMenu4);
 		
-		JMenuItem jMenuItem41 = new JMenuItem();
+		JMenuItem jMenuItem41 = new JMenuItem("encrypt tool");
 		jMenu4.add(jMenuItem41);
-		jMenuItem41.setText("encrypt tool");
 		jMenuItem41.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -492,9 +511,8 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		// separate line
 		jMenu4.add(new JSeparator());
 
-		JMenuItem jMenuItem43 = new JMenuItem();
+		JMenuItem jMenuItem43 = new JMenuItem("About");
 		jMenu4.add(jMenuItem43);
-		jMenuItem43.setText("About");
 		jMenuItem43.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

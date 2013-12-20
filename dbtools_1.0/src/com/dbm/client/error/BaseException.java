@@ -7,6 +7,8 @@
 */
 package com.dbm.client.error;
 
+import com.dbm.client.property.PropUtil;
+
 
 public class BaseException extends RuntimeException {
 	/**
@@ -23,16 +25,7 @@ public class BaseException extends RuntimeException {
 	private String[] errorMsgs = null;
 
 	/**
-	 * 
-	 *
-	 * @param cause Throwable
-	 */
-	public BaseException(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 *
+	 * 构造函数
 	 *
 	 * @param message 
 	 */
@@ -41,7 +34,7 @@ public class BaseException extends RuntimeException {
 	}
 
 	/**
-	 *
+	 * 构造函数
 	 *
 	 * @param message 
 	 */
@@ -50,4 +43,8 @@ public class BaseException extends RuntimeException {
 		this.errorNumber = errorNumber;
 	}
 
+	@Override
+	public String getMessage() {
+		return PropUtil.getMessage(errorNumber, errorMsgs);
+	}
 }

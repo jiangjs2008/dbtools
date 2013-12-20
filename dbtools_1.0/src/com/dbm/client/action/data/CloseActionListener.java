@@ -3,6 +3,7 @@ package com.dbm.client.action.data;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTree;
 
@@ -16,14 +17,6 @@ import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 
 public class CloseActionListener extends AbstractActionListener {
 
-	/**
-	 * This method is activated on the Keystrokes we are listening to in this
-	 * implementation. Here it listens for Copy and Paste ActionCommands.
-	 * Selections comprising non-adjacent cells result in invalid selection and
-	 * then copy action cannot be performed. Paste is done by aligning the upper
-	 * left corner of the selection with the 1st element in the current
-	 * selection of the JTable.
-	 */
 	@Override
 	public void doActionPerformed(ActionEvent e) {
 		// close current db connection
@@ -43,6 +36,8 @@ public class CloseActionListener extends AbstractActionListener {
 		// 重置数据显示
 		JTable jTable1 = (JTable) AppUIAdapter.getUIObj(AppUIAdapter.TableDataUIObj);
 		jTable1.setModel(Session.EmptyTableModel);
+		JPanel jPanel = (JPanel) AppUIAdapter.getUIObj(AppUIAdapter.PagePanel);
+		jPanel.setVisible(false);
 	}
 
 }

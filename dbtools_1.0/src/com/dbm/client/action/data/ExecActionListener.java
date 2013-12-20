@@ -2,11 +2,13 @@ package com.dbm.client.action.data;
 
 import java.awt.event.ActionEvent;
 
+import javax.swing.JButton;
 import javax.swing.JTextArea;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.db.DbClient;
 import com.dbm.client.db.DbClientFactory;
+import com.dbm.client.ui.AppUIAdapter;
 
 public class ExecActionListener extends AbstractActionListener {
 
@@ -30,7 +32,14 @@ public class ExecActionListener extends AbstractActionListener {
 		}
 
 		DbClient dbClient = DbClientFactory.getDbClient();
-		dbClient.executeScript(action);
+		if (dbClient != null && dbClient.executeScript(action)) {
+			// 执行输入SQL脚本时禁用[更新]和[删除]按钮
+			JButton button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_UPDATE);
+			button.setEnabled(false);
+
+			button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_DELETE);
+			button.setEnabled(false);
+		}
 	}
 
 }

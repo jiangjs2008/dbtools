@@ -31,7 +31,12 @@ public class AppUIAdapter {
 	// 主界面
 	public final static String AppMainGUI = "AppMainGUI";
 
-    // 数据表示用画面对象
+	// [更新]按钮
+	public final static String BTN_UPDATE = "BTN_UPDATE";
+	// [删除]按钮
+	public final static String BTN_DELETE = "BTN_DELETE";
+
+	// 数据表示用画面对象
 	public final static String TableDataUIObj = "TableDataUIObj";
 
 	// 数据库信息表示用画面对象
@@ -42,7 +47,8 @@ public class AppUIAdapter {
 
 	// 翻页处理
 	public final static String PageAction = "PageAction";
-	
+	// 翻页组件
+	public final static String PagePanel = "PagePanel";
 
 	/**
 	 * 重新设置数据库URL信息<br>

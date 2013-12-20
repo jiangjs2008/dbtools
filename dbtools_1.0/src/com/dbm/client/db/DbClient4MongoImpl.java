@@ -4,20 +4,14 @@
 package com.dbm.client.db;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import jdbc.wrapper.mongo.MongoCachedRowSetImpl;
-
-
 import com.dbm.client.error.BaseExceptionWrapper;
 import com.dbm.client.error.WarningException;
 import com.dbm.client.util.StringUtil;
-import com.dbm.client.util.TableUtil;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
@@ -31,19 +25,13 @@ import com.mongodb.util.JSON;
 public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 
 	private DB dbObj = null;
-	private Connection dbConn = null;
-
-	@Override
-	public Connection getConnection() {
-		return dbConn;
-	}
 
 	@Override
 	public void start(String[] args) {
-		dbArgs = args;
+		_dbArgs = args;
 		// connect to db 
 		try {
-			String dbUrl = dbArgs[1];
+			String dbUrl = _dbArgs[1];
 			String[] dbType = dbUrl.split("//");
 			String dbArr[] = dbType[1].split("/");
 			String urlArr[] = dbArr[0].split(":");
@@ -51,8 +39,8 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 			dbObj = mongoClient.getDB(dbArr[1]);
 
 			try {
-				Class.forName(dbArgs[0]);
-				dbConn = DriverManager.getConnection(dbUrl);
+				Class.forName(_dbArgs[0]);
+				_dbConn = DriverManager.getConnection(dbUrl);
 				isConnected = true;
 			} catch (Exception exp) {
 				throw new BaseExceptionWrapper(exp);
@@ -64,8 +52,8 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 		if (dbObj == null) {
 			throw new WarningException("数据库不存在");
 		}
-		if (dbArgs[2] != null && !dbArgs[2].isEmpty()) {
-			if (!dbObj.authenticate(dbArgs[2], dbArgs[3].toCharArray())) {
+		if (_dbArgs[2] != null && !_dbArgs[2].isEmpty()) {
+			if (!dbObj.authenticate(_dbArgs[2], _dbArgs[3].toCharArray())) {
 				throw new WarningException("没有权限访问该数据库");
 			}
 		}
@@ -73,19 +61,19 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 		isConnected = true;
 	}
 
-	/**
-	 * 执行MongoDb数据库操作
-	 */
-	@Override
-	public Object execute(int sqlType, String action) {
-
-		if (sqlType == 9) {
-			// query sql
-			allRowSet = new MongoCachedRowSetImpl(dbObj.getCollection(action));
-			TableUtil.setTableData(allRowSet, true);
-		}
-		return null;
-	}
+//	/**
+//	 * 执行MongoDb数据库操作
+//	 */
+//	@Override
+//	public Object execute(int sqlType, String action) {
+//
+//		if (sqlType == 9) {
+//			// query sql
+////			allRowSet = new MongoCachedRowSetImpl(dbObj.getCollection(action));
+////			TableUtil.setTableData(allRowSet, true);
+//		}
+//		return null;
+//	}
 
 	/**
 	 * MongoDb目前支持的操作：<br>
@@ -120,19 +108,19 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 
 		} else if (action.indexOf(".find(") > 0) {
 			// 查询
-			if (allRowSet != null) {
-				try {
-					allRowSet.close();
-				} catch (SQLException exp) {
-					logger.error(exp);
-				}
-			}
-			int dot_1st = action.indexOf(".");
-			int dot_2nd = action.indexOf(".", dot_1st + 1);
-			String tblName = action.substring(dot_1st + 1, dot_2nd);
-			
-			allRowSet = new MongoCachedRowSetImpl(dbObj.getCollection(tblName).find());
-			TableUtil.setTableData(allRowSet, true);
+//			if (allRowSet != null) {
+//				try {
+//					allRowSet.close();
+//				} catch (SQLException exp) {
+//					logger.error(exp);
+//				}
+//			}
+//			int dot_1st = action.indexOf(".");
+//			int dot_2nd = action.indexOf(".", dot_1st + 1);
+//			String tblName = action.substring(dot_1st + 1, dot_2nd);
+//			
+//			allRowSet = new MongoCachedRowSetImpl(dbObj.getCollection(tblName).find());
+//			TableUtil.setTableData(allRowSet, true);
 			
 		} else if (action.indexOf(".findOne(") > 0) {
 			
@@ -147,7 +135,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	/**
 	 * 取得DB对象信息，如：表、视图等等
 	 */
-	@Override
+
 	public List<String> getDbMetaData() {
 		List<String> rslt = new ArrayList<String>();
 		rslt.add("Collections");
@@ -166,7 +154,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	 *
 	 * @return
 	 */
-	@Override
+
 	public List<String> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
 		if (types == null || types.length == 0) {
 			return null;

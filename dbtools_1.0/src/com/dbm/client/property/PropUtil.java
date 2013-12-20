@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -166,7 +167,19 @@ public class PropUtil {
 	 *
 	 * @return String 文言信息
 	 */
-	public static String getMessage(int key) {
-		return msgMap.get(key);
+	public static String getMessage(int key, String... params) {
+		String errMsg = msgMap.get(key);
+		if (errMsg == null || errMsg.length() == 0) {
+			if (params != null && params.length > 0) {
+				return params[0];
+			} else {
+				return "";
+			}
+		}
+		if (params == null || params.length == 0) {
+			return errMsg;
+		}
+		MessageFormat form = new MessageFormat(errMsg);
+		return form.format(params);
 	}
 }

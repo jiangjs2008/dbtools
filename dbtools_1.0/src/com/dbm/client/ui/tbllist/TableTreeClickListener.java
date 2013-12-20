@@ -1,9 +1,15 @@
 package com.dbm.client.ui.tbllist;
 
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -13,6 +19,8 @@ import com.dbm.client.action.CursorChanger;
 import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.db.DbClient;
 import com.dbm.client.db.DbClientFactory;
+import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Sec01Dialog;
 import com.dbm.client.util.LoggerWrapper;
 
 public class TableTreeClickListener extends MouseAdapter {
@@ -59,9 +67,23 @@ public class TableTreeClickListener extends MouseAdapter {
 			JMenuItem jMenuItem1 = new JMenuItem();
 			jPopupMenu1.add(jMenuItem1);
 			jMenuItem1.setText("Copy Table Name");
+			jMenuItem1.addActionListener(new CpTblNmActionListener((String) tblNode.getUserObject()));
 		}
 	}
 
+	private static final Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
+	private class CpTblNmActionListener implements ActionListener {
+		private String _tblName = null;
+		CpTblNmActionListener(String tblName) {
+			_tblName = tblName;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			StringSelection stsel = new StringSelection(_tblName);
+			system.setContents(stsel, null);
+		}
+	}
 
 	private void getTableData(DefaultMutableTreeNode tblNode) {
 		String tblName = (String) tblNode.getUserObject();
@@ -70,7 +92,14 @@ public class TableTreeClickListener extends MouseAdapter {
 		updMng.setTblName(tblName);
 
 		DbClient dbClient = DbClientFactory.getDbClient();
-		dbClient.execute(9, tblName);
+		dbClient.executeQuery(tblName);
+
+		// 使[更新]和[删除]按钮可用
+		JButton button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_UPDATE);
+		button.setEnabled(true);
+
+		button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_DELETE);
+		button.setEnabled(true);
 	}
 
 	/**

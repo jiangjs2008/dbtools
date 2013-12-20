@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,10 +26,6 @@ import com.dbm.client.util.TableUtil;
  * @author JiangJusheng
  */
 public class DbClient4SQLiteImpl extends DbClient {
-
-	private String[] dbArgs = null;
-
-	private Connection dbConn = null;
 
 	private ServerSocket server = null;
 
@@ -53,18 +48,13 @@ public class DbClient4SQLiteImpl extends DbClient {
 	}
 
 	@Override
-	public Connection getConnection() {
-		return dbConn;
-	}
-
-	@Override
 	public String getTableDataAt(int rowNum, int colNum) {
 		return null;
 	}
 
 	@Override
 	public void start(String[] args) {
-		dbArgs = args;
+		_dbArgs = args;
 	}
 
 	@Override
@@ -103,83 +93,88 @@ public class DbClient4SQLiteImpl extends DbClient {
 
 	private ArrayList<ArrayList<Object>> dataObjs = null;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Object execute(int sqlType, String action) {
-		if (socket == null) {
-			// TODO--
-			return null;
-		}
-
-		if (sqlType == 0) {
-			String[] addr = StringUtil.str2Array(dbArgs[1], ":");
-			if (addr == null || addr.length == 0 || addr.length == 1) {
-				// input error, have not db info
-			}
-			action = addr[1] + "@"+ dbArgs[3];
-
-			try {
-				Class.forName(dbArgs[0]);
-				dbConn = DriverManager.getConnection(dbArgs[1]);
-				isConnected = true;
-			} catch (Exception exp) {
-				throw new BaseExceptionWrapper(exp);
-			}
-		}
-		if (sqlType == 9) {
-			action = "select rowid,* from " + action;
-		}
-
-		try {
-			dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-			dos = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-
-			// スマホ端末へ送信
-			StringBuilder sendStr = new StringBuilder();
-			sendStr.append(sqlType);
-			sendStr.append(StringUtil.addPreZero(action.length(), 6));
-			sendStr.append(action);
-
-			dos.write(sendStr.toString().getBytes());
-			dos.flush();
-
-			// ************************************************************************************
-			// スマホ端末からリクエスト
-			byte[] output = null;
-
-			if (sqlType == 0 || sqlType == 1 || sqlType == 8 || sqlType == 9) {
-				// connect to db / query sql
-				try {
-					ObjectInputStream ois = new ObjectInputStream(dis);
-					Object rslt = ois.readObject();
-					
-					if (sqlType == 1 || sqlType == 9) {
-						dataObjs = (ArrayList<ArrayList<Object>>) rslt;
-						TableUtil.setTableData(dataObjs, false);
-					}
-					return rslt;
-				} catch (Exception e) {
-					// TODO: handle exception
-					e.printStackTrace();
-				}
-
-			} else if (sqlType == 2 || sqlType == 3) {
-				// update sql
-
-				output = new byte[1];
-				dis.read(output);
-				return output;
-			}
-
-		} catch (Exception e) {
-			logger.error(e);
-		}
-		return null;
-	}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public Object execute(int sqlType, String action) {
+//		if (socket == null) {
+//			// TODO--
+//			return null;
+//		}
+//
+//		if (sqlType == 0) {
+//			String[] addr = StringUtil.str2Array(_dbArgs[1], ":");
+//			if (addr == null || addr.length == 0 || addr.length == 1) {
+//				// input error, have not db info
+//			}
+//			action = addr[1] + "@"+ _dbArgs[3];
+//
+//			try {
+//				Class.forName(_dbArgs[0]);
+//				_dbConn = DriverManager.getConnection(_dbArgs[1]);
+//				isConnected = true;
+//			} catch (Exception exp) {
+//				throw new BaseExceptionWrapper(exp);
+//			}
+//		}
+//		if (sqlType == 9) {
+//			action = "select rowid,* from " + action;
+//		}
+//
+//		try {
+//			dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+//			dos = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+//
+//			// スマホ端末へ送信
+//			StringBuilder sendStr = new StringBuilder();
+//			sendStr.append(sqlType);
+//			sendStr.append(StringUtil.addPreZero(action.length(), 6));
+//			sendStr.append(action);
+//
+//			dos.write(sendStr.toString().getBytes());
+//			dos.flush();
+//
+//			// ************************************************************************************
+//			// スマホ端末からリクエスト
+//			byte[] output = null;
+//
+//			if (sqlType == 0 || sqlType == 1 || sqlType == 8 || sqlType == 9) {
+//				// connect to db / query sql
+//				try {
+//					ObjectInputStream ois = new ObjectInputStream(dis);
+//					Object rslt = ois.readObject();
+//					
+//					if (sqlType == 1 || sqlType == 9) {
+//						dataObjs = (ArrayList<ArrayList<Object>>) rslt;
+//						TableUtil.setTableData(dataObjs, false);
+//					}
+//					return rslt;
+//				} catch (Exception e) {
+//					// TODO: handle exception
+//					e.printStackTrace();
+//				}
+//
+//			} else if (sqlType == 2 || sqlType == 3) {
+//				// update sql
+//
+//				output = new byte[1];
+//				dis.read(output);
+//				return output;
+//			}
+//
+//		} catch (Exception e) {
+//			logger.error(e);
+//		}
+//		return null;
+//	}
 
 	@Override
 	public boolean executeScript(String action) {
 		return false;
+	}
+
+	@Override
+	public void executeQuery(String tblName) {
+		
 	}
 
 	@Override

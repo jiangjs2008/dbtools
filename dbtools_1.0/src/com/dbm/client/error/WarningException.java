@@ -10,6 +10,7 @@ package com.dbm.client.error;
 
 
 
+
 public class WarningException extends BaseException {
 
 	/**
@@ -18,16 +19,7 @@ public class WarningException extends BaseException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
-	 *
-	 * @param cause Throwable
-	 */
-	public WarningException(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 *
+	 * 构造函数
 	 *
 	 * @param message 
 	 */
@@ -36,7 +28,7 @@ public class WarningException extends BaseException {
 	}
 
 	/**
-	 *
+	 * 构造函数
 	 *
 	 * @param errorNumber 
 	 * @param message 

@@ -18,6 +18,22 @@ import java.util.StringTokenizer;
 public final class StringUtil {
 
 	/**
+	 * 文字列から文字列を抜き出し、配列にして返す
+	 *
+	 * @param str  ターゲット文字列
+	 * @param sep 区切り文字(群)
+	 * @return String[] 変換後文字列
+	 */
+	public static String[] split(String str, String sep) {
+		StringTokenizer token = new StringTokenizer(str, sep);
+		String[] array = new String[token.countTokens()];
+		for (int i = 0; token.hasMoreTokens(); i++) {
+			array[i] = token.nextToken();
+		}
+		return array;
+	}
+
+	/**
 	 * add zero ahead of the string
 	 *
 	 * @param val A digital

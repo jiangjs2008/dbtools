@@ -30,30 +30,40 @@ public abstract class DbClient {
 	 * instances of the log class
 	 */
 	protected static LoggerWrapper logger = new LoggerWrapper(DbClient.class); 
-
+	/**
+	 * 数据库连接状态标志位<br>
+	 * true: 已连接  false:未连接
+	 */
 	public static boolean isConnected = false;
+	/**
+	 * 数据库连接参数
+	 * [0]: 数据库Jdbc驱动类名
+	 * [1]: 数据库URL
+	 * [2]: 用户名
+	 * [3]: 密码
+	 */
+	protected String[] _dbArgs = null;
+	/**
+	 * 数据库连接对象
+	 */
+	protected Connection _dbConn = null;
 
-	public abstract Connection getConnection();
+	/**
+	 * 取得数据库连接对象
+	 *
+	 * @return Connection 数据库连接对象
+	 */
+	public final Connection getConnection() {
+		return _dbConn;
+	}
 
 	/*
-	 * 
+	 * 取得指定位置的数据
+	 *
 	 * The first row is row 1, the second is row 2, and so on.
 	 * The first column is col 1, the second is col 2, and so on.
 	 */
 	public abstract String getTableDataAt(int rowNum, int colNum);
-
-	/**
-	 * 
-	 *
-	 * @param sqlType table action type: 
-	 *									0: init,connected to db
-	 *									8: SQLCipher query table list
-	 *									9: table tree click
-	 * @param action
-	 *
-	 * @return
-	 */
-	public abstract Object execute(int sqlType, String action);
 
 	/**
 	 * 执行数据库脚本<br>
@@ -64,6 +74,13 @@ public abstract class DbClient {
 	 * @return boolean 执行结果，成功返回true,否则false
 	 */
 	public abstract boolean executeScript(String action);
+
+	/**
+	 * 取得指定表的所有数据
+	 *
+	 * @param tblName 数据库表名
+	 */
+	public abstract void executeQuery(String tblName);
 
 	/**
 	 * 执行数据更新
@@ -86,7 +103,8 @@ public abstract class DbClient {
 	public abstract boolean executeDelete(String tblName, int... rows);
 
 	/**
-	 * 
+	 * 连接数据库
+	 *
 	 * @param args [0]: driver class
 	 *				[1]: db url
 	 *				[2]: user name
@@ -94,6 +112,9 @@ public abstract class DbClient {
 	 */
 	public abstract void start(String[] args);
 
+	/**
+	 * 关闭数据库连接
+	 */
 	abstract void close();
 	
 	/**
