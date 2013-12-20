@@ -36,6 +36,7 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
@@ -45,6 +46,7 @@ import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -59,7 +61,6 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -243,11 +244,11 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jBtnExecute.setBounds(0, 9, 80, 30);
 
 		ExecActionListener execAction = new ExecActionListener(jTextArea1);
-//		KeyStroke execKey = KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK, false);
-//		jBtnExecute.registerKeyboardAction(execAction, "Execute", execKey, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		KeyStroke execKey = KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK);
+		jBtnExecute.registerKeyboardAction(execAction, "Execute", execKey, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		jBtnExecute.setMnemonic(KeyEvent.VK_E);
 
-		jBtnExecute.addActionListener(execAction);
+//		jBtnExecute.addActionListener(execAction);
 		jBtnPanel.add(jBtnExecute);
 
 		// [更新]按钮
@@ -373,10 +374,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jMenu1.add(jMenuItem3);
 
 		ActionListener closeAction = new CloseActionListener();
-		// TODO-- *注: 此处组合键只能使用Alt+XXX的形式，不能使用Ctrl键，具体原因不明，待调查
-		//KeyStroke closeKey = KeyStroke.getKeyStroke(KeyEvent.VK_X, Event.CTRL_MASK, false);
-		//jMenuItem3.registerKeyboardAction(closeAction, "Close", closeKey, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-		jMenuItem3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Event.ALT_MASK));
+		jMenuItem3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
 		jMenuItem3.addActionListener(closeAction);
 
 		jMenu1.add(new JSeparator());
@@ -398,19 +396,32 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		JMenu jMenu12 = new JMenu("    Edit    ");
 		jMenuBar1.add(jMenu12);
 
-		JMenuItem jMenuItem121 = new JMenuItem("Cut");
+		JMenuItem jMenuItem121 = new JMenuItem("Cut", KeyEvent.VK_T);
 		jMenu12.add(jMenuItem121);
-		JMenuItem jMenuItem122 = new JMenuItem("Copy");
+		KeyStroke ctrlXKeyStroke = KeyStroke.getKeyStroke("control X");
+		jMenuItem121.setAccelerator(ctrlXKeyStroke);
+
+		JMenuItem jMenuItem122 = new JMenuItem("Copy", KeyEvent.VK_C);
+		KeyStroke ctrlCKeyStroke = KeyStroke.getKeyStroke("control C");
+		jMenuItem122.setAccelerator(ctrlCKeyStroke);
 		jMenu12.add(jMenuItem122);
-		JMenuItem jMenuItem123 = new JMenuItem("Paste");
+
+		JMenuItem jMenuItem123 = new JMenuItem("Paste", KeyEvent.VK_P);
+		KeyStroke ctrlVKeyStroke = KeyStroke.getKeyStroke("control V");
+		jMenuItem123.setAccelerator(ctrlVKeyStroke);
 		jMenu12.add(jMenuItem123);
 
 		// separate line
 		jMenu12.add(new JSeparator());
 
-		JMenuItem jMenuItem124 = new JMenuItem("Last Script");
+		JMenuItem jMenuItem124 = new JMenuItem("Last Script", KeyEvent.VK_L);
+		KeyStroke lKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.CTRL_DOWN_MASK);
+		jMenuItem124.setAccelerator(lKeyStroke);
 		jMenu12.add(jMenuItem124);
-		JMenuItem jMenuItem125 = new JMenuItem("Next Script");
+
+		JMenuItem jMenuItem125 = new JMenuItem("Next Script", KeyEvent.VK_N);
+		KeyStroke nKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.CTRL_DOWN_MASK);
+		jMenuItem125.setAccelerator(nKeyStroke);
 		jMenu12.add(jMenuItem125);
 
 
