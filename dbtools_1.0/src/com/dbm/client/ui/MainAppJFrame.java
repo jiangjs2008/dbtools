@@ -59,6 +59,7 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -112,14 +113,20 @@ public class MainAppJFrame extends javax.swing.JFrame {
 	private JButton jLabel2;
 	private JButton jLabel1;
 
+	static SplashScreen ss = null;
 	/**
 	* Auto-generated main method to display this JFrame
 	*/
 	public static void main(String[] args) {
+
+		ss = new SplashScreen("Splash.png");
+		ss.showScreen();
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				MainAppJFrame inst = new MainAppJFrame();
 				inst.setLocationRelativeTo(null);
+				ss.close();
 				inst.setVisible(true);
 			}
 		});
