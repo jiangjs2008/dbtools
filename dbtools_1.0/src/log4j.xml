@@ -17,11 +17,7 @@
 		<appender-ref ref="debugappender" />
 	</logger>
 
-	<logger name="mongo.jdbc.wrapper">
-		<level value="debug" />
-		<appender-ref ref="debugappender" />
-	</logger>
-	<logger name="sqlite.jdbc.wrapper">
+	<logger name="jdbc.wrapper">
 		<level value="debug" />
 		<appender-ref ref="debugappender" />
 	</logger>
