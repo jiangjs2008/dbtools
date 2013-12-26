@@ -23,7 +23,7 @@ import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import com.dbm.client.util.LoggerWrapper;
+import com.dbm.common.log.LoggerWrapper;
 
 public class ObjectsTreeModel extends DefaultTreeModel {
 
