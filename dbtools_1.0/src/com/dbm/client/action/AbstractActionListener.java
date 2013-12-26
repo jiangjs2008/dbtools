@@ -4,8 +4,8 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import com.dbm.client.error.ExceptionHandler;
-import com.dbm.client.util.LoggerWrapper;
+import com.dbm.client.error.handler.ExceptionHandlerFactory;
+import com.dbm.common.log.LoggerWrapper;
 
 public abstract class AbstractActionListener implements ActionListener{
 
@@ -22,12 +22,15 @@ public abstract class AbstractActionListener implements ActionListener{
 		try {
 			doActionPerformed(e);
 		} catch (Throwable exp) {
-			ExceptionHandler.getInstance().execute(exp);
+			ExceptionHandlerFactory.getExceptionHandler().execute(exp);
 		} finally {
 			cc.restore();
+			doAfterFinally();
 		}
 	}
 
 	protected abstract void doActionPerformed(ActionEvent e);
 
+	protected void doAfterFinally() {
+	}
 }

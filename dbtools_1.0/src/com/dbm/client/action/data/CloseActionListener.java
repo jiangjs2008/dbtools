@@ -8,19 +8,20 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 
 import com.dbm.client.action.AbstractActionListener;
-import com.dbm.client.db.DbClient;
-import com.dbm.client.db.DbClientFactory;
 import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.ui.Msg01Dialog;
 import com.dbm.client.ui.Session;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
+import com.dbm.common.db.DbClient;
+import com.dbm.common.db.DbClientFactory;
 
 public class CloseActionListener extends AbstractActionListener {
 
 	@Override
 	public void doActionPerformed(ActionEvent e) {
 		// close current db connection
-		if (!DbClient.isConnected) {
+		DbClient dbClient = DbClientFactory.getDbClient();
+		if (!dbClient.isConnected()) {
 			Msg01Dialog.showMsgDialog("have not connection now");
 			return;
 		}

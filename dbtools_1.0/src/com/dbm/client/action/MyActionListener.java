@@ -14,8 +14,12 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.table.TableColumnModel;
 
+import com.dbm.client.action.data.UpdActionListener;
+import com.dbm.client.ui.Session;
 import com.dbm.client.ui.tbldata.MyDefaultTableModel;
 import com.dbm.client.util.TableUtil;
+import com.dbm.common.db.DbClient;
+import com.dbm.common.db.DbClientFactory;
 
 public class MyActionListener extends AbstractActionListener {
 
@@ -130,15 +134,34 @@ public class MyActionListener extends AbstractActionListener {
 
 		MyDefaultTableModel jTable1Model = (MyDefaultTableModel) jTable1.getModel();
 
+		// 计算行数,必须考虑到分页的情况
 		int curRowIdx = jTable1.getSelectedRow();
+
 		if (curRowIdx == jTable1.getRowCount() - 1) {
-			// add data
+			// 添加新行
+			// 先删除默认的空白行
 			jTable1Model.removeRow(curRowIdx);
-			for (Vector<String> tblRow : tblBody) {
-				tblRow.setElementAt("*" + Integer.toString(curRowIdx + 1), 0);
-				curRowIdx ++;
-				jTable1Model.addRow(tblRow);
+			// 显示复制的行数据,并添加到数据更新列表
+			int newRowIdx = curRowIdx + 1;
+			DbClient dbClient = DbClientFactory.getDbClient();
+			if (dbClient != null) {
+				if (dbClient.getCurrPageNum() > 1) {
+					newRowIdx = (dbClient.getCurrPageNum() - 1) * Session.PageDataLimit + curRowIdx;
+				}
 			}
+			UpdActionListener updMng = UpdActionListener.getInstance();
+
+			for (Vector<String> tblRow : tblBody) {
+				tblRow.setElementAt("*" + Integer.toString(newRowIdx), 0);
+
+				for (int i = 1, lengs = tblRow.size(); i < lengs; i ++) {
+					updMng.setTblParams(newRowIdx, i, tblRow.get(i));
+				}
+
+				jTable1Model.addRow(tblRow);
+				newRowIdx ++;
+			}
+			// 添加默认的空白行
 			jTable1Model.addRow(new String[]{});
 
 		} else {

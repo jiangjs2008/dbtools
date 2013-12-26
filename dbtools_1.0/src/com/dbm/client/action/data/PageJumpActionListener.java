@@ -1,12 +1,12 @@
 package com.dbm.client.action.data;
 
 import java.awt.event.ActionEvent;
-import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
 
 import javax.sql.rowset.CachedRowSet;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -14,17 +14,15 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import com.dbm.client.action.AbstractActionListener;
-import com.dbm.client.db.DbClient;
-import com.dbm.client.db.DbClient4DefaultImpl;
-import com.dbm.client.db.DbClientFactory;
-import com.dbm.client.error.BaseException;
-import com.dbm.client.error.BaseExceptionWrapper;
 import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.ui.Session;
 import com.dbm.client.ui.tbldata.MyDefaultTableModel;
-import com.dbm.client.util.StringUtil;
 import com.dbm.client.util.TableUtil;
-import com.sun.rowset.CachedRowSetImpl;
+import com.dbm.common.db.DbClient;
+import com.dbm.common.db.DbClientFactory;
+import com.dbm.common.error.BaseException;
+import com.dbm.common.error.BaseExceptionWrapper;
+import com.dbm.common.util.StringUtil;
 
 /**
  * 数据多页显示时的翻页控制
@@ -44,7 +42,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 	private int dataCnt = 0;
 
 	private CachedRowSet _rowSet = null;
-	private ResultSet _rs = null;
+	private DbClient dbClient = null;
 
 	public PageJumpActionListener(JPanel pagePanel, JTextField pgInfoTxt, JTextField iptPgText) {
 		this.pagejumpPanel = pagePanel;
@@ -53,46 +51,21 @@ public class PageJumpActionListener extends AbstractActionListener {
 	}
 
 	/**
-	 * 设置查询结果件数
-	 *
-	 * @param rowSize
-	 */
-	public void setAllRowSize(int rowSize) {
-		this.dataCnt = rowSize;
-	}
-
-	/**
-	 * 取得查询结果件数
-	 *
-	 * @return int
-	 */
-	public int getAllRowSize() {
-		return this.dataCnt;
-	}
-
-	/**
-	 * 取得当前页数
-	 *
-	 * @return int
-	 */
-	public int getCurrPageNum() {
-		return currPage;
-	}
-
-	/**
 	 * 在画面上显示查询结果(第一页数据)
-	 * ResultSet rs,
+	 *
 	 * @param rs
 	 * @param hasRowId
 	 */
-	public void displayTableData(CachedRowSet crs, ResultSet rs, boolean hasRowId) {
-		this._rowSet = crs;
-		this._rs = rs;
+	public void displayTableData(String tblName) {
+		UpdActionListener updMng = UpdActionListener.getInstance();
+		updMng.setTblName(tblName);
+
+		dbClient = DbClientFactory.getDbClient();
+		_rowSet = dbClient.executeQuery(tblName);
+		dataCnt = dbClient.size();
 
 		// 当前页表示件数
 		int itemSize = 0;
-
-		// 显示页数
 		currPage = 1;
 		if (dataCnt > dataLimit) {
 			if (dataCnt % dataLimit == 0) {
@@ -119,6 +92,13 @@ public class PageJumpActionListener extends AbstractActionListener {
 		}
 
 		setTableData(1, itemSize);
+
+		// 使[更新]和[删除]按钮可用
+		JButton button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_UPDATE);
+		button.setEnabled(true);
+
+		button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_DELETE);
+		button.setEnabled(true);
 	}
 
 	/**
@@ -131,15 +111,12 @@ public class PageJumpActionListener extends AbstractActionListener {
 		Vector<String> colName = null;
 		Vector<Vector<String>> allData = null;
 		try {
-//			if (offSite == 1) {
-//				_rowSet.beforeFirst();
-//			} else {
-//				_rowSet.absolute(offSite - 1);
-//			}
-
 			// set table column name
+			int colCount = 0;
 			ResultSetMetaData rsm = _rowSet.getMetaData();
-			int colCount = rsm.getColumnCount() + 1;
+			if (rsm != null) {
+				colCount = rsm.getColumnCount() + 1;
+			}
 
 			colName = new Vector<String>(colCount);
 			colName.add("NO.");
@@ -151,14 +128,11 @@ public class PageJumpActionListener extends AbstractActionListener {
 			allData = new Vector<Vector<String>>(length);
 			// set table data
 			for (int i = 1; i <= length; i ++) {
-				try {
+
 					if (!_rowSet.next()) {
 						break;
 					}
-				} catch (SQLException exp) {
-					logger.error(exp);
-					break;
-				}
+
 				Vector<String> colValue = new Vector<String>(colCount);
 				colValue.add(Integer.toString(i + (currPage - 1) * dataLimit));
 
@@ -177,6 +151,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 		}
 		MyDefaultTableModel jTable1Model = new MyDefaultTableModel();
 		jTable1Model.setDataVector(allData, colName);
+		// 最后一页加空行
 		jTable1Model.addRow(new String[]{});
 		jTable1.setModel(jTable1Model);
 		TableUtil.fitTableColumns(jTable1);
@@ -204,6 +179,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage = 1;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
+			_rowSet = dbClient.getPage(currPage, currRowIdx, length);
 
 		} else if ("backward".equals(actionName)) {
 			// 上一页
@@ -213,6 +189,15 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage --;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
+			
+//			try {
+//				if (!_rowSet.previousPage()) {
+//					return;
+//				}
+//			} catch (SQLException exp) {
+//				logger.error(exp);
+//			}
+			_rowSet = dbClient.getPage(currPage, currRowIdx, length);
 
 		} else if ("forward".equals(actionName)) {
 			// 下一页
@@ -222,6 +207,15 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage ++;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
+			
+//			try {
+//				if (!_rowSet.nextPage()) {
+//					return;
+//				}
+//			} catch (SQLException exp) {
+//				logger.error(exp);
+//			}
+			_rowSet = dbClient.getPage(currPage, currRowIdx, length);
 
 		} else if ("last".equals(actionName)) {
 			// 最后一页
@@ -231,6 +225,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage = pageCnt;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataCnt - (currPage - 1) * dataLimit;
+			_rowSet = dbClient.getPage(currPage, currRowIdx, length);
 
 		} else if ("go".equals(actionName)) {
 			// 查看指定页
@@ -242,27 +237,19 @@ public class PageJumpActionListener extends AbstractActionListener {
 			if (inputPage == 0) {
 				return;
 			}
+			if (currPage == inputPage) {
+				return;
+			}
 			currPage = inputPage;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
 			if (currPage == pageCnt) {
 				length = dataCnt - (currPage - 1) * dataLimit;
 			}
+			_rowSet = dbClient.getPage(currPage, currRowIdx, length);
 
 		} else {
 			throw new BaseException(40002, actionName);
-		}
-		try {
-			_rowSet.release();
-			_rowSet.close();
-			_rowSet = new CachedRowSetImpl();
-			_rowSet.setMaxRows(500);
-			_rowSet.setPageSize(length);
-			_rowSet.populate(_rs, currRowIdx);
-			DbClient dbClient = DbClientFactory.getDbClient();
-			((DbClient4DefaultImpl) dbClient).setCachedRowSetImpl(_rowSet);
-		} catch (SQLException exp) {
-			logger.error(exp);
 		}
 
 		pageInfoTxtField.setText(currPage + "/" + pageCnt);

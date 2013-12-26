@@ -2,14 +2,18 @@
  * Copyright c JiangJusheng 2012 All Rights Reserved.
  * ShougaiExceptionHandler.java
  */
-package com.dbm.client.error;
+package com.dbm.client.error.handler;
 
 import com.dbm.client.ui.Msg01Dialog;
-import com.dbm.client.util.LoggerWrapper;
+import com.dbm.common.error.BaseException;
+import com.dbm.common.error.BaseExceptionWrapper;
+import com.dbm.common.error.WarningException;
+import com.dbm.common.error.handler.ExceptionHandler;
+import com.dbm.common.log.LoggerWrapper;
 
 
 
-public class ExceptionHandlerImpl extends ExceptionHandler {
+public class ExceptionHandlerImpl implements ExceptionHandler {
 
 	/**
 	 * LOG
@@ -17,6 +21,7 @@ public class ExceptionHandlerImpl extends ExceptionHandler {
 	private static LoggerWrapper logger = new LoggerWrapper(ExceptionHandlerImpl.class);
 
 	ExceptionHandlerImpl() {
+		
 	}
 
 	@Override
