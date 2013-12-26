@@ -3,10 +3,10 @@ package com.dbm.client.ui;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import com.dbm.client.property.ConnBean;
-import com.dbm.client.property.FavrBean;
-import com.dbm.client.property.PropUtil;
-import com.dbm.client.util.StringUtil;
+import com.dbm.common.property.ConnBean;
+import com.dbm.common.property.FavrBean;
+import com.dbm.common.property.PropUtil;
+import com.dbm.common.util.StringUtil;
 
 public class Session {
 

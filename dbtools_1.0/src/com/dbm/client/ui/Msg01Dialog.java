@@ -10,8 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import com.dbm.client.action.AbstractActionListener;
-import com.dbm.client.property.PropUtil;
-import com.dbm.client.util.StringUtil;
+import com.dbm.common.log.LoggerWrapper;
+import com.dbm.common.util.StringUtil;
 
 
 /**
@@ -52,7 +52,7 @@ public class Msg01Dialog extends javax.swing.JDialog {
 	}
 
 	public static void showMsgDialog(int msgId) {
-		showMsgDialog(PropUtil.getMessage(msgId));
+		showMsgDialog(LoggerWrapper.getMessage(msgId));
 	}
 
 	private void setMessage(String msgs) {

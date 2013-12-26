@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import javax.swing.JTextField;
 
-import com.dbm.client.util.StringUtil;
+import com.dbm.common.util.StringUtil;
 
 /**
  * 画面对象(JButton,JPanel,JTable...)与数据之间的适配器<br>

@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.dbm.client.action.AbstractActionListener;
-import com.dbm.client.util.SecuUtil;
+import com.dbm.common.util.SecuUtil;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo

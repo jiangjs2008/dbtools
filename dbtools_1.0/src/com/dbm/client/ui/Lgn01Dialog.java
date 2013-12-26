@@ -23,15 +23,15 @@ import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.dbm.client.action.AbstractActionListener;
-import com.dbm.client.db.DbClient;
-import com.dbm.client.db.DbClient4SQLiteImpl;
-import com.dbm.client.db.DbClientFactory;
-import com.dbm.client.property.ConnBean;
-import com.dbm.client.property.FavrBean;
-import com.dbm.client.property.PropUtil;
 import com.dbm.client.ui.tbllist.BaseNode;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTypesGroupNode;
+import com.dbm.common.db.DbClient;
+
+import com.dbm.common.db.DbClientFactory;
+import com.dbm.common.property.ConnBean;
+import com.dbm.common.property.FavrBean;
+import com.dbm.common.property.PropUtil;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -210,10 +210,10 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 			DbClientFactory.createDbClient(connInfo.action);
 			DbClient dbClient = DbClientFactory.getDbClient();
 
-			if (dbClient instanceof DbClient4SQLiteImpl) {
-				// 特殊情况：连接手机上的sqlite时需要再修正一次连接URL
-				AppUIAdapter.setUIObj(AppUIAdapter.DbUrlTxtField, jTextField2);
-			}
+//			if (dbClient instanceof DbClient4SQLiteImpl) {
+//				// TODO --特殊情况：连接手机上的sqlite时需要再修正一次连接URL
+//				AppUIAdapter.setUIObj(AppUIAdapter.DbUrlTxtField, jTextField2);
+//			}
 
 			dbClient.start(new String[] { connInfo.driver, item2, item3, item4 });
 

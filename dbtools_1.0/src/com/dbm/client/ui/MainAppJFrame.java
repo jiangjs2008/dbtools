@@ -64,23 +64,22 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
-import com.dbm.client.action.FavrMenuActionListener;
 import com.dbm.client.action.MyActionListener;
 import com.dbm.client.action.data.CloseActionListener;
-import com.dbm.client.action.data.DelActionListener;
 import com.dbm.client.action.data.ExecActionListener;
 import com.dbm.client.action.data.PageJumpActionListener;
 import com.dbm.client.action.data.UpdActionListener;
-import com.dbm.client.db.DbClientFactory;
-import com.dbm.client.error.ExceptionHandler;
-import com.dbm.client.property.ConnBean;
-import com.dbm.client.property.FavrBean;
-import com.dbm.client.property.PropUtil;
+import com.dbm.client.action.menu.FavrMenuActionListener;
+import com.dbm.client.error.handler.ExceptionHandlerFactory;
 import com.dbm.client.ui.tbldata.TableDataSelectedListener;
 import com.dbm.client.ui.tbldata.TableHeaderSelectedListener;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTreeClickListener;
-import com.dbm.client.util.StringUtil;
+import com.dbm.common.db.DbClientFactory;
+import com.dbm.common.property.ConnBean;
+import com.dbm.common.property.FavrBean;
+import com.dbm.common.property.PropUtil;
+import com.dbm.common.util.StringUtil;
 
 /**
  * [name]<br>
@@ -119,7 +118,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 	* Auto-generated main method to display this JFrame
 	*/
 	public static void main(String[] args) {
-
+		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandlerFactory.getExceptionHandler());
 		ss = new SplashScreen("Splash.png");
 		ss.showScreen();
 
@@ -146,7 +145,6 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		setSize(1024, 768);
 
 		AppUIAdapter.setUIObj(AppUIAdapter.AppMainGUI, this);
-		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance());
 	}
 
 	/**
@@ -218,12 +216,12 @@ public class MainAppJFrame extends javax.swing.JFrame {
 
 		jTable1.setModel(Session.EmptyTableModel);
 		jTable1.getTableHeader().setReorderingAllowed(false);
+		jTable1.getTableHeader().addMouseListener(new TableHeaderSelectedListener());
 
 		jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTable1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jTable1.setCellSelectionEnabled(true);
 		jTable1.addMouseListener(new TableDataSelectedListener());
-		jTable1.getTableHeader().addMouseListener(new TableHeaderSelectedListener());
 
 		// copy&paste action
 		MyActionListener myListener = new MyActionListener();
@@ -254,7 +252,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		// [更新]按钮
 		JButton jBtnUpdate = new JButton();
 		jBtnUpdate.setText("Update");
-		jBtnUpdate.setBounds(100, 9, 80, 30);
+		jBtnUpdate.setBounds(120, 9, 80, 30);
 
 		ActionListener updAction = UpdActionListener.getInstance();
 //		KeyStroke updKey = KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK, false);
@@ -265,19 +263,6 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jBtnPanel.add(jBtnUpdate);
 		AppUIAdapter.setUIObj(AppUIAdapter.BTN_UPDATE, jBtnUpdate);
 
-		// [删除]按钮
-		JButton jBtnDelete = new JButton();
-		jBtnDelete.setText("Delete");
-		jBtnDelete.setBounds(200, 9, 80, 30);
-
-		ActionListener delAction = DelActionListener.getInstance();
-//		KeyStroke delKey = KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK, false);
-//		jBtnDelete.registerKeyboardAction(delAction, "Execute", delKey, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		jBtnDelete.setMnemonic(KeyEvent.VK_D);
-
-		jBtnDelete.addActionListener(delAction);
-		jBtnPanel.add(jBtnDelete);
-		AppUIAdapter.setUIObj(AppUIAdapter.BTN_DELETE, jBtnDelete);
 
 		// 分页相关组件 STA#####################################
 		JPanel pagejumpPanel = new JPanel();
@@ -394,19 +379,21 @@ public class MainAppJFrame extends javax.swing.JFrame {
 
 		// Edit menu =========================================================================
 		JMenu jMenu12 = new JMenu("    Edit    ");
+		jMenu12.setMnemonic(KeyEvent.VK_E);
 		jMenuBar1.add(jMenu12);
 
-		JMenuItem jMenuItem121 = new JMenuItem("Cut", KeyEvent.VK_T);
+		// 拷贝粘贴操作
+		JMenuItem jMenuItem121 = new JMenuItem("Cut");
 		jMenu12.add(jMenuItem121);
 		KeyStroke ctrlXKeyStroke = KeyStroke.getKeyStroke("control X");
 		jMenuItem121.setAccelerator(ctrlXKeyStroke);
 
-		JMenuItem jMenuItem122 = new JMenuItem("Copy", KeyEvent.VK_C);
+		JMenuItem jMenuItem122 = new JMenuItem("Copy");
 		KeyStroke ctrlCKeyStroke = KeyStroke.getKeyStroke("control C");
 		jMenuItem122.setAccelerator(ctrlCKeyStroke);
 		jMenu12.add(jMenuItem122);
 
-		JMenuItem jMenuItem123 = new JMenuItem("Paste", KeyEvent.VK_P);
+		JMenuItem jMenuItem123 = new JMenuItem("Paste");
 		KeyStroke ctrlVKeyStroke = KeyStroke.getKeyStroke("control V");
 		jMenuItem123.setAccelerator(ctrlVKeyStroke);
 		jMenu12.add(jMenuItem123);
@@ -414,15 +401,44 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		// separate line
 		jMenu12.add(new JSeparator());
 
-		JMenuItem jMenuItem124 = new JMenuItem("Last Script", KeyEvent.VK_L);
+		// 脚本历史查询
+		JMenuItem jMenuItem124 = new JMenuItem("Last Script");
 		KeyStroke lKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.CTRL_DOWN_MASK);
 		jMenuItem124.setAccelerator(lKeyStroke);
 		jMenu12.add(jMenuItem124);
 
-		JMenuItem jMenuItem125 = new JMenuItem("Next Script", KeyEvent.VK_N);
+		JMenuItem jMenuItem125 = new JMenuItem("Next Script");
 		KeyStroke nKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.CTRL_DOWN_MASK);
 		jMenuItem125.setAccelerator(nKeyStroke);
 		jMenu12.add(jMenuItem125);
+
+		// separate line
+		jMenu12.add(new JSeparator());
+
+		// 标识为删除
+		JMenuItem jMenuItem126 = new JMenuItem("Mark for delete");
+		KeyStroke lKeyStroke6 = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK);
+		jMenuItem126.setAccelerator(lKeyStroke6);
+		jMenu12.add(jMenuItem126);
+
+		JMenuItem jMenuItem127 = new JMenuItem("Unmark Delete");
+		KeyStroke lKeyStroke67 = KeyStroke.getKeyStroke("ctrl shift DELETE");
+		jMenuItem127.setAccelerator(lKeyStroke67);
+		jMenu12.add(jMenuItem127);
+
+		// separate line
+		jMenu12.add(new JSeparator());
+
+		// 数据操作
+		JMenuItem jMenuItem128 = new JMenuItem("Execute Script");
+		KeyStroke lKeyStroke8 = KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK);
+		jMenuItem128.setAccelerator(lKeyStroke8);
+		jMenu12.add(jMenuItem128);
+
+		JMenuItem jMenuItem129 = new JMenuItem("Update data");
+		KeyStroke nKeyStroke9 = KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK);
+		jMenuItem129.setAccelerator(nKeyStroke9);
+		jMenu12.add(jMenuItem129);
 
 
 		// Favorites menu =========================================================================
