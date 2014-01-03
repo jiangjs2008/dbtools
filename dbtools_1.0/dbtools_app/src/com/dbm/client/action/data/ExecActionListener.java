@@ -23,10 +23,12 @@ public class ExecActionListener extends AbstractActionListener {
 	@Override
 	public void doActionPerformed(ActionEvent e) {
 		logger.debug("ExecActionListener");
+
 		String action = jTextArea1.getSelectedText();
 		if (action == null || action.length() == 0) {
 			action = jTextArea1.getText();
 			if (action == null || action.length() == 0) {
+
 				return;
 			}
 		} else {

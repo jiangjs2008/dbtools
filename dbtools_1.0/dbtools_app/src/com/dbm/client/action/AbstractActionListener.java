@@ -7,13 +7,12 @@ import java.awt.event.ActionListener;
 import com.dbm.client.error.handler.ExceptionHandlerFactory;
 import com.dbm.common.log.LoggerWrapper;
 
-public abstract class AbstractActionListener implements ActionListener{
+public abstract class AbstractActionListener implements ActionListener {
 
 	/**
 	 * instances of the log class
 	 */
 	protected final static LoggerWrapper logger = new LoggerWrapper(AbstractActionListener.class); 
-
 
 	@Deprecated
 	public final void actionPerformed(ActionEvent e) {

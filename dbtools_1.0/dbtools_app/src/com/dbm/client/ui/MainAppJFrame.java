@@ -64,6 +64,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
+import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.MyActionListener;
 import com.dbm.client.action.data.CloseActionListener;
 import com.dbm.client.action.data.ExecActionListener;
@@ -114,6 +115,10 @@ public class MainAppJFrame extends javax.swing.JFrame {
 	private JButton jLabel1;
 
 	static SplashScreen ss = null;
+
+	private AbstractActionListener execAction = null;
+	private AbstractActionListener updAction = null;
+
 	/**
 	* Auto-generated main method to display this JFrame
 	*/
@@ -237,32 +242,27 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jBtnPanel.setLayout(null);
 
 		// [执行]按钮
-		JButton jBtnExecute = new JButton();
-		jBtnExecute.setText("Execute");
+		JButton jBtnExecute = new JButton("Execute");
 		jBtnExecute.setBounds(0, 9, 80, 30);
-
-		ExecActionListener execAction = new ExecActionListener(jTextArea1);
-		KeyStroke execKey = KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK);
-		jBtnExecute.registerKeyboardAction(execAction, "Execute", execKey, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		jBtnExecute.setMnemonic(KeyEvent.VK_E);
-
-//		jBtnExecute.addActionListener(execAction);
 		jBtnPanel.add(jBtnExecute);
 
+		execAction = new ExecActionListener(jTextArea1);
+		// 注册快捷键(Alt-X)
+		jBtnExecute.setMnemonic(KeyEvent.VK_X);
+		// 添加普通点击事件
+		jBtnExecute.addActionListener(execAction);
+
 		// [更新]按钮
-		JButton jBtnUpdate = new JButton();
-		jBtnUpdate.setText("Update");
+		JButton jBtnUpdate = new JButton("Update");
 		jBtnUpdate.setBounds(120, 9, 80, 30);
-
-		ActionListener updAction = UpdActionListener.getInstance();
-//		KeyStroke updKey = KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK, false);
-//		jBtnUpdate.registerKeyboardAction(updAction, "Execute", updKey, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		jBtnUpdate.setMnemonic(KeyEvent.VK_U);
-
-		jBtnUpdate.addActionListener(updAction);
 		jBtnPanel.add(jBtnUpdate);
 		AppUIAdapter.setUIObj(AppUIAdapter.BTN_UPDATE, jBtnUpdate);
 
+		updAction = UpdActionListener.getInstance();
+		// 注册快捷键(Alt-U)
+		jBtnUpdate.setMnemonic(KeyEvent.VK_U);
+		// 添加普通点击事件
+		jBtnUpdate.addActionListener(updAction);
 
 		// 分页相关组件 STA#####################################
 		JPanel pagejumpPanel = new JPanel();
@@ -431,15 +431,20 @@ public class MainAppJFrame extends javax.swing.JFrame {
 
 		// 数据操作
 		JMenuItem jMenuItem128 = new JMenuItem("Execute Script");
-		KeyStroke lKeyStroke8 = KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK);
+		KeyStroke lKeyStroke8 = KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK);
 		jMenuItem128.setAccelerator(lKeyStroke8);
+		jMenuItem128.registerKeyboardAction(execAction, lKeyStroke8, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		jMenuItem128.setMnemonic(KeyEvent.VK_X);
+		jMenuItem128.addActionListener(execAction);
 		jMenu12.add(jMenuItem128);
 
 		JMenuItem jMenuItem129 = new JMenuItem("Update data");
-		KeyStroke nKeyStroke9 = KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK);
+		KeyStroke nKeyStroke9 = KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.ALT_DOWN_MASK);
 		jMenuItem129.setAccelerator(nKeyStroke9);
+		jMenuItem129.registerKeyboardAction(updAction, nKeyStroke9, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		jMenuItem129.setMnemonic(KeyEvent.VK_U);
+		jMenuItem129.addActionListener(updAction);
 		jMenu12.add(jMenuItem129);
-
 
 		// Favorites menu =========================================================================
 		JMenu jMenu2 = new JMenu("   Favorites   ");
@@ -523,7 +528,6 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		JMenuItem jMenuItem42 = new JMenuItem("Help Contents");
 		jMenu4.add(jMenuItem42);
 		jMenuItem42.setAccelerator(KeyStroke.getKeyStroke("F1"));
-
 		jMenuItem42.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -547,6 +551,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 
 		JMenuItem jMenuItem43 = new JMenuItem("About");
 		jMenu4.add(jMenuItem43);
+		jMenuItem43.setAccelerator(KeyStroke.getKeyStroke("F2"));
 		jMenuItem43.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

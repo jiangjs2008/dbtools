@@ -130,6 +130,10 @@ public class UpdActionListener extends AbstractActionListener {
 			editor.stopCellEditing();
 		}
 
+		if (tblName == null) {
+			logger.debug("have no table to update");
+			return;
+		}
 		if (params == null && addParams == null && delParams == null) {
 			logger.debug("have no data to update");
 			return;
