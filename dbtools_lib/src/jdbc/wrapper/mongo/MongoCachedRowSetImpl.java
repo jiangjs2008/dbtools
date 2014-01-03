@@ -82,7 +82,6 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	}
 
 	private void setInitData() {
-		curDataIdx = 0;
 		dataCount = _cur.count();
 		if (dataCount > dataLimit) {
 			if (dataCount % dataLimit == 0) {
@@ -161,23 +160,14 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	@Override
 	public boolean next() throws SQLException {
 		if (dataList != null && dataList.size() > 0) {
-			if (dataList.size() == 1) {
-				if (curDataIdx == 0) {
-					curDataIdx ++;
-					return true;
-				} else {
-					return false;
-				}
+
+			if (curDataIdx < dataList.size() - 1) {
+				curDataIdx ++;
+				return true;
 			} else {
-				if (curDataIdx == dataList.size() - 1) {
-					return true;
-				} else if (curDataIdx < dataList.size() - 1) {
-					curDataIdx ++;
-					return true;
-				} else {
-					return false;
-				}
+				return false;
 			}
+
 		} else {
 			return false;
 		}
@@ -209,10 +199,10 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	 */
 	@Override
 	public String getString(int columnIndex) throws SQLException {
-		if (curDataIdx == 0) {
+		if (curDataIdx == -1) {
 			throw new SQLException("have no data");
 		}
-		ArrayList<Object> rowObj = dataList.get((int) curDataIdx - 1);
+		ArrayList<Object> rowObj = dataList.get((int) curDataIdx);
 		if (rowObj == null) {
 			return null;
 		} else {
@@ -249,7 +239,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	 */
 	@Override
 	public Object getObject(int columnIndex) throws SQLException {
-		ArrayList<Object> rowObj = dataList.get((int) curDataIdx - 1);
+		ArrayList<Object> rowObj = dataList.get(curDataIdx);
 		if (rowObj == null) {
 			return null;
 		} else {
@@ -348,7 +338,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	 */
 	@Override
 	public boolean absolute(int row) throws SQLException {
-		curDataIdx = row;
+		curDataIdx = row - 1;
 		idxKeyObj = new BasicDBObject("_id", getObject(0));
 		return true;
 	}

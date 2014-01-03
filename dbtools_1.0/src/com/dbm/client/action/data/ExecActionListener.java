@@ -42,11 +42,8 @@ public class ExecActionListener extends AbstractActionListener {
 			return;
 		}
 
-		// 执行输入SQL脚本时禁用[更新]和[删除]按钮
+		// 执行输入SQL脚本时禁用[更新]按钮
 		JButton button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_UPDATE);
-		button.setEnabled(false);
-
-		button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_DELETE);
 		button.setEnabled(false);
 
 		if (dbClient.getExecScriptType(action) == 1) {

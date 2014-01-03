@@ -93,11 +93,8 @@ public class PageJumpActionListener extends AbstractActionListener {
 
 		setTableData(1, itemSize);
 
-		// 使[更新]和[删除]按钮可用
+		// 使[更新]按钮可用
 		JButton button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_UPDATE);
-		button.setEnabled(true);
-
-		button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_DELETE);
 		button.setEnabled(true);
 	}
 

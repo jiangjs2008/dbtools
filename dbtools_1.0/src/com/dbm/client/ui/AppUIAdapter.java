@@ -33,8 +33,6 @@ public class AppUIAdapter {
 
 	// [更新]按钮
 	public final static String BTN_UPDATE = "BTN_UPDATE";
-	// [删除]按钮
-	public final static String BTN_DELETE = "BTN_DELETE";
 
 	// 数据表示用画面对象
 	public final static String TableDataUIObj = "TableDataUIObj";

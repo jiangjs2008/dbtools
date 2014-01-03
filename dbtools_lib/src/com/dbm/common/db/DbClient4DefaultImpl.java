@@ -6,7 +6,6 @@ package com.dbm.common.db;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.spi.SyncProviderException;
 import javax.sql.rowset.spi.SyncResolver;
 
-import com.dbm.client.ui.Session;
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
 import com.sun.rowset.CachedRowSetImpl;
