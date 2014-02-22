@@ -45,7 +45,8 @@ public class LocalDriver implements Driver {
 	 */
 	@Override
 	public Connection connect(String url, Properties info) throws SQLException {
-		return new SQLCipherConnection();
+		//return new SQLCipherConnection();
+		return null;
 	}
 
 	/* (non-Javadoc)
