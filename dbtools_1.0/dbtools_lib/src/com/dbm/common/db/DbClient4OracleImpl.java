@@ -16,16 +16,17 @@ import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.spi.SyncProviderException;
 import javax.sql.rowset.spi.SyncResolver;
 
+import oracle.jdbc.rowset.OracleCachedRowSet;
+
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
-import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * 缺省数据库操作类
  *
  * @author JiangJusheng
  */
-public class DbClient4DefaultImpl extends DbClient {
+public class DbClient4OracleImpl extends DbClient {
 
 	protected Statement stmt = null;
 	protected ResultSet rs = null;
@@ -61,7 +62,7 @@ public class DbClient4DefaultImpl extends DbClient {
 				_dbConn = DriverManager.getConnection(_dbArgs[1], _dbArgs[2], _dbArgs[3]);
 			}
 			_isConnected = true;
-
+	           
 		} catch (Exception exp) {
 			throw new BaseExceptionWrapper(exp);
 		}
@@ -128,7 +129,7 @@ public class DbClient4DefaultImpl extends DbClient {
 	protected int currPage = 0;
 
 	public int supportsPageScroll() {
-		return 3;
+		return 2;
 	}
 
 	/**
@@ -141,37 +142,31 @@ public class DbClient4DefaultImpl extends DbClient {
 	}
 	
 	public ResultSet getPreviousPage() {
-		return null;
+		try {
+			if (allRowSet.previousPage()) {
+				return allRowSet;
+			}
+			return null;
+		} catch (SQLException exp) {
+			throw new BaseExceptionWrapper(exp);
+		}
 	}
 
 	
 	public ResultSet getNextPage() {
-		return null;
-	}
-
-	
-	@Override
-	public ResultSet getPage(int pageNum, int rowIdx, int pageSize) {
-//		if (currPage < pageNum) {
-//			rs.
-//		}
-		currPage = pageNum;
-
 		try {
-			if (allRowSet != null) {
-				allRowSet.release();
-				allRowSet.close();
+			if (allRowSet.nextPage()) {
+				return allRowSet;
 			}
-
-			allRowSet = new CachedRowSetImpl();
-			allRowSet.setMaxRows(500);
-			allRowSet.setPageSize(pageSize);
-
-			allRowSet.populate(rs, rowIdx);
+			return null;
 		} catch (SQLException exp) {
 			throw new BaseExceptionWrapper(exp);
 		}
-		return allRowSet;
+	}
+	
+	@Override
+	public ResultSet getPage(int pageNum, int rowIdx, int pageSize) {
+		return null;
 	}
 
 	@Override
@@ -215,7 +210,11 @@ public class DbClient4DefaultImpl extends DbClient {
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			rs = stmt.executeQuery(action);
 
-			return getPage(1, 1, 500);
+			allRowSet = new OracleCachedRowSet();
+			//allRowSet.setMaxRows(500);
+			allRowSet.setPageSize(500);
+			allRowSet.populate(rs);
+			return allRowSet;
 
 		} catch (Exception exp) {
 			throw new BaseExceptionWrapper(exp);

@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.sql.rowset.CachedRowSet;
-
 import jdbc.wrapper.mongo.MongoCachedRowSetImpl;
 
 import com.dbm.common.error.BaseExceptionWrapper;
@@ -22,7 +20,6 @@ import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.util.JSON;
-import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * MongoDb数据库操作
@@ -57,11 +54,11 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 			throw new BaseExceptionWrapper(exp);
 		}
 		if (dbObj == null) {
-			throw new WarningException("数据库不存在");
+			throw new WarningException(20003);
 		}
 		if (_dbArgs[2] != null && !_dbArgs[2].isEmpty()) {
 			if (!dbObj.authenticate(_dbArgs[2], _dbArgs[3].toCharArray())) {
-				throw new WarningException("没有权限访问该数据库");
+				throw new WarningException(20004);
 			}
 		}
 
@@ -70,17 +67,20 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 
 	@Override
 	public int getExecScriptType(String action) {
-		int sqlType = -1;
-		if (action.length() <= 6) {
-			throw new WarningException(20002);
+		int sqlType = 0;
+		if (action != null) {
+			action = action.trim();
 		}
-		String typeStr = action.substring(0, 6);
+		if (action.length() <= 15) {
+			throw new WarningException(20001);
+		}
+
 		// 判断SQL类型
-		if ("select".equalsIgnoreCase(typeStr)) {
+		if (action.indexOf("db.collection.find") == 0) {
 			sqlType = 1;
-		} else if ("create".equalsIgnoreCase(typeStr) || "update".equalsIgnoreCase(typeStr)
-				|| "insert".equalsIgnoreCase(typeStr) || "delete".equalsIgnoreCase(typeStr)
-				|| "drop".equalsIgnoreCase(typeStr.substring(0, 4)) ) {
+		} else if (action.indexOf("db.createCollection") == 0 || action.indexOf("db.collection.drop") == 0
+				|| action.indexOf("db.collection.insert") == 0 || action.indexOf("db.collection.update") == 0
+				|| action.indexOf("db.collection.remove") == 0 ) {
 			sqlType = 2;
 		} else {
 			throw new WarningException(20001);
@@ -157,7 +157,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	}
 
 	@Override
-	public CachedRowSet getPage(int pageNum, int rowIdx, int pageSize) {
+	public ResultSet getPage(int pageNum, int rowIdx, int pageSize) {
 		currPage = pageNum;
 
 		try {
@@ -165,9 +165,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 				allRowSet.release();
 				allRowSet.close();
 			}
-
 			allRowSet.populate(null, rowIdx);
-
 
 		} catch (SQLException exp) {
 			throw new BaseExceptionWrapper(exp);
@@ -176,10 +174,11 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	}
 
 	@Override
-	public CachedRowSet executeQuery(String tblName) {
+	public ResultSet executeQuery(String tblName) {
 		try {
-			if (rs != null && !rs.isClosed()) {
+			if (rs != null) {
 				rs.close();
+				rs = null;
 			}
 		} catch (SQLException exp) {
 			logger.error(exp);
@@ -194,9 +193,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 		}
 	}
 
-	/**
-	 * 取得DB对象信息，如：表、视图等等
-	 */
+	@Override
 	public List<String> getDbMetaData() {
 		List<String> rslt = new ArrayList<String>();
 		rslt.add("Collections");
@@ -205,16 +202,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 		return rslt;
 	}
 
-	/**
-	 * 取得DB所属对象一览，如表、视图一览
-	 *
-	 * @param catalog
-	 * @param schemaPattern
-	 * @param tableNamePattern
-	 * @param types
-	 *
-	 * @return
-	 */
+	@Override
 	public List<String> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
 		if (types == null || types.length == 0) {
 			return null;

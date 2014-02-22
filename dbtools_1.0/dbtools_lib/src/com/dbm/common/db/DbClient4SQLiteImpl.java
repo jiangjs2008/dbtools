@@ -3,308 +3,195 @@
  */
 package com.dbm.common.db;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
-import javax.sql.rowset.CachedRowSet;
-
-import com.dbm.common.error.WarningException;
-import com.dbm.common.util.StringUtil;
+import com.dbm.common.error.BaseExceptionWrapper;
 
 /**
  * SQLCipher for Android
  *
  * @author JiangJusheng
  */
-public class DbClient4SQLiteImpl extends DbClient {
-
-	private ServerSocket server = null;
-
-	public DbClient4SQLiteImpl() {
-		Runnable newThread = new Runnable() {
-			public void run() {
-				try {
-					server = new ServerSocket(8090);
-					while (true) {
-						socket = server.accept();
-						Thread receiveThread = new serverThread();
-						receiveThread.start();
-					}
-				} catch (Exception e) {
-					logger.error(e);
-				}
-			}
-		};
-		new Thread(newThread).start();
-	}
+public class DbClient4SQLiteImpl extends DbClient4DefaultImpl {
 
 	@Override
-	public String getTableDataAt(int rowNum, int colNum) {
-		return null;
+	public int supportsPageScroll() {
+		return 3;
 	}
-
+	
+	private String _tblName = null;
 	@Override
-	public void start(String[] args) {
-		_dbArgs = args;
-	}
-
-	@Override
-	void close() {
-		_isConnected = false;
+	public ResultSet getPage(int pageNum, int rowIdx, int pageSize) {
 		try {
-			// 出力ストリームを閉じる
-			if (dos != null) {
-				dos.close();
+			if (rs != null) {
+				rs.close();
+				rs = null;
 			}
-			// 入力ストリームを閉じる
-			if (dis != null) {
-				dis.close();
-			}
-			if (socket != null && !socket.isClosed()) {
-				socket.shutdownOutput();
-				socket.shutdownInput();
-				socket.close();
-			}
-			socket = null;
+		} catch (SQLException exp) {
+			logger.error(exp);
+		}
+		if (pageNum == 1 && rowIdx == 1) {
+			rowIdx = 0;
+		}
+		try {
+			// 查询表数据
+			String action = "select *,rowid from " + _tblName + " limit " + rowIdx + "," + pageSize;
+			stmt = _dbConn.createStatement();
+			stmt.execute(action);
+			rs = stmt.getResultSet();
+			return rs;
 
-			if (server != null) {
-				server.close();
-			}
-		} catch (IOException e1) {
-			logger.error(e1);
+		} catch (Exception exp) {
+			throw new BaseExceptionWrapper(exp);
 		}
 	}
 
-	// ソケット
-	private Socket socket = null;
-	// 読込データ
-	private DataInputStream dis = null;
-	// 送信データ
-	private DataOutputStream dos = null;
-
-	private ArrayList<ArrayList<Object>> dataObjs = null;
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public Object execute(int sqlType, String action) {
-//		if (socket == null) {
-//			// TODO--
-//			return null;
-//		}
-//
-//		if (sqlType == 0) {
-//			String[] addr = StringUtil.str2Array(_dbArgs[1], ":");
-//			if (addr == null || addr.length == 0 || addr.length == 1) {
-//				// input error, have not db info
-//			}
-//			action = addr[1] + "@"+ _dbArgs[3];
-//
-//			try {
-//				Class.forName(_dbArgs[0]);
-//				_dbConn = DriverManager.getConnection(_dbArgs[1]);
-//				isConnected = true;
-//			} catch (Exception exp) {
-//				throw new BaseExceptionWrapper(exp);
-//			}
-//		}
-//		if (sqlType == 9) {
-//			action = "select rowid,* from " + action;
-//		}
-//
-//		try {
-//			dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-//			dos = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-//
-//			// スマホ端末へ送信
-//			StringBuilder sendStr = new StringBuilder();
-//			sendStr.append(sqlType);
-//			sendStr.append(StringUtil.addPreZero(action.length(), 6));
-//			sendStr.append(action);
-//
-//			dos.write(sendStr.toString().getBytes());
-//			dos.flush();
-//
-//			// ************************************************************************************
-//			// スマホ端末からリクエスト
-//			byte[] output = null;
-//
-//			if (sqlType == 0 || sqlType == 1 || sqlType == 8 || sqlType == 9) {
-//				// connect to db / query sql
-//				try {
-//					ObjectInputStream ois = new ObjectInputStream(dis);
-//					Object rslt = ois.readObject();
-//					
-//					if (sqlType == 1 || sqlType == 9) {
-//						dataObjs = (ArrayList<ArrayList<Object>>) rslt;
-//						TableUtil.setTableData(dataObjs, false);
-//					}
-//					return rslt;
-//				} catch (Exception e) {
-//					// TODO: handle exception
-//					e.printStackTrace();
-//				}
-//
-//			} else if (sqlType == 2 || sqlType == 3) {
-//				// update sql
-//
-//				output = new byte[1];
-//				dis.read(output);
-//				return output;
-//			}
-//
-//		} catch (Exception e) {
-//			logger.error(e);
-//		}
-//		return null;
-//	}
+	private ArrayList<String> rawidList = null;
+	private ArrayList<String> conNameList = null;
 
 	@Override
-	public int getExecScriptType(String action) {
-		int sqlType = -1;
+	public ResultSet executeQuery(String tblName) {
+		try {
+			if (rs != null) {
+				rs.close();
+				rs = null;
+			}
+		} catch (SQLException exp) {
+			logger.error(exp);
+		}
+		_tblName = tblName;
+		Statement istmt = null;
+		ResultSet irs = null;
 
-		return sqlType;
+		// 先取得该表的rawid
+		rawidList = new ArrayList<String>();
+		try {
+			istmt = _dbConn.createStatement();
+			irs = istmt.executeQuery("select rowid from " + tblName);
+			while (irs.next()) {
+				rawidList.add(irs.getString(1));
+			}
+			_size = rawidList.size();
+			logger.debug("TBL: " + tblName + " size: " + _size);
+		} catch (SQLException exp) {
+			throw new BaseExceptionWrapper(exp);
+		} finally {
+			try {
+				if (irs != null) {
+					irs.close();
+				}
+				if (istmt != null) {
+					istmt.close();
+				}
+			} catch (SQLException exp) {
+				logger.error(exp);
+			}
+		}
+
+		try {
+			// 查询表数据
+			String action = "select * from " + tblName + " limit 0,500";
+			stmt = _dbConn.createStatement();
+			stmt.execute(action);
+			rs = stmt.getResultSet();
+
+			conNameList = new ArrayList<String>();
+			_rsmd = rs.getMetaData();
+			for (int k = 1, colCount = _rsmd.getColumnCount() + 1; k < colCount; k ++) {
+				conNameList.add(_rsmd.getColumnName(k));
+			}
+			return rs;
+
+		} catch (Exception exp) {
+			throw new BaseExceptionWrapper(exp);
+		}
 	}
 
-	@Override
-	public ResultSet directQuery(String action) {
-		// 查询数据，此处只需考虑分页，不需考虑更新
-
-		return null;
-	}
-
-	@Override
-	public boolean directExec(String action) {
-		return false;
-	}
-
-	public int getCurrPageNum() {
-		return 0;
-	}
-
-	public int getPageCount() {
-		return 0;
-	}
-
-	@Override
-	public CachedRowSet getPage(int pageNum, int rowIdx, int pageSize) {
-		return null;
-	}
-
-	@Override
-	public CachedRowSet executeQuery(String tblName) {
-		return null;
-	}
+	private ResultSetMetaData _rsmd = null;
 
 	@Override
 	public void executeUpdate(String tblName, HashMap<Integer, HashMap<Integer, String>> params,
 			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams) {
-		if (dataObjs == null) {
-			return ;
-		}
-//		StringBuilder sqlStrsAll = new StringBuilder();
-//
-//		Map<Integer, String> colNameMap = dataObjs.get(dataObjs.size() - 1);
-//		String rawId = null;
-//		boolean isRowEnd = false;
-//		boolean isColEnd = false;
-//		for (Iterator<Entry<Integer, HashMap<Integer, String>>> iter = params.entrySet().iterator(); iter.hasNext(); ) {
-//			if (isRowEnd) {
-//				sqlStrsAll.append("\n");
-//			}
-//			isRowEnd = true;
-//
-//			sqlStrsAll.append("update ");
-//			sqlStrsAll.append(tblName);
-//			sqlStrsAll.append(" set ");
-//
-//			Entry<Integer, HashMap<Integer, String>> entry = iter.next();
-//			rawId = colNameMap.get("0");
-//			HashMap<Integer, String> rowMap = entry.getValue();
-//
-//			isColEnd = false;
-//			for (Iterator<Entry<Integer, String>> iter2 = rowMap.entrySet().iterator(); iter2.hasNext(); ) {
-//				if (isColEnd) {
-//					sqlStrsAll.append(", ");
-//				}
-//				isColEnd = true;
-//
-//				Entry<Integer, String> entry2 = iter2.next();
-//				sqlStrsAll.append(entry2.getKey());
-//				sqlStrsAll.append(" = '");
-//				sqlStrsAll.append(entry2.getValue());
-//				sqlStrsAll.append("'");
-//			}
-//
-//			sqlStrsAll.append(" where rowid = ");
-//			sqlStrsAll.append(rawId);
-//		}
-//
-//		execute(2, sqlStrsAll.toString());
+		int colNum = 0;
+		String colValue = null;
+		try {
+			// 更新
+			if (params != null && params.size() > 0) {
+				StringBuilder sqlStrsAll = new StringBuilder();
 
-	}
+				int rowNum = 0;
+				boolean isColEnd = false;
+				for (Iterator<Entry<Integer, HashMap<Integer, String>>> iter = params.entrySet().iterator(); iter.hasNext(); ) {
+					sqlStrsAll = new StringBuilder();
+					sqlStrsAll.append("update ");
+					sqlStrsAll.append(tblName);
+					sqlStrsAll.append(" set ");
 
-	class serverThread extends Thread {
+					Entry<Integer, HashMap<Integer, String>> entry = iter.next();
+					rowNum = entry.getKey();
+					HashMap<Integer, String> rowMap = entry.getValue();
 
-		public void run() {
-			try {
-				dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-				dos = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+					isColEnd = false;
+					for (Iterator<Entry<Integer, String>> iter2 = rowMap.entrySet().iterator(); iter2.hasNext(); ) {
+						if (isColEnd) {
+							sqlStrsAll.append(", ");
+						}
+						isColEnd = true;
 
-				if (_isConnected) {
-					// already connected
-
-				} else {
-					byte[] headBuf = new byte[7];
-					dis.read(headBuf);
-
-					// SQL type
-					String telId = StringUtil.byte2CharStr(headBuf);
-					if ("0000000".equals(telId)) {
-						// connected success
-						_isConnected = true;
-						// get smart phone's ip address
-						String smtIpAddr = socket.getInetAddress().getHostAddress();
-						//AppUIAdapter.setGuiDbUrl(smtIpAddr);
+						Entry<Integer, String> entry2 = iter2.next();
+						sqlStrsAll.append(conNameList.get(entry2.getKey() - 1));
+						sqlStrsAll.append(" = '");
+						sqlStrsAll.append(entry2.getValue());
+						sqlStrsAll.append("'");
 					}
+
+					sqlStrsAll.append(" where rowid = ");
+					sqlStrsAll.append(rawidList.get(rowNum - 1));
+					
+					stmt.executeUpdate(sqlStrsAll.toString());
 				}
-			} catch (IOException e) {
-				logger.error(e);
-			} catch (Exception ex) {
-				logger.error(ex);
 			}
+
+			// 追加
+			if (addParams != null && addParams.size() > 0) {
+				allRowSet.setTableName(tblName);
+				for (HashMap<Integer, String> iter : addParams) {
+					// insert data
+					allRowSet.moveToInsertRow();
+
+					for (Iterator<Entry<Integer, String>> iter2 = iter.entrySet().iterator(); iter2.hasNext(); ) {
+
+						Entry<Integer, String> entry2 = iter2.next();
+						colNum = entry2.getKey();
+						colValue = entry2.getValue();
+
+						allRowSet.updateString(colNum, colValue);
+					}
+
+					allRowSet.insertRow();
+					allRowSet.moveToCurrentRow();
+				}
+			}
+
+			// 删除
+			if (delParams != null && delParams.size() > 0) {
+				for (Integer rowNum : delParams) {
+					allRowSet.absolute(rowNum);
+					allRowSet.deleteRow();
+				}
+			}
+
+		} catch (SQLException exp) {
+			throw new BaseExceptionWrapper(exp);
+		} catch (Exception exp) {
+			throw new BaseExceptionWrapper(exp);
 		}
 	}
-
-	@Override
-	public CachedRowSet getFirstPage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public CachedRowSet getPreviousPage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public CachedRowSet getNextPage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public CachedRowSet getLastPage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

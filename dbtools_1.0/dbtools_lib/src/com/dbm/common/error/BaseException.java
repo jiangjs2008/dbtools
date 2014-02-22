@@ -29,18 +29,13 @@ public class BaseException extends RuntimeException {
 	 *
 	 * @param message 
 	 */
-	public BaseException(String message) {
-		super(message);
-	}
-
-	/**
-	 * 构造函数
-	 *
-	 * @param message 
-	 */
 	public BaseException(int errorNumber, String... message) {
 		this.errorMsgs = message;
 		this.errorNumber = errorNumber;
+	}
+
+	public int getErrorNumber() {
+		return errorNumber;
 	}
 
 	@Override

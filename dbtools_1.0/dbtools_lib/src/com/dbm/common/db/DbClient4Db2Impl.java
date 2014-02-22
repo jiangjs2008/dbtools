@@ -3,7 +3,6 @@
  */
 package com.dbm.common.db;
 
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -63,30 +62,6 @@ public class DbClient4Db2Impl extends DbClient {
 			}
 			_isConnected = true;
 
-			logger.debug("驱动名: " + _dbArgs[0]);
-			DatabaseMetaData dmd = _dbConn.getMetaData();
-			if (dmd.supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY)) {
-				logger.debug("该结果集 光标只能向前移动");
-			} else if (dmd.supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE)) {
-				logger.debug("该结果集 光标可滚动但通常受底层数据更改影响");
-			} else if (dmd.supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE)) {
-				logger.debug("该结果集 光标可滚动但通常不受底层数据更改影响");
-			}
-
-			if (dmd.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) {
-				logger.debug("该结果集 可更新 光标只能向前移动");
-			} else if (dmd.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-				logger.debug("该结果集 可更新 光标可滚动但通常受底层数据更改影响");
-			} else if (dmd.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-				logger.debug("该结果集 可更新 光标可滚动但通常不受底层数据更改影响");
-			} else if (dmd.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-				logger.debug("该结果集 不可更新 光标只能向前移动");
-			} else if (dmd.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-				logger.debug("该结果集 不可更新 光标可滚动但通常受底层数据更改影响");
-			} else if (dmd.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-				logger.debug("该结果集 不可更新 光标可滚动但通常不受底层数据更改影响");
-			}
-
 		} catch (Exception exp) {
 			throw new BaseExceptionWrapper(exp);
 		}
@@ -104,13 +79,13 @@ public class DbClient4Db2Impl extends DbClient {
 	void close() {
 		_isConnected = false;
 		try {
-			if (rs != null && !rs.isClosed()) {
+			if (rs != null) {
 				rs.close();
 			}
-			if (stmt != null && !stmt.isClosed()) {
+			if (stmt != null) {
 				stmt.close();
 			}
-			if (_dbConn != null && !_dbConn.isClosed()) {
+			if (_dbConn != null) {
 				_dbConn.close();
 			}
 			if (allRowSet != null) {
@@ -119,26 +94,6 @@ public class DbClient4Db2Impl extends DbClient {
 		} catch (SQLException exp) {
 			logger.error(exp);
 		}
-	}
-
-	@Override
-	public int getExecScriptType(String action) {
-		int sqlType = -1;
-		if (action.length() <= 6) {
-			throw new WarningException(20002);
-		}
-		String typeStr = action.substring(0, 6);
-		// 判断SQL类型
-		if ("select".equalsIgnoreCase(typeStr)) {
-			sqlType = 1;
-		} else if ("create".equalsIgnoreCase(typeStr) || "update".equalsIgnoreCase(typeStr)
-				|| "insert".equalsIgnoreCase(typeStr) || "delete".equalsIgnoreCase(typeStr)
-				|| "drop".equalsIgnoreCase(typeStr.substring(0, 4)) ) {
-			sqlType = 2;
-		} else {
-			throw new WarningException(20001);
-		}
-		return sqlType;
 	}
 
 	@Override
@@ -158,8 +113,9 @@ public class DbClient4Db2Impl extends DbClient {
 	public boolean directExec(String action) {
 		// single update sql
 		try {
-			if (rs != null && !rs.isClosed()) {
+			if (rs != null) {
 				rs.close();
+				rs = null;
 			}
 		} catch (SQLException exp) {
 			logger.error(exp);
@@ -179,6 +135,10 @@ public class DbClient4Db2Impl extends DbClient {
 	// 当前页数
 	private int currPage = 0;
 
+	public int supportsPageScroll() {
+		return 3;
+	}
+
 	/**
 	 * 取得当前页数
 	 *
@@ -187,35 +147,18 @@ public class DbClient4Db2Impl extends DbClient {
 	public int getCurrPageNum() {
 		return currPage;
 	}
-
-	public CachedRowSet getFirstPage() {
+	
+	public ResultSet getPreviousPage() {
 		return null;
 	}
 
 	
-	public CachedRowSet getPreviousPage() {
-		return null;
-	}
-
-	
-	public CachedRowSet getNextPage() {
-		try {
-			if (allRowSet.nextPage()) {
-				
-			}
-			return null;
-		} catch (SQLException exp) {
-			throw new BaseExceptionWrapper(exp);
-		}
-	}
-
-	
-	public CachedRowSet getLastPage() {
+	public ResultSet getNextPage() {
 		return null;
 	}
 	
 	@Override
-	public CachedRowSet getPage(int pageNum, int rowIdx, int pageSize) {
+	public ResultSet getPage(int pageNum, int rowIdx, int pageSize) {
 //		if (currPage < pageNum) {
 //			rs.
 //		}
@@ -239,10 +182,11 @@ public class DbClient4Db2Impl extends DbClient {
 	}
 
 	@Override
-	public CachedRowSet executeQuery(String tblName) {
+	public ResultSet executeQuery(String tblName) {
 		try {
-			if (rs != null && !rs.isClosed()) {
+			if (rs != null) {
 				rs.close();
+				rs = null;
 			}
 		} catch (SQLException exp) {
 			logger.error(exp);

@@ -14,6 +14,7 @@ import java.util.List;
 import javax.sql.rowset.CachedRowSet;
 
 import com.dbm.common.error.BaseExceptionWrapper;
+import com.dbm.common.error.WarningException;
 import com.dbm.common.log.LoggerWrapper;
 
 /**
@@ -105,13 +106,33 @@ public abstract class DbClient {
 	/**
 	 * 判断执行数据库脚本的类型<br>
 	 * crud
-	 * 0:unkown 1:create 2:query 3:update 4:delete
+	 * 0:unkown 1:select 2:create/update/delete/insert/drop...
 	 *
 	 * @param action 数据库脚本
 	 *
 	 * @return int 脚本的类型
 	 */
-	public abstract int getExecScriptType(String action);
+	public int getExecScriptType(String action) {
+		int sqlType = 0;
+		if (action != null) {
+			action = action.trim();
+		}
+		if (action.length() <= 6) {
+			throw new WarningException(20001);
+		}
+		String typeStr = action.substring(0, 6);
+		// 判断SQL类型
+		if ("select".equalsIgnoreCase(typeStr)) {
+			sqlType = 1;
+		} else if ("create".equalsIgnoreCase(typeStr) || "update".equalsIgnoreCase(typeStr)
+				|| "insert".equalsIgnoreCase(typeStr) || "delete".equalsIgnoreCase(typeStr)
+				|| "drop".equalsIgnoreCase(typeStr.substring(0, 4)) ) {
+			sqlType = 2;
+		} else {
+			throw new WarningException(20001);
+		}
+		return sqlType;
+	}
 
 	/**
 	 * 执行数据库脚本-查询
@@ -132,22 +153,25 @@ public abstract class DbClient {
 	 */
 	public abstract boolean directExec(String action);
 
-	
+	/**
+	 * 取得游标移动方式<br>
+	 * 1:只能向前移动
+	 * 2:可以向前或向后移动翻页
+	 * 3:可以定位到任意一页
+	 *
+	 * @return int 
+	 */
+	public abstract int supportsPageScroll();
+
 	public abstract int getCurrPageNum();
-
-	public abstract CachedRowSet getFirstPage();
+	
+	public abstract ResultSet getPreviousPage();
 
 	
-	public abstract CachedRowSet getPreviousPage();
+	public abstract ResultSet getNextPage();
 
 	
-	public abstract CachedRowSet getNextPage();
-
-	
-	public abstract CachedRowSet getLastPage();
-
-	
-	public abstract CachedRowSet getPage(int pageNum, int rowIdx, int pageSize);
+	public abstract ResultSet getPage(int pageNum, int rowIdx, int pageSize);
 
 	/**
 	 * 取得指定表的所有数据
@@ -156,7 +180,7 @@ public abstract class DbClient {
 	 *
 	 * @return ResultSet 查询结果数据
 	 */
-	public abstract CachedRowSet executeQuery(String tblName);
+	public abstract ResultSet executeQuery(String tblName);
 
 	/**
 	 * 执行数据更新
@@ -226,13 +250,13 @@ public abstract class DbClient {
 	 * @return
 	 */
 	public List<String> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
-
 		ArrayList<String> list = new ArrayList<String>();
+		ResultSet rs = null;
 		try {
 			Connection conn = getConnection();
 			DatabaseMetaData dm = conn.getMetaData();
 
-			ResultSet rs = dm.getTables(catalog, schemaPattern, tableNamePattern, types);
+			rs = dm.getTables(catalog, schemaPattern, tableNamePattern, types);
 			String schemaName = null;
 			while (rs.next()) {
 				schemaName = rs.getString(2);
@@ -244,6 +268,14 @@ public abstract class DbClient {
 			}
 		} catch (SQLException ex) {
 			throw new BaseExceptionWrapper(ex);
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException sqlexp) {
+					logger.error(sqlexp);
+				}
+			}
 		}
 		return list;
 	}

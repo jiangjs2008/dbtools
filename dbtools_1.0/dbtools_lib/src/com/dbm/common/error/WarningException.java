@@ -21,15 +21,6 @@ public class WarningException extends BaseException {
 	/**
 	 * 构造函数
 	 *
-	 * @param message 
-	 */
-	public WarningException(String message) {
-		super(message);
-	}
-
-	/**
-	 * 构造函数
-	 *
 	 * @param errorNumber 
 	 * @param message 
 	 */
