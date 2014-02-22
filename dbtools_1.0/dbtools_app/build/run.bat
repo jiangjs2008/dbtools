@@ -32,7 +32,7 @@ if not exist "%java_dir%\bin\java.exe" goto noJava
 if not exist "%java_dir%\bin\javaw.exe" goto noJava
 
 echo run this program
-start %java_dir%/bin/javaw -cp ./bin -Djava.ext.dirs=./lib com.dbm.client.ui.MainAppJFrame
+start %java_dir%/bin/java -cp ./bin -Djava.ext.dirs=./lib com.dbm.client.ui.MainAppJFrame
 exit /b 0
 
 :exit
