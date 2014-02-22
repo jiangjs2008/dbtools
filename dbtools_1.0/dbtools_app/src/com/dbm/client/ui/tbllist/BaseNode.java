@@ -34,8 +34,7 @@ public class BaseNode extends DefaultMutableTreeNode {
     /** Tree model. */
     private final ObjectsTreeModel _treeModel;
 
-    public BaseNode( ObjectsTreeModel treeModel,
-                        Object userObject) {
+    public BaseNode( ObjectsTreeModel treeModel, Object userObject) {
         super(userObject);
 
         if (treeModel == null) {

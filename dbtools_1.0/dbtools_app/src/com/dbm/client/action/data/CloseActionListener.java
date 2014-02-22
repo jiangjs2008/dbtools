@@ -22,7 +22,7 @@ public class CloseActionListener extends AbstractActionListener {
 		// close current db connection
 		DbClient dbClient = DbClientFactory.getDbClient();
 		if (!dbClient.isConnected()) {
-			Msg01Dialog.showMsgDialog("have not connection now");
+			Msg01Dialog.showMsgDialog(10003);
 			return;
 		}
 		// 关闭数据库连接

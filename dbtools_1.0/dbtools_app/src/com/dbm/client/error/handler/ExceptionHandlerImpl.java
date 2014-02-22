@@ -31,7 +31,7 @@ public class ExceptionHandlerImpl implements ExceptionHandler {
 			// 输出警告信息
 			logger.warn(exp.getMessage());
 			// 弹出确认对话框
-			Msg01Dialog.showMsgDialog(exp.getMessage());
+			Msg01Dialog.showMsgDialog(((WarningException) exp).getErrorNumber());
 
 		} else if (exp instanceof BaseException) {
 			// 
@@ -42,11 +42,12 @@ public class ExceptionHandlerImpl implements ExceptionHandler {
 			// 
 			logger.error(exp.getCause().getMessage());
 			logErrStackMsg(exp.getCause());
-			Msg01Dialog.showMsgDialog("操作数据库时发生异常，请查看日志文件，或联系数据库管理员");
+			Msg01Dialog.showMsgDialog(40003);
 
 		} else {
 			logger.error(exp);
 			logThreadInfo(Thread.currentThread());
+			Msg01Dialog.showMsgDialog(40004);
 		}
 	}
 

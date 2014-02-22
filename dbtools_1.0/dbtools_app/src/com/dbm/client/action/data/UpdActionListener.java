@@ -1,6 +1,7 @@
 package com.dbm.client.action.data;
 
 import java.awt.event.ActionEvent;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -61,13 +62,13 @@ public class UpdActionListener extends AbstractActionListener {
 	 */
 	public void setTblName(String tblName) {
 		this.tblName = tblName;
-		if (params != null) {
+		if (params != null && params.isEmpty()) {
 			params.clear();
 		}
-		if (addParams != null) {
+		if (addParams != null && addParams.isEmpty()) {
 			addParams.clear();
 		}
-		if (delParams != null) {
+		if (delParams != null && delParams.isEmpty()) {
 			delParams.clear();
 		}
 	}
@@ -140,47 +141,35 @@ public class UpdActionListener extends AbstractActionListener {
 		}
 
 		// 让用户确认数据更新
-		Msg02Dialog msg02 = Msg02Dialog.getDialog(10002);
-		if (msg02.isOK()) {
-			// 开始更新
-			logger.debug("begin to update data");
-			DbClient dbClient = DbClientFactory.getDbClient();
-			dbClient.executeUpdate(tblName, params, addParams, delParams);
-
-			if (params != null) {
-				params.clear();
-			}
-			if (addParams != null) {
-				addParams.clear();
-			}
-			if (delParams != null) {
-				delParams.clear();
-			}
+		Msg02Dialog msg02 = Msg02Dialog.showMsgDialog(10002);
+		if (!msg02.isOK()) {
+			// 不更新，退出
+			logger.debug("don't update, exit");
+			return;
 		}
-		logger.debug("update data success");
 
-		//		JTable jt = (JTable) AppUIAdapter.getUIObj(AppUIAdapter.TableDataUIObj);
-//		if (jt == null) {
-//			return;
-//		}
-//		int selCnt = jt.getSelectedRowCount();
-//		if (selCnt == 0) {
-//			return;
-//		}
-//
-//		// 让用户确认数据删除
-//		Msg02Dialog msg02 = Msg02Dialog.getDialog(10001);
-//		if (msg02.isOK()) {
-//			// 开始删除
-//			DbClient dbClient = DbClientFactory.getDbClient();
-//			dbClient.executeDelete(tblName, jt.getSelectedRows());
-//		}
-//
-//		// 删除后再刷新画面
-		
-		// 更新后再刷新画面
+		// 开始更新
+		logger.debug("begin to update data");
 		DbClient dbClient = DbClientFactory.getDbClient();
-		dbClient.executeQuery(tblName);
+		dbClient.executeUpdate(tblName, params, addParams, delParams);
+
+		if (params != null && params.isEmpty()) {
+			params.clear();
+		}
+		if (addParams != null && addParams.isEmpty()) {
+			addParams.clear();
+		}
+		if (delParams != null && delParams.isEmpty()) {
+			delParams.clear();
+		}
+
+		// 更新后再刷新画面
+		ResultSet rowSet = dbClient.executeQuery(tblName);
+		int dataCnt = dbClient.size();
+		
+		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
+		pageAction.displayTableData(rowSet, dataCnt);
+		logger.debug("update data success");
 	}
 
 }

@@ -6,6 +6,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.DatabaseMetaData;
@@ -14,19 +15,23 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import javax.sql.rowset.CachedRowSet;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.ExpandVetoException;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.CursorChanger;
 import com.dbm.client.action.data.PageJumpActionListener;
 import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Inf00Dialog;
 import com.dbm.client.ui.Inf01Dialog;
 import com.dbm.client.ui.Inf02Dialog;
 import com.dbm.common.db.DbClient;
@@ -35,7 +40,7 @@ import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.log.LoggerWrapper;
 import com.dbm.common.util.StringUtil;
 
-public class TableTreeClickListener extends MouseAdapter {
+public class TableTreeClickListener extends MouseAdapter implements TreeWillExpandListener {
 
 	/**
 	 * instances of the log class
@@ -44,14 +49,21 @@ public class TableTreeClickListener extends MouseAdapter {
 
 	private JPopupMenu jPopupMenu1 = null;
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
 		JTree tblTree = (JTree) e.getSource();
 		DefaultMutableTreeNode tblNode = (DefaultMutableTreeNode) tblTree.getLastSelectedPathComponent();
-		if (tblNode == null || !tblNode.isLeaf()) {
+		if (tblNode == null) {
 			return;
 		}
+		String tblName = (String) tblNode.getUserObject();
+		if (!tblNode.isLeaf()) {
+			if (!"Database".equals(tblName)) {
+				return;
+			}
+		}
 
-		if (e.getModifiers() == MouseEvent.BUTTON1_MASK && e.getClickCount() == 2) {
+		if (e.getModifiers() == InputEvent.BUTTON1_MASK && e.getClickCount() == 2) {
 			if ("Database".equals(tblNode.getUserObject())) {
 				return;
 			}
@@ -64,29 +76,86 @@ public class TableTreeClickListener extends MouseAdapter {
 				cc.restore();
 			}
 
-		} else if (e.getModifiers() == MouseEvent.BUTTON1_MASK) {
+		} else if (e.getModifiers() == InputEvent.BUTTON1_MASK) {
 			jPopupMenu1 = new JPopupMenu();
 			setComponentPopupMenu( tblTree, jPopupMenu1);
 
-		} else if (e.getModifiers() == MouseEvent.BUTTON3_MASK) {
-			if (jPopupMenu1 == null) {
-				logger.info("JPopupMenu 未定义");
+		} else if (e.getModifiers() == InputEvent.BUTTON3_MASK) {
+
+			if ("Database".equals(tblName)) {
+				if (jPopupMenu1 == null) {
+					logger.info("JPopupMenu 未定义");
+					return;
+				}
+				DbClient dbClient = DbClientFactory.getDbClient();
+				if (dbClient == null) {
+					return;
+				}
+				if (dbClient.getConnection() == null) {
+					return;
+				}
+				JMenuItem jMenuItem2 = new JMenuItem("Database Info");
+				jPopupMenu1.add(jMenuItem2);
+				jMenuItem2.addActionListener(new DbInfoActionListener());
+
+				jPopupMenu1.add(new JSeparator());
+				jPopupMenu1.add(new JCheckBoxMenuItem("t1"));
+				jPopupMenu1.add(new JCheckBoxMenuItem("t2"));
+				
+			} else {
+				if (jPopupMenu1 == null) {
+					logger.info("JPopupMenu 未定义");
+					return;
+				}
+	
+				JMenuItem jMenuItem2 = new JMenuItem("Table Info");
+				jPopupMenu1.add(jMenuItem2);
+				jMenuItem2.addActionListener(new TblInfoActionListener(tblName));
+	
+				JMenuItem jMenuItem3 = new JMenuItem("Index Info");
+				jPopupMenu1.add(jMenuItem3);
+				jMenuItem3.addActionListener(new IdxInfoActionListener(tblName));
+	
+				jPopupMenu1.add(new JSeparator());
+				JMenuItem jMenuItem1 = new JMenuItem("Copy Table Name");
+				jPopupMenu1.add(jMenuItem1);
+				jMenuItem1.addActionListener(new CpTblNmActionListener(tblName));
+			}
+		}
+	}
+
+	/**
+	 * 取得数据库的基本信息
+	 */
+	private class DbInfoActionListener extends AbstractActionListener {
+
+		@Override
+		public void doActionPerformed(ActionEvent e) {
+
+			DbClient dbClient = DbClientFactory.getDbClient();
+			if (dbClient == null) {
 				return;
 			}
-			String tblName = (String) tblNode.getUserObject();
+			if (dbClient.getConnection() == null) {
+				return;
+			}
+			try {
+				DatabaseMetaData dmd = dbClient.getConnection().getMetaData();
 
-			JMenuItem jMenuItem2 = new JMenuItem("Table Info");
-			jPopupMenu1.add(jMenuItem2);
-			jMenuItem2.addActionListener(new TblInfoActionListener(tblName));
+				Inf00Dialog inf00 = new Inf00Dialog();
+				inf00.setDbMetaInfo(dmd);
+				inf00.setVisible(true);
+			} catch (SQLException exp) {
+				throw new BaseExceptionWrapper(exp);
+			}
+		}
 
-			JMenuItem jMenuItem3 = new JMenuItem("Index Info");
-			jPopupMenu1.add(jMenuItem3);
-			//jMenuItem3.addActionListener(new IdxInfoActionListener(tblName));
-
-			jPopupMenu1.add(new JSeparator());
-			JMenuItem jMenuItem1 = new JMenuItem("Copy Table Name");
-			jPopupMenu1.add(jMenuItem1);
-			jMenuItem1.addActionListener(new CpTblNmActionListener(tblName));
+		@Override
+		protected void doAfterFinally() {
+			if (jPopupMenu1 != null) {
+				jPopupMenu1.setVisible(false);
+				jPopupMenu1 = null;
+			}
 		}
 	}
 
@@ -170,8 +239,10 @@ public class TableTreeClickListener extends MouseAdapter {
 
 		@Override
 		protected void doAfterFinally() {
-			jPopupMenu1.setVisible(false);
-			jPopupMenu1 = null;
+			if (jPopupMenu1 != null) {
+				jPopupMenu1.setVisible(false);
+				jPopupMenu1 = null;
+			}
 		}
 	}
 
@@ -244,8 +315,10 @@ public class TableTreeClickListener extends MouseAdapter {
 
 		@Override
 		protected void doAfterFinally() {
-			jPopupMenu1.setVisible(false);
-			jPopupMenu1 = null;
+			if (jPopupMenu1 != null) {
+				jPopupMenu1.setVisible(false);
+				jPopupMenu1 = null;
+			}
 		}
 	}
 
@@ -275,8 +348,19 @@ public class TableTreeClickListener extends MouseAdapter {
 		String tblName = (String) tblNode.getUserObject();
 		logger.debug("所选择的表名：" + tblName);
 
+		UpdActionListener updMng = UpdActionListener.getInstance();
+		updMng.setTblName(tblName);
+
+		DbClient dbClient = DbClientFactory.getDbClient();
+		ResultSet rowSet = dbClient.executeQuery(tblName);
+		int dataCnt = dbClient.size();
+		
 		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
-		pageAction.displayTableData(tblName);
+		pageAction.displayTableData(rowSet, dataCnt);
+		
+		// 使[更新]按钮可用
+		JButton button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_UPDATE);
+		button.setEnabled(true);
 	}
 
 	/**
@@ -289,8 +373,14 @@ public class TableTreeClickListener extends MouseAdapter {
 				if (e.isPopupTrigger()) {
 					JTree tblTree = (JTree) parent;
 					DefaultMutableTreeNode tblNode = (DefaultMutableTreeNode) tblTree.getLastSelectedPathComponent();
-					if (tblNode == null || !tblNode.isLeaf()) {
+					if (tblNode == null) {
 						return;
+					}
+					String tblName = (String) tblNode.getUserObject();
+					if (!tblNode.isLeaf()) {
+						if (!"Database".equals(tblName)) {
+							return;
+						}
 					}
 
 					Rectangle rt = tblTree.getPathBounds(tblTree.getLeadSelectionPath());
@@ -302,5 +392,29 @@ public class TableTreeClickListener extends MouseAdapter {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void treeWillExpand(TreeExpansionEvent evt) throws ExpandVetoException {
+	}
+
+	/**
+	 * 禁止根节点折叠
+	 */
+	@Override
+	public void treeWillCollapse(TreeExpansionEvent evt) throws ExpandVetoException {
+		JTree tree = (JTree) evt.getSource();
+
+		// Get the path that will be collapsed
+		DefaultMutableTreeNode tblNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+		if (tblNode == null) {
+			return;
+		}
+		String tblName = (String) tblNode.getUserObject();
+		if (!tblNode.isLeaf()) {
+			if ("Database".equals(tblName)) {
+				throw new ExpandVetoException(evt);
+			}
+		}
 	}
 }

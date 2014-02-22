@@ -26,7 +26,7 @@ public class FavrMenuActionListener extends AbstractActionListener {
 		// last db connection is not closed
 		DbClient dbClient = DbClientFactory.getDbClient();
 		if (dbClient != null && dbClient.isConnected()) {
-			Msg01Dialog.showMsgDialog("A db connection is already used");
+			Msg01Dialog.showMsgDialog(10004);
 			return;
 		}
 		Session.setCurrFavrInfo(favrInfo);

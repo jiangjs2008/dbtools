@@ -18,6 +18,7 @@
 		[drivertype]  text     UNIQUE NOT NULL,
 		[description] text,
 		[action]      text     NOT NULL,
+		[jarname]     text，
 		[driver]      text,
 		[sampleurl]   text
 	);
@@ -39,13 +40,28 @@
 
 	Create TABLE msglist (
 		[msgid]    smallint PRIMARY KEY,
+		[msglang]  text     NOT NULL，
 		[msgvalue] text     NOT NULL
 	);
+
 	msgid编排顺序：
 	10000: 提示信息
+10001	cn	数据删除, 请确认<br>该操作不能恢复
+10002	cn	数据更新, 请确认<br>该操作不能恢复
+10003	cn	当前没有可用的数据库连接
+10004	cn	请先关闭当前数据库连接
 	20000: 警告信息
-	30000: 出错信息
-	40000: 系统异常信息
+20001	cn	错误的SQL语句
+20002	cn	
+20003	cn	数据库不存在
+20004	cn	没有权限访问该数据库
+	40000: 异常信息
+40001	cn	画面显示时异常
+40002	cn	分页浏览数据时未定义的操作 {0}
+40003	cn	操作数据库时发生异常，请查看日志文件，或联系数据库管理员
+40004	cn	未定义的异常，请查看日志文件，或联系数据库管理员
+
+
 
 </pre></body>
 </html>

@@ -40,7 +40,7 @@ public class ExecActionListener extends AbstractActionListener {
 			// 数据库未连接
 		}
 		if (!dbClient.isConnected()) {
-			Msg01Dialog.showMsgDialog("have not connection now");
+			Msg01Dialog.showMsgDialog(10003);
 			return;
 		}
 
@@ -51,7 +51,8 @@ public class ExecActionListener extends AbstractActionListener {
 		if (dbClient.getExecScriptType(action) == 1) {
 			ResultSet rs = dbClient.directQuery(action);
 			
-			
+			PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
+			pageAction.displayTableData(rs, dbClient.size());
 			
 		} else {
 			

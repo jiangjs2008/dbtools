@@ -46,13 +46,10 @@ public class Msg01Dialog extends javax.swing.JDialog {
 	/**
 	* Auto-generated main method to display this JDialog
 	*/
-	public static void showMsgDialog(String msgs) {
+	public static void showMsgDialog(int msgId) {
+		String msgs = LoggerWrapper.getMessage(msgId);
 		inst.setMessage(msgs);
 		inst.setVisible(true);
-	}
-
-	public static void showMsgDialog(int msgId) {
-		showMsgDialog(LoggerWrapper.getMessage(msgId));
 	}
 
 	private void setMessage(String msgs) {

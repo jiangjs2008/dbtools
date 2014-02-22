@@ -44,14 +44,12 @@ public class Msg02Dialog extends javax.swing.JDialog {
 	private boolean rsltSts = false;
 	private JLabel jTextArea1 = null;
 
-	public static Msg02Dialog getDialog(String msgs) {
+
+	public static Msg02Dialog showMsgDialog(int msgId) {
+		String msgs = LoggerWrapper.getMessage(msgId);
 		inst.setMessage(msgs);
 		inst.setVisible(true);
 		return inst;
-	}
-
-	public static Msg02Dialog getDialog(int msgId) {
-		return getDialog(LoggerWrapper.getMessage(msgId));
 	}
 
 	private void setMessage(String msgs) {

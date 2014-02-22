@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -27,8 +28,8 @@ import com.dbm.client.ui.tbllist.BaseNode;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTypesGroupNode;
 import com.dbm.common.db.DbClient;
-
 import com.dbm.common.db.DbClientFactory;
+import com.dbm.common.log.LoggerWrapper;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
@@ -60,6 +61,10 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 1L;
+	/**
+	 * instances of the log class
+	 */
+	private static LoggerWrapper logger = new LoggerWrapper(Lgn01Dialog.class); 
 
 	private JTextField jTextField1;
 	private JTextField jTextField2;
@@ -241,7 +246,13 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 			if (node instanceof TableTypesGroupNode) {
 				// 显示DB所属对象一览
 				DbClient dbClient = DbClientFactory.getDbClient();
-				((BaseNode) node).expand(dbClient.getDbObjList(null, null, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
+				String schema = null;
+				try {
+					schema = dbClient.getConnection().getMetaData().getUserName();
+				} catch (SQLException ex) {
+					logger.error(ex);
+				}
+				((BaseNode) node).expand(dbClient.getDbObjList(null, schema, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
 			}
 		}
 
