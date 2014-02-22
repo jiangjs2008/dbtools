@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src_lib</name>
+			<type>2</type>
+			<location>D:/app/eclipse-java-helios/workspace/dbTools_lib/src</location>
+		</link>
+	</linkedResources>
 </projectDescription>
