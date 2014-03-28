@@ -114,16 +114,16 @@ public final class TableUtil {
 				int pageNum = dbClient.getCurrPageNum();
 
 				UpdActionListener updMng = UpdActionListener.getInstance();
-				if ((pageNum - 1) * Session.PageDataLimit + row > dataCnt) {
+				if ((pageNum - 1) * Session.PageDataLimit + row > dataCnt || dataCnt == 0) {
 					// 插入数据
-					updMng.setTblParams(row, col, (String) obj);
+					updMng.setAddParams(row, col, (String) obj);
 
 				} else {
 					// 更新数据
 					String value = DbClientFactory.getDbClient().getTableDataAt(row, col);
 					if (!obj.equals(value)) {
 						updMng = UpdActionListener.getInstance();
-						updMng.setTblParams(row, col, (String) obj);
+						updMng.setUpdParams(row, col, (String) obj);
 					}
 				}
 			}

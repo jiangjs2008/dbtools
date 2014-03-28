@@ -48,15 +48,20 @@ public class ExecActionListener extends AbstractActionListener {
 		JButton button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_UPDATE);
 		button.setEnabled(false);
 
+		// 刷新翻页相关组件
+		
+		
+		
 		if (dbClient.getExecScriptType(action) == 1) {
+			// 数据检索
 			ResultSet rs = dbClient.directQuery(action);
 			
 			PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
 			pageAction.displayTableData(rs, dbClient.size());
 			
 		} else {
-			
-			
+			// 更新数据
+			dbClient.directExec(action);
 			
 		}
 	}

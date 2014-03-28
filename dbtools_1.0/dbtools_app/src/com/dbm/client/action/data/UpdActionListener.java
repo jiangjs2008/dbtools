@@ -4,6 +4,10 @@ import java.awt.event.ActionEvent;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
@@ -40,11 +44,11 @@ public class UpdActionListener extends AbstractActionListener {
 	/**
 	 * 追加值集合
 	 */
-	private ArrayList<HashMap<Integer, String>> addParams = new ArrayList<HashMap<Integer, String>>();
+	private TreeMap<Integer, HashMap<Integer, String>> addMapPara = new TreeMap<Integer, HashMap<Integer, String>>();
 	/**
 	 * 删除值集合
 	 */
-	private ArrayList<Integer> delParams = new ArrayList<Integer>();
+	private ArrayList<Integer> delListPara = new ArrayList<Integer>();
 
 	/**
 	 * 取得更新操作类实例
@@ -62,14 +66,14 @@ public class UpdActionListener extends AbstractActionListener {
 	 */
 	public void setTblName(String tblName) {
 		this.tblName = tblName;
-		if (params != null && params.isEmpty()) {
+		if (params != null && params.size() > 0) {
 			params.clear();
 		}
-		if (addParams != null && addParams.isEmpty()) {
-			addParams.clear();
+		if (addMapPara != null && addMapPara.size() > 0) {
+			addMapPara.clear();
 		}
-		if (delParams != null && delParams.isEmpty()) {
-			delParams.clear();
+		if (delListPara != null && delListPara.size() > 0) {
+			delListPara.clear();
 		}
 	}
 
@@ -80,18 +84,16 @@ public class UpdActionListener extends AbstractActionListener {
 	 * @param colNum 列号
 	 * @param colValue 要更新的值
 	 */
-	public void setTblParams(int rowNum, int colNum, String colValue) {
+	public void setUpdParams(int rowNum, int colNum, String colValue) {
 		if (params == null) {
 			params = new HashMap<Integer, HashMap<Integer, String>>();
 		}
 		HashMap<Integer, String> rowMap = params.get(rowNum);
 		if (rowMap == null) {
 			rowMap = new HashMap<Integer, String>();
-			rowMap.put(colNum, colValue);
 			params.put(rowNum, rowMap);
-		} else {
-			rowMap.put(colNum, colValue);
 		}
+		rowMap.put(colNum, colValue);
 	}
 
 	/**
@@ -99,11 +101,16 @@ public class UpdActionListener extends AbstractActionListener {
 	 *
 	 * @param addedData 要追加的行
 	 */
-	public void setTblParams(HashMap<Integer, String> addedData) {
-		if (addParams == null) {
-			addParams = new ArrayList<HashMap<Integer, String>>();
+	public void setAddParams(int rowNum, int colNum, String addedData) {
+		if (addMapPara == null) {
+			addMapPara = new TreeMap<Integer, HashMap<Integer, String>>();
 		}
-		addParams.add(addedData);
+		HashMap<Integer, String> rowMap = addMapPara.get(rowNum);
+		if (rowMap == null) {
+			rowMap = new HashMap<Integer, String>();
+			addMapPara.put(rowNum, rowMap);
+		}
+		rowMap.put(colNum, addedData);
 	}
 
 	/**
@@ -111,11 +118,11 @@ public class UpdActionListener extends AbstractActionListener {
 	 *
 	 * @param rowNum 行号
 	 */
-	public void setTblParams(int rowNum) {
-		if (delParams == null) {
-			delParams = new ArrayList<Integer>();
+	public void setDelParams(int rowNum) {
+		if (delListPara == null) {
+			delListPara = new ArrayList<Integer>();
 		}
-		delParams.add(rowNum);
+		delListPara.add(rowNum);
 	}
 
 	/**
@@ -135,7 +142,7 @@ public class UpdActionListener extends AbstractActionListener {
 			logger.debug("have no table to update");
 			return;
 		}
-		if (params == null && addParams == null && delParams == null) {
+		if (params == null && addMapPara == null && delListPara == null) {
 			logger.debug("have no data to update");
 			return;
 		}
@@ -150,17 +157,28 @@ public class UpdActionListener extends AbstractActionListener {
 
 		// 开始更新
 		logger.debug("begin to update data");
-		DbClient dbClient = DbClientFactory.getDbClient();
-		dbClient.executeUpdate(tblName, params, addParams, delParams);
 
-		if (params != null && params.isEmpty()) {
+		ArrayList<HashMap<Integer, String>> addList = null;
+		if (addMapPara != null && addMapPara.size() > 0) {
+			addList = new ArrayList<HashMap<Integer, String>>(addMapPara.size());
+			for (Iterator<HashMap<Integer, String>> iter2 = addMapPara.values().iterator(); iter2.hasNext(); ) {
+				HashMap<Integer, String> entry2 = iter2.next();
+				addList.add(entry2);
+			}
+		}
+
+		DbClient dbClient = DbClientFactory.getDbClient();
+		dbClient.executeUpdate(tblName, params, addList, delListPara);
+
+		if (params != null && params.size() > 0) {
 			params.clear();
 		}
-		if (addParams != null && addParams.isEmpty()) {
-			addParams.clear();
+		if (addMapPara != null && addMapPara.size() > 0) {
+			addMapPara.clear();
+			addList.clear();
 		}
-		if (delParams != null && delParams.isEmpty()) {
-			delParams.clear();
+		if (delListPara != null && delListPara.size() > 0) {
+			delListPara.clear();
 		}
 
 		// 更新后再刷新画面

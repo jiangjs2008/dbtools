@@ -16,10 +16,8 @@ import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.spi.SyncProviderException;
 import javax.sql.rowset.spi.SyncResolver;
 
-import oracle.jdbc.rowset.OracleCachedRowSet;
-
 import com.dbm.common.error.BaseExceptionWrapper;
-import com.dbm.common.error.WarningException;
+import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * 缺省数据库操作类
@@ -35,6 +33,9 @@ public class DbClient4OracleImpl extends DbClient {
 	@Override
 	public String getTableDataAt(int rowNum, int colNum) {
 		if (allRowSet != null) {
+			if (allRowSet.size() < rowNum) {
+				return null;
+			}
 			try {
 				allRowSet.absolute(rowNum);
 				return allRowSet.getString(colNum);
@@ -114,6 +115,7 @@ public class DbClient4OracleImpl extends DbClient {
 			logger.error(exp);
 		}
 		try {
+			stmt = _dbConn.createStatement();
 			int rslt = stmt.executeUpdate(action);
 			if (rslt == 0) {
 				// TODO msg
@@ -210,7 +212,7 @@ public class DbClient4OracleImpl extends DbClient {
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			rs = stmt.executeQuery(action);
 
-			allRowSet = new OracleCachedRowSet();
+			allRowSet = new CachedRowSetImpl();
 			//allRowSet.setMaxRows(500);
 			allRowSet.setPageSize(500);
 			allRowSet.populate(rs);
@@ -256,12 +258,13 @@ public class DbClient4OracleImpl extends DbClient {
 			// 追加
 			if (addParams != null && addParams.size() > 0) {
 				allRowSet.setTableName(tblName);
-				for (HashMap<Integer, String> iter : addParams) {
+
+				for (HashMap<Integer, String> addLine : addParams) {
 					// insert data
 					allRowSet.moveToInsertRow();
 
-					for (Iterator<Entry<Integer, String>> iter2 = iter.entrySet().iterator(); iter2.hasNext(); ) {
-
+					for (Iterator<Entry<Integer, String>> iter2 = addLine.entrySet().iterator(); iter2.hasNext(); ) {
+						
 						Entry<Integer, String> entry2 = iter2.next();
 						colNum = entry2.getKey();
 						colValue = entry2.getValue();

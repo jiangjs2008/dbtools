@@ -257,12 +257,13 @@ public class DbClient4DefaultImpl extends DbClient {
 			// 追加
 			if (addParams != null && addParams.size() > 0) {
 				allRowSet.setTableName(tblName);
-				for (HashMap<Integer, String> iter : addParams) {
+
+				for (HashMap<Integer, String> addLine : addParams) {
 					// insert data
 					allRowSet.moveToInsertRow();
 
-					for (Iterator<Entry<Integer, String>> iter2 = iter.entrySet().iterator(); iter2.hasNext(); ) {
-
+					for (Iterator<Entry<Integer, String>> iter2 = addLine.entrySet().iterator(); iter2.hasNext(); ) {
+						
 						Entry<Integer, String> entry2 = iter2.next();
 						colNum = entry2.getKey();
 						colValue = entry2.getValue();
