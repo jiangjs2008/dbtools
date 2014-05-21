@@ -107,7 +107,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 					logger.info("JPopupMenu 未定义");
 					return;
 				}
-	
+
 				JMenuItem jMenuItem2 = new JMenuItem("Table Info");
 				jPopupMenu1.add(jMenuItem2);
 				jMenuItem2.addActionListener(new TblInfoActionListener(tblName));
