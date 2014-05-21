@@ -1,6 +1,5 @@
 package com.dbm.common.log;
 
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.HashMap;
 
@@ -19,10 +18,8 @@ public class LoggerWrapper {
 
 	static {
 		//log4j初期化
-		URL url = LoggerWrapper.class.getClassLoader().getResource("log4j.xml");
-		if (url != null) {
-			DOMConfigurator.configure(url);
-		}
+		String url = System.getProperty("user.dir") + "/conf/log4j.xml";
+		DOMConfigurator.configure(url);
 	}
 
 	private static HashMap<Integer, String> _msgMap = new HashMap<Integer, String>();

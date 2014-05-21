@@ -1,11 +1,11 @@
 package com.dbm.common.property;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -31,7 +31,7 @@ public class PropUtil {
 	private static ArrayList<ConnBean> connList = new ArrayList<ConnBean>();
 	private static ArrayList<FavrBean> favrList = new ArrayList<FavrBean>();
 
-	private static ResourceBundle appenv = null;
+	private static Properties appenv = new Properties();
 
 	private static Properties favrPrp = new Properties();
 	private static Properties drivPrp = new Properties();
@@ -42,20 +42,21 @@ public class PropUtil {
 	public static void load() {
 		InputStream is = null;
 		try {
-			is = PropUtil.class.getClassLoader().getResource("__favrinfo.properties").openStream();
+			is = new FileInputStream(System.getProperty("user.dir") + "/conf/__favrinfo.properties");
 			favrPrp.load(is);
 			is.close();
-
 			//favrPrp.storeToXML(new FileOutputStream(PropUtil.class.getClassLoader().getResource("_favrinfo.xml").getFile()), "");
 			//favrPrp.store(new FileOutputStream(PropUtil.class.getClassLoader().getResource("_favrinfo.p1").getFile()), "");
 
-			is = PropUtil.class.getClassLoader().getResource("__driver.properties").openStream();
+			is = new FileInputStream(System.getProperty("user.dir") + "/conf/__driver.properties");
 			drivPrp.load(is);
 			is.close();
 
-			appenv = ResourceBundle.getBundle("config");
+			is = new FileInputStream(System.getProperty("user.dir") + "/conf/config.properties");
+			appenv.load(is);
+			is.close();
 
-			is = PropUtil.class.getClassLoader().getResource("message.properties").openStream();
+			is = new FileInputStream(System.getProperty("user.dir") + "/conf/message.properties");
 			Properties p = new Properties();
 			p.load(is);
 			is.close();
@@ -150,7 +151,7 @@ public class PropUtil {
 	 * @return String 设置信息
 	 */
 	public static String getAppConfig(String key) {
-		return appenv.getString(key);
+		return appenv.getProperty(key);
 	}
 
 }
