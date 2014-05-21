@@ -1,4 +1,5 @@
 package com.dbm.client.ui;
+
 import java.awt.BorderLayout;
 
 import java.awt.Dimension;
@@ -32,7 +33,7 @@ import com.dbm.client.util.TableUtil;
  * [function]<br>
  * 显示表索引信息<br><br>
  * [history]<br>
- * 2013/05/10 ver1.0.0  JiangJusheng<br>
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public class Inf02Dialog extends javax.swing.JDialog {
 	/**

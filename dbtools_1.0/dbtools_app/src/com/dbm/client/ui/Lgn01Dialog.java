@@ -1,6 +1,3 @@
-/**
- * Lgn001Dialog.java
- */
 package com.dbm.client.ui;
 
 import java.awt.BorderLayout;
@@ -53,7 +50,7 @@ import com.dbm.common.property.PropUtil;
  * [function]<br>
  * 数据库登陆<br><br>
  * [history]<br>
- * 2013/05/10 ver1.0.0<br>
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public class Lgn01Dialog extends javax.swing.JDialog {
 
@@ -64,14 +61,14 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 	/**
 	 * instances of the log class
 	 */
-	private static LoggerWrapper logger = new LoggerWrapper(Lgn01Dialog.class); 
+	private static LoggerWrapper logger = new LoggerWrapper(Lgn01Dialog.class);
 
 	private JTextField jTextField1;
 	private JTextField jTextField2;
 	private JTextField jTextField3;
 	private JPasswordField jTextField4;
 
-	
+
 	public Lgn01Dialog() {
 		super();
 

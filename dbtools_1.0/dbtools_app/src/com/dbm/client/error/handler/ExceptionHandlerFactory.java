@@ -1,7 +1,3 @@
-/**
- * Copyright c JiangJusheng 2012 All Rights Reserved.
- * ShougaiExceptionHandler.java
- */
 package com.dbm.client.error.handler;
 
 import com.dbm.common.error.handler.ExceptionHandler;

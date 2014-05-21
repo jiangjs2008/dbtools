@@ -1,4 +1,5 @@
 package com.dbm.client.ui;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.sql.DatabaseMetaData;
@@ -8,7 +9,6 @@ import java.sql.SQLException;
 import javax.swing.JLabel;
 
 import com.dbm.common.error.BaseExceptionWrapper;
-
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -28,7 +28,7 @@ import com.dbm.common.error.BaseExceptionWrapper;
  * [function]<br>
  * 显示数据库信息<br><br>
  * [history]<br>
- * 2013/05/10 ver1.0.0  JiangJusheng<br>
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public class Inf00Dialog extends javax.swing.JDialog {
 	/**

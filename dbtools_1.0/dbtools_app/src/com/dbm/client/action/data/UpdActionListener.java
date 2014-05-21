@@ -5,8 +5,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.swing.JTable;
@@ -24,7 +22,7 @@ import com.dbm.common.db.DbClientFactory;
  * [function]<br>
  * 更新数据<br><br>
  * [history]<br>
- * 2012/02/11 ver1.0.0 JiangJusheng<br>
+ * 2012/02/11 ver1.0 JiangJusheng<br>
  */
 public class UpdActionListener extends AbstractActionListener {
 
@@ -91,9 +89,9 @@ public class UpdActionListener extends AbstractActionListener {
 		HashMap<Integer, String> rowMap = params.get(rowNum);
 		if (rowMap == null) {
 			rowMap = new HashMap<Integer, String>();
-			params.put(rowNum, rowMap);
 		}
 		rowMap.put(colNum, colValue);
+		params.put(rowNum, rowMap);
 	}
 
 	/**
@@ -108,9 +106,9 @@ public class UpdActionListener extends AbstractActionListener {
 		HashMap<Integer, String> rowMap = addMapPara.get(rowNum);
 		if (rowMap == null) {
 			rowMap = new HashMap<Integer, String>();
-			addMapPara.put(rowNum, rowMap);
 		}
 		rowMap.put(colNum, addedData);
+		addMapPara.put(rowNum, rowMap);
 	}
 
 	/**
@@ -184,7 +182,7 @@ public class UpdActionListener extends AbstractActionListener {
 		// 更新后再刷新画面
 		ResultSet rowSet = dbClient.executeQuery(tblName);
 		int dataCnt = dbClient.size();
-		
+
 		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
 		pageAction.displayTableData(rowSet, dataCnt);
 		logger.debug("update data success");

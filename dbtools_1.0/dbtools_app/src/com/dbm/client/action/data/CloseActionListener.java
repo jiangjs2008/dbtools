@@ -21,7 +21,7 @@ public class CloseActionListener extends AbstractActionListener {
 	public void doActionPerformed(ActionEvent e) {
 		// close current db connection
 		DbClient dbClient = DbClientFactory.getDbClient();
-		if (!dbClient.isConnected()) {
+		if (dbClient == null || !dbClient.isConnected()) {
 			Msg01Dialog.showMsgDialog(10003);
 			return;
 		}

@@ -32,7 +32,7 @@ import com.dbm.common.util.StringUtil;
  * [function]<br>
  * 显示错误信息<br><br>
  * [history]<br>
- * 2013/05/10 ver1.0.0  JiangJusheng<br>
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public class Msg01Dialog extends javax.swing.JDialog {
 	/**

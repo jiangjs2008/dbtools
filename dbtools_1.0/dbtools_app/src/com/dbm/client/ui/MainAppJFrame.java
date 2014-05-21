@@ -1,18 +1,3 @@
-/**
- * Copyright 2013 JiangJusheng
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.dbm.client.ui;
 
 /**
@@ -62,11 +47,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.ExpandVetoException;
-import javax.swing.tree.TreePath;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.MyActionListener;
@@ -76,7 +56,7 @@ import com.dbm.client.action.data.PageJumpActionListener;
 import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.action.menu.FavrMenuActionListener;
 import com.dbm.client.error.handler.ExceptionHandlerFactory;
-import com.dbm.client.ui.tbldata.TableDataSelectedListener;
+import com.dbm.client.ui.tbldata.TableCellSelectedListener;
 import com.dbm.client.ui.tbldata.TableHeaderSelectedListener;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTreeClickListener;
@@ -93,7 +73,7 @@ import com.dbm.common.util.StringUtil;
  * frame initial, add each component's event action listener<br>
  * menubar initial<br><br>
  * [history]<br>
- * 2013/05/10 ver1.0.0  JiangJusheng<br>
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public class MainAppJFrame extends javax.swing.JFrame {
 
@@ -232,7 +212,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTable1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jTable1.setCellSelectionEnabled(true);
-		jTable1.addMouseListener(new TableDataSelectedListener());
+		jTable1.addMouseListener(new TableCellSelectedListener());
 
 		// copy&paste action
 		MyActionListener myListener = new MyActionListener();

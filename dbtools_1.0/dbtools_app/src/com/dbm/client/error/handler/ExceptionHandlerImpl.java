@@ -1,7 +1,3 @@
-/**
- * Copyright c JiangJusheng 2012 All Rights Reserved.
- * ShougaiExceptionHandler.java
- */
 package com.dbm.client.error.handler;
 
 import com.dbm.client.ui.Msg01Dialog;
@@ -21,7 +17,7 @@ public class ExceptionHandlerImpl implements ExceptionHandler {
 	private static LoggerWrapper logger = new LoggerWrapper(ExceptionHandlerImpl.class);
 
 	ExceptionHandlerImpl() {
-		
+
 	}
 
 	@Override
@@ -34,12 +30,12 @@ public class ExceptionHandlerImpl implements ExceptionHandler {
 			Msg01Dialog.showMsgDialog(((WarningException) exp).getErrorNumber());
 
 		} else if (exp instanceof BaseException) {
-			// 
+			//
 			logger.error(exp.getMessage());
 			logErrStackMsg(exp);
 
 		} else if (exp instanceof BaseExceptionWrapper) {
-			// 
+			//
 			logger.error(exp.getCause().getMessage());
 			logErrStackMsg(exp.getCause());
 			Msg01Dialog.showMsgDialog(40003);
@@ -62,7 +58,7 @@ public class ExceptionHandlerImpl implements ExceptionHandler {
 
 	/**
 	 * 记录错误信息到日志文件
-	 * 
+	 *
 	 * @param ex 异常事件对象
 	 */
 	private void logErrStackMsg(Throwable ex) {
@@ -77,7 +73,7 @@ public class ExceptionHandlerImpl implements ExceptionHandler {
 
 	/**
 	 * 记录线程信息到日志文件
-	 * 
+	 *
 	 * @param thread 线程对象
 	 */
 	private void logThreadInfo(Thread thread) {

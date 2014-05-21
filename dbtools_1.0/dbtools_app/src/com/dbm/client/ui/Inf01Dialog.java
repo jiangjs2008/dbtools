@@ -1,4 +1,5 @@
 package com.dbm.client.ui;
+
 import java.awt.BorderLayout;
 
 import java.awt.Dimension;
@@ -12,7 +13,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import com.dbm.client.util.TableUtil;
-
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -32,7 +32,7 @@ import com.dbm.client.util.TableUtil;
  * [function]<br>
  * 显示表字段信息<br><br>
  * [history]<br>
- * 2013/05/10 ver1.0.0  JiangJusheng<br>
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public class Inf01Dialog extends javax.swing.JDialog {
 	/**

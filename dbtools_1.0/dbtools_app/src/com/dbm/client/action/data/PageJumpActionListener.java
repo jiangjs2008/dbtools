@@ -6,7 +6,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -63,6 +62,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 
 		// 当前页表示件数
 		int itemSize = 0;
+		pageCnt = 0;
 		currPage = 1;
 		if (dataCnt > dataLimit) {
 			if (dataCnt % dataLimit == 0) {
@@ -119,9 +119,9 @@ public class PageJumpActionListener extends AbstractActionListener {
 			// set table data
 			for (int i = 1; i <= length; i ++) {
 
-					if (!_rowSet.next()) {
-						break;
-					}
+				if (!_rowSet.next()) {
+					break;
+				}
 
 				Vector<String> colValue = new Vector<String>(colCount);
 				colValue.add(Integer.toString(i + (currPage - 1) * dataLimit));

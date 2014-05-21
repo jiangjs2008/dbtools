@@ -155,7 +155,7 @@ public class MyActionListener extends AbstractActionListener {
 				tblRow.setElementAt("*" + Integer.toString(newRowIdx), 0);
 
 				for (int i = 1, lengs = tblRow.size(); i < lengs; i ++) {
-					updMng.setUpdParams(newRowIdx, i, tblRow.get(i));
+					updMng.setAddParams(newRowIdx, i, tblRow.get(i));
 				}
 
 				jTable1Model.addRow(tblRow);

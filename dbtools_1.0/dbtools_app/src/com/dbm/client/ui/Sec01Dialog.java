@@ -1,6 +1,3 @@
-/**
- * Sec001Dialog.java
- */
 package com.dbm.client.ui;
 
 import java.awt.BorderLayout;
@@ -35,7 +32,7 @@ import com.dbm.common.util.SecuUtil;
  * [function]<br>
  * 对用户名/密码进行加密或解密<br><br>
  * [history]<br>
- * 2013/05/10 ver1.0.0<br>
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public class Sec01Dialog extends javax.swing.JDialog {
 

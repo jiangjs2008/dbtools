@@ -32,7 +32,7 @@ import com.dbm.common.util.StringUtil;
  * [function]<br>
  * 提示用户继续还是放弃操作<br><br>
  * [history]<br>
- * 2013/05/10 ver1.0.0  JiangJusheng<br>
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public class Msg02Dialog extends javax.swing.JDialog {
 	/**
