@@ -46,7 +46,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	private DBCollection _tblObj = null;
 	private DBCursor _cur = null;
 
-	private ArrayList<Object> colNameList = null;
+	private ArrayList<String> colNameList = null;
 	private ArrayList<ArrayList<Object>> dataList = null;
 
 	private int curDataIdx = -1;
@@ -104,16 +104,21 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 				DBObject data = _cur.next();
 				
 				rowValue = new ArrayList<Object>();
-				rowValue.addAll(new TreeMap(data.toMap()).values());
+				rowValue.addAll(data.toMap().values());
 				dataList.add(rowValue);
 			}
 
 			if (colNameList == null) {
-				colNameList = new ArrayList<Object>();
-				colNameList.addAll(new TreeSet<Object>(_cur.curr().keySet()));
+				colNameList = new ArrayList<String>();
+				colNameList.addAll(_cur.curr().keySet());
 
 				// 生成元信息
-				mrsr = new MongoResultSetMetaData(colNameList);
+				String[] nameArray = new String[colNameList.size()];
+				for (int i = 0; i < nameArray.length; i ++) {
+					nameArray[i] = colNameList.get(i).toString();
+				}
+				
+				mrsr = new MongoResultSetMetaData(nameArray);
 			}
 		}
 	}

@@ -19,20 +19,20 @@ public class MongoResultSet extends AbstractResultSet {
 	private int rowIdx = 0;
 	private int rowCnt = 0;
 
-//	private String[] header = null;
+	private String[] header = null;
 	private String[][] datas = null;
 
 	/**
 	 * 构造函数
 	 */
-	MongoResultSet(String[] header, String[][] datas) {
+	public MongoResultSet(String[] header, String[][] datas) {
 		rowIdx = -1;
 		rowCnt = -1;
 		if (datas != null) {
 			rowCnt = datas.length;
 		}
 
-//		this.header = header;
+		this.header = header;
 		this.datas = datas;
 	}
 
@@ -108,7 +108,7 @@ public class MongoResultSet extends AbstractResultSet {
 
 	public ResultSetMetaData getMetaData() throws SQLException {
 		if (md == null) {
-			md = new MongoResultSetMetaData(null);
+			md = new MongoResultSetMetaData(header);
 		}
 		return md;
 	}

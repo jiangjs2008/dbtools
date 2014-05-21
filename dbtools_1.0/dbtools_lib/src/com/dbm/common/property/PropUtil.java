@@ -1,30 +1,25 @@
-/**
- * Copyright c NTT DATA CORPORATION 2012 All Rights Reserved.
- * PropUtil.java
- */
 package com.dbm.common.property;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.log.LoggerWrapper;
 import com.dbm.common.util.SecuUtil;
+import com.dbm.common.util.StringUtil;
 
 /**
  * [name]<br>
- * 数据库驱动信息类<br><br>
+ * 配置信息类<br><br>
  * [function]<br>
- * 保存数据库驱动信息<br><br>
+ * 读取配置信息<br><br>
  * [history]<br>
- * 2012/02/11 ver1.00 JiangJusheng<br>
- *
- * @author JiangJusheng
- * @version 1.00
+ * 2012/02/11 ver1.0 JiangJusheng<br>
  */
 public class PropUtil {
 
@@ -35,82 +30,80 @@ public class PropUtil {
 
 	private static ArrayList<ConnBean> connList = new ArrayList<ConnBean>();
 	private static ArrayList<FavrBean> favrList = new ArrayList<FavrBean>();
-	private static HashMap<String, String> appenvMap = new HashMap<String, String>();
 
-	static {
-		try {
-			Class.forName("org.sqlite.JDBC");
-		} catch (ClassNotFoundException cnfexp) {
-			logger.error(cnfexp);
-		}
-	}
+	private static ResourceBundle appenv = null;
+
+	private static Properties favrPrp = new Properties();
+	private static Properties drivPrp = new Properties();
 
 	/**
 	 * 初期化
 	 */
 	public static void load() {
-		Connection conn = null;
-		Statement stmt = null;
-		ResultSet rs = null;
+		InputStream is = null;
 		try {
-			conn = DriverManager.getConnection("jdbc:sqlite:doc/settings.db");
-			stmt = conn.createStatement();
+			is = PropUtil.class.getClassLoader().getResource("__favrinfo.properties").openStream();
+			favrPrp.load(is);
+			is.close();
 
-			rs = stmt.executeQuery("select * from driverinfo");
-			while (rs.next()) {
-				// read the result set
+			//favrPrp.storeToXML(new FileOutputStream(PropUtil.class.getClassLoader().getResource("_favrinfo.xml").getFile()), "");
+			//favrPrp.store(new FileOutputStream(PropUtil.class.getClassLoader().getResource("_favrinfo.p1").getFile()), "");
+
+			is = PropUtil.class.getClassLoader().getResource("__driver.properties").openStream();
+			drivPrp.load(is);
+			is.close();
+
+			appenv = ResourceBundle.getBundle("config");
+
+			is = PropUtil.class.getClassLoader().getResource("message.properties").openStream();
+			Properties p = new Properties();
+			p.load(is);
+			is.close();
+
+			for (Map.Entry<Object, Object> m : p.entrySet()) {
+				LoggerWrapper.addMessage(StringUtil.parseInt((String) m.getKey()), (String) m.getValue());
+			}
+
+			for (Map.Entry<Object, Object> m : drivPrp.entrySet()) {
+
 				ConnBean connBean = new ConnBean();
-				connBean.driverid = rs.getInt("driverid");
-				connBean.dbType = rs.getString("drivertype");
-				connBean.description = rs.getString("description");
-				connBean.action = rs.getString("action");
-				connBean.driver = rs.getString("driver");
-				connBean.sampleUrl = rs.getString("sampleurl");
+				connBean.driverid = StringUtil.parseInt((String) m.getKey());
+				
+				JSONObject json = JSON.parseObject((String) m.getValue());
+				connBean.dbType = json.getString("name");
+				connBean.description = json.getString("description");
+				connBean.action = json.getString("action");
+				connBean.driver = json.getString("driver");
+				connBean.sampleUrl = json.getString("sampleurl");
 				connList.add(connBean);
 			}
 
-			rs = stmt.executeQuery("select * from favrinfo where useflg=1 order by id");
-			while (rs.next()) {
+			for (Map.Entry<Object, Object> m : favrPrp.entrySet()) {
 				// read the result set
-				FavrBean favrBean = new FavrBean();
-				favrBean.name = rs.getString("name");
-				favrBean.driverId = rs.getInt("driverId");
-				favrBean.description = rs.getString("description");
-				favrBean.url = rs.getString("url");
-				favrBean.user = SecuUtil.decryptBASE64(rs.getString("user"));
-				favrBean.password = SecuUtil.decryptBASE64(rs.getString("password"));
-				favrList.add(favrBean);
+				JSONObject json = JSON.parseObject((String) m.getValue());
+				if (json.getIntValue("useflg") == 1) {
+					FavrBean favrBean = new FavrBean();
+					favrBean.name = json.getString("name");
+					favrBean.driverId = json.getIntValue("driverid");
+					favrBean.description = json.getString("description");
+					favrBean.url = json.getString("url");
+					favrBean.user = SecuUtil.decryptBASE64(json.getString("user"));
+					favrBean.password = SecuUtil.decryptBASE64(json.getString("password"));
+					favrList.add(favrBean);
+				}
 			}
 
-			rs = stmt.executeQuery("select * from appenv");
-			while (rs.next()) {
-				// read the result set
-				appenvMap.put(rs.getString("entrykey"), rs.getString("entryvalue"));
-			}
+			logger.debug("app prop file init success");
 
-			HashMap<Integer, String> msgMap = new HashMap<Integer, String>();
-			rs = stmt.executeQuery("select * from msglist");
-			while (rs.next()) {
-				// read the result set
-				msgMap.put(rs.getInt("msgid"), rs.getString("msgvalue"));
-			}
-			LoggerWrapper.addMessage(msgMap);
-
-		} catch (SQLException sqlexp) {
-			logger.error(sqlexp);
+		} catch (Exception exp) {
+			logger.error(exp);
 		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException ioex) {
+					logger.error(ioex);
 				}
-				if (stmt != null) {
-					stmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				logger.error(e);
 			}
 		}
 	}
@@ -157,8 +150,7 @@ public class PropUtil {
 	 * @return String 设置信息
 	 */
 	public static String getAppConfig(String key) {
-		return appenvMap.get(key);
+		return appenv.getString(key);
 	}
-
 
 }

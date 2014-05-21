@@ -29,6 +29,8 @@ public class DbClient4SQLiteImpl extends DbClient4DefaultImpl {
 	private String _tblName = null;
 	@Override
 	public ResultSet getPage(int pageNum, int rowIdx, int pageSize) {
+		currPage = pageNum;
+
 		try {
 			if (rs != null) {
 				rs.close();

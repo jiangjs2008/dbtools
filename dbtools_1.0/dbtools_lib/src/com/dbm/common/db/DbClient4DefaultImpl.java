@@ -17,7 +17,6 @@ import javax.sql.rowset.spi.SyncProviderException;
 import javax.sql.rowset.spi.SyncResolver;
 
 import com.dbm.common.error.BaseExceptionWrapper;
-import com.dbm.common.error.WarningException;
 import com.sun.rowset.CachedRowSetImpl;
 
 /**

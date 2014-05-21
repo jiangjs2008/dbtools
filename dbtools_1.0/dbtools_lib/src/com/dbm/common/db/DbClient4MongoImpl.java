@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import jdbc.wrapper.mongo.MongoCachedRowSetImpl;
+import jdbc.wrapper.mongo.MongoResultSet;
 
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
@@ -76,11 +77,11 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 		}
 
 		// 判断SQL类型
-		if (action.indexOf("db.collection.find") == 0) {
+		if (action.indexOf(".find") > 0 || action.indexOf(".count") > 0) {
 			sqlType = 1;
-		} else if (action.indexOf("db.createCollection") == 0 || action.indexOf("db.collection.drop") == 0
-				|| action.indexOf("db.collection.insert") == 0 || action.indexOf("db.collection.update") == 0
-				|| action.indexOf("db.collection.remove") == 0 ) {
+		} else if (action.indexOf("db.createCollection(") == 0 || action.indexOf(".drop(") == 0
+				|| action.indexOf(".insert(") == 0 || action.indexOf(".update(") == 0
+				|| action.indexOf(".remove(") == 0 ) {
 			sqlType = 2;
 		} else {
 			throw new WarningException(20001);
@@ -91,12 +92,30 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	@Override
 	public ResultSet directQuery(String action) {
 		// 查询数据，此处只需考虑分页，不需考虑更新
-		try {
-			stmt = _dbConn.createStatement();
-			rs = stmt.executeQuery(action);
-			return rs;
-		} catch (SQLException exp) {
-			logger.error(exp);
+		int dot_1st = action.indexOf(".");
+		int dot_2nd = action.indexOf(".", dot_1st + 1);
+		String tblName = action.substring(dot_1st + 1, dot_2nd);
+
+		if (action.indexOf(".find(") > 0) {
+			// 查询
+			if (allRowSet != null) {
+				try {
+					allRowSet.close();
+				} catch (SQLException exp) {
+					logger.error(exp);
+				}
+			}
+
+			allRowSet = new MongoCachedRowSetImpl(dbObj.getCollection(tblName).find());
+			//TableUtil.setTableData(allRowSet, true);
+			
+		} else if (action.indexOf(".findOne(") > 0) {
+			
+			
+		} else if (action.indexOf(".count(") > 0) {
+			long size = dbObj.getCollection(tblName).count();
+			_size = 1;
+			return new MongoResultSet(new String[] {"count"}, new String[][] { new String[]{ Long.toString(size) } });
 		}
 		return null;
 	}
@@ -110,7 +129,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	public boolean directExec(String action) {
 
 		// 判断SQL类型
-		if (action.startsWith("db.createCollection")) {
+		if (action.startsWith("db.createCollection(")) {
 			// 创建表
 			int quote_1st = action.indexOf("\"");
 			int quote_2nd = action.indexOf("\"", quote_1st + 1);
@@ -132,27 +151,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 			String tblName = action.substring(dot_1st + 1, dot_2nd);
 			dbObj.getCollection(tblName).drop();
 
-		} else if (action.indexOf(".find(") > 0) {
-			// 查询
-//			if (allRowSet != null) {
-//				try {
-//					allRowSet.close();
-//				} catch (SQLException exp) {
-//					logger.error(exp);
-//				}
-//			}
-//			int dot_1st = action.indexOf(".");
-//			int dot_2nd = action.indexOf(".", dot_1st + 1);
-//			String tblName = action.substring(dot_1st + 1, dot_2nd);
-//			
-//			allRowSet = new MongoCachedRowSetImpl(dbObj.getCollection(tblName).find());
-//			TableUtil.setTableData(allRowSet, true);
-			
-		} else if (action.indexOf(".findOne(") > 0) {
-			
-			
 		}
-
 		return false;
 	}
 

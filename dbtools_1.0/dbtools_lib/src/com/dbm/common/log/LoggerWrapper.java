@@ -1,7 +1,3 @@
-/**
- * Copyright c JiangJusheng 2011 All Rights Reserved.
- * LoggerWrapper.java
- */
 package com.dbm.common.log;
 
 import java.net.URL;
@@ -13,15 +9,11 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 /**
  * [name]<br>
- *  既存のロギングをラッピングしログ機能を提供します。<br><br>
+ * 既存のロギングをラッピングしログ機能を提供します。<br><br>
  * [function]<br>
- *  ログ出力を行う。<br><br>
+ * ログ出力を行う。<br><br>
  * [history]<br>
- *  2003/10/16 ver1.00 first edition JiangJusheng<br>
- *　2011/08/02 統合MPN 修正 JiangJusheng<br>
- *
- * @author JiangJusheng
- * @version 1.00
+ * 2003/10/16 ver1.0 JiangJusheng<br>
  */
 public class LoggerWrapper {
 
@@ -101,10 +93,11 @@ public class LoggerWrapper {
 		logger.log(FQCN, Level.ERROR, "", cause);
 	}
 
+	public static void addMessage(Integer key, String msg) {
+		_msgMap.put(key, msg);
+	}
 	public static void addMessage(HashMap<Integer, String> msgMap) {
-		if (_msgMap == null) {
-			_msgMap = msgMap;
-		} else {
+		if (msgMap != null) {
 			_msgMap.putAll(msgMap);
 		}
 	}

@@ -1,7 +1,3 @@
-/**
- * Copyright c NTT DATA CORPORATION 2012 All Rights Reserved.
- * ConnBean.java
- */
 package com.dbm.common.property;
 
 /**
@@ -10,7 +6,7 @@ package com.dbm.common.property;
  * [function]<br>
  * 保存数据库驱动信息<br><br>
  * [history]<br>
- * 2012/02/11 ver1.0.0 JiangJusheng<br>
+ * 2012/02/11 ver1.0 JiangJusheng<br>
  */
 public class ConnBean {
 	/**

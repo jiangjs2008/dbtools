@@ -1,7 +1,3 @@
-/**
- * Copyright c JiangJusheng 2012 All Rights Reserved.
- * FavrBean.java
- */
 package com.dbm.common.property;
 
 /**
@@ -11,11 +7,9 @@ package com.dbm.common.property;
  * 保存最常用的数据库连接信息<br><br>
  * [history]<br>
  * 2012/02/11 ver1.00 JiangJusheng<br>
- *
- * @author JiangJusheng
- * @version 1.00
  */
 public class FavrBean {
+
 	/**
 	 * 快捷方式名称
 	 */
@@ -43,5 +37,5 @@ public class FavrBean {
 	/**
 	 * 利用标志位，1：可用； 0：不可用
 	 */
-	public boolean useFlg = true;
+	//public boolean useFlg = false;
 }
