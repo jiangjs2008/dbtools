@@ -1,10 +1,6 @@
-/**
- * Copyright (c) 2013 JiangJusheng. All rights reserved.
- */
 package com.dbm.client.util;
 
 import java.awt.Color;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -18,7 +14,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
-import com.dbm.client.action.data.PageJumpActionListener;
 import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.ui.Session;
@@ -33,22 +28,20 @@ import com.dbm.common.log.LoggerWrapper;
  * [function]<br>
  * JTable utility function<br><br>
  * [history]<br>
- * 2013/05/10 first edition  JiangJusheng<br>
- *
- * @version 1.00
+ * 2013/05/10 ver1.0 JiangJusheng<br>
  */
 public final class TableUtil {
 
 	/**
 	 * instances of the log class
 	 */
-	private static LoggerWrapper logger = new LoggerWrapper(TableUtil.class); 
+	private static LoggerWrapper logger = new LoggerWrapper(TableUtil.class);
 
 	/**
 	 * set db data to JTable cell
 	 *
 	 * @param jTable1 JTable object
-	 * @param rslt    db data, first row is column identifiers 
+	 * @param rslt    db data, first row is column identifiers
 	 */
 	public static void setTableData(ArrayList<ArrayList<Object>> rslt, boolean hasRowId) {
 		JTable jTable1 = (JTable) AppUIAdapter.getUIObj(AppUIAdapter.TableDataUIObj);
@@ -111,7 +104,7 @@ public final class TableUtil {
 				// 判断当前更该行是否大于该表的数据总件数
 				DbClient dbClient = DbClientFactory.getDbClient();
 				int dataCnt = dbClient.size();
-				int pageNum = dbClient.getCurrPageNum();
+				int pageNum = dbClient.getCurrPageNum() + 1;
 
 				UpdActionListener updMng = UpdActionListener.getInstance();
 				if ((pageNum - 1) * Session.PageDataLimit + row > dataCnt || dataCnt == 0) {
