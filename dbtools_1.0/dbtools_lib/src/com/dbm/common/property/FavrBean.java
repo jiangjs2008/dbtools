@@ -9,7 +9,10 @@ package com.dbm.common.property;
  * 2012/02/11 ver1.00 JiangJusheng<br>
  */
 public class FavrBean {
-
+	/**
+	 * 快捷方式Id
+	 */
+	public int favrId = 0;
 	/**
 	 * 快捷方式名称
 	 */

@@ -16,7 +16,7 @@ public class ConnBean {
 	/**
 	 * 数据库类型名称
 	 */
-	public String dbType = null;
+	public String name = null;
 	/**
 	 * 数据库类型简介
 	 */

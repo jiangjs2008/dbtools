@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.xml.DOMConfigurator;
 
 /**
  * [name]<br>
@@ -15,12 +14,6 @@ import org.apache.log4j.xml.DOMConfigurator;
  * 2003/10/16 ver1.0 JiangJusheng<br>
  */
 public class LoggerWrapper {
-
-	static {
-		//log4j初期化
-		String url = System.getProperty("user.dir") + "/conf/log4j.xml";
-		DOMConfigurator.configure(url);
-	}
 
 	private static HashMap<Integer, String> _msgMap = new HashMap<Integer, String>();
 
