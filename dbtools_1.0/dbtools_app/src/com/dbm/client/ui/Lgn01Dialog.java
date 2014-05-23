@@ -30,6 +30,7 @@ import com.dbm.common.log.LoggerWrapper;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
+import com.dbm.common.util.SecuUtil;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -162,12 +163,12 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 			connInfo = PropUtil.getDbConnInfo(favrInfo.driverId);
 			jTextField1.setText(favrInfo.name);
 			jTextField2.setText(favrInfo.url);
-			jTextField3.setText(favrInfo.user);
-			jTextField4.setText(favrInfo.password);
+			jTextField3.setText(SecuUtil.decryptBASE64(favrInfo.user));
+			jTextField4.setText(SecuUtil.decryptBASE64(favrInfo.password));
 
 		} else {
 			connInfo = Session.getCurrConnInfo();
-			jTextField1.setText(connInfo.dbType);
+			jTextField1.setText(connInfo.name);
 			jTextField2.setText(connInfo.sampleUrl);
 			jTextField3.setText("");
 			jTextField4.setText("");

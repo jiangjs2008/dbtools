@@ -44,7 +44,6 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -55,7 +54,6 @@ import com.dbm.client.action.data.ExecActionListener;
 import com.dbm.client.action.data.PageJumpActionListener;
 import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.action.menu.FavrMenuActionListener;
-import com.dbm.client.error.handler.ExceptionHandlerFactory;
 import com.dbm.client.ui.tbldata.TableCellSelectedListener;
 import com.dbm.client.ui.tbldata.TableHeaderSelectedListener;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
@@ -98,35 +96,14 @@ public class MainAppJFrame extends javax.swing.JFrame {
 	private JButton jLabel2;
 	private JButton jLabel1;
 
-	static SplashScreen ss = null;
-
 	private AbstractActionListener execAction = null;
 	private AbstractActionListener updAction = null;
-
-	/**
-	* Auto-generated main method to display this JFrame
-	*/
-	public static void main(String[] args) {
-		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandlerFactory.getExceptionHandler());
-		ss = new SplashScreen("Splash.png");
-		ss.showScreen();
-
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				MainAppJFrame inst = new MainAppJFrame();
-				inst.setLocationRelativeTo(null);
-				ss.close();
-				inst.setVisible(true);
-			}
-		});
-	}
 
 	/**
 	 * default constructor
 	 */
 	public MainAppJFrame() {
 		super();
-		PropUtil.load();
 
 		initGui();
 		initMenuBar();
@@ -460,6 +437,9 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		// 显示最近使用数据库一览
 		// load favorite database
 		for (FavrBean fbInfo : PropUtil.getFavrInfo()) {
+			if (fbInfo == null) {
+				continue;
+			}
 			JMenuItem jMenuItem22 = new JMenuItem();
 			jMenu2.add(jMenuItem22);
 			jMenuItem22.setText(fbInfo.name);
@@ -488,7 +468,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		for (ConnBean cbInfo : PropUtil.getDbConnInfo()) {
 			JMenuItem jMenuItem32 = new JMenuItem();
 			jMenu3.add(jMenuItem32);
-			jMenuItem32.setText(cbInfo.dbType);
+			jMenuItem32.setText(cbInfo.name);
 			jMenuItem32.setToolTipText(StringUtil.printTipText(cbInfo.driver, cbInfo.description));
 			jMenuItem32.addActionListener(new FavrMenuActionListener(null, cbInfo));
 		}
