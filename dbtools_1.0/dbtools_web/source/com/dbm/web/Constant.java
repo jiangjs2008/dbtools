@@ -1,39 +1,39 @@
 package com.dbm.web;
 
-public class ActionProcessor {
+public class Constant {
 
 	/**
-	 * µÇÂ½Êı¾İ¿â
+	 * ç™»é™†æ•°æ®åº“
 	 */
 	public final static int ACT_LOGIN = 1;
 	/**
-	 * ²éÑ¯Êı¾İ( Ö´ĞĞ½Å±¾)
+	 * æŸ¥è¯¢æ•°æ®( æ‰§è¡Œè„šæœ¬)
 	 */
 	public final static int ACT_QUERY = 2;
 	/**
-	 * ¸üĞÂÊı¾İ
+	 * æ›´æ–°æ•°æ®
 	 */
 	public final static int ACT_UPDATE = 3;
 	/**
-	 * ×·¼ÓÊı¾İ
+	 * è¿½åŠ æ•°æ®
 	 */
 	public final static int ACT_INSERT = 4;
 	/**
-	 * É¾³ıÊı¾İ
+	 * åˆ é™¤æ•°æ®
 	 */
 	public final static int ACT_DELETE = 5;
 
 
 	/**
-	 * È¡µÃÊı¾İ¿âĞÅÏ¢
+	 * å–å¾—æ•°æ®åº“ä¿¡æ¯
 	 */
 	public final static int ACT_DBINFO = 7;
 	/**
-	 * È¡µÃ±íĞÅÏ¢
+	 * å–å¾—è¡¨ä¿¡æ¯
 	 */
 	public final static int ACT_TBLINFO = 8;
 	/**
-	 * È¡µÃ±íÊı¾İ(ËùÓĞÊı¾İ)
+	 * å–å¾—è¡¨æ•°æ®(æ‰€æœ‰æ•°æ®)
 	 */
 	public final static int ACT_TBLDATA = 9;
 
