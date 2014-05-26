@@ -6,7 +6,7 @@
 <title>异步加载表头</title>
 <script type="text/javascript" src="/dbm/js/jquery-1.6.4.min.js"></script>
 <script type="text/javascript" src="/dbm/js/om-ui.js"></script>
-<link rel="stylesheet" type="text/css" href="/dbm/css/om-ui.css">
+<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
 
 <!-- view_source_begin -->
 <script type="text/javascript">

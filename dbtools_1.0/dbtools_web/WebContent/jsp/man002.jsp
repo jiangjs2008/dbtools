@@ -6,52 +6,64 @@
 <title>查看表</title>
 <script type="text/javascript" src="/dbm/js/jquery-1.6.4.min.js"></script>
 <script type="text/javascript" src="/dbm/js/om-ui.js"></script>
-<link rel="stylesheet" type="text/css" href="/dbm/css/om-ui.css">
-<style>
-	html, body{ width: 100%; height: 100%; padding: 0; margin: 0;}
-</style>
+<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
+<link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
 <script type="text/javascript">
+
 $(document).ready(function() {
 	var element = $('body').omBorderLayout({
 		panels:[{id:"center-panel", header:false, region:"center"},
-				{id:"west-panel", resizable:true, collapsible:true, title:"数据库表一览", region:"west", width:150}]
-	});
-	$("#mytree2").omTree({
-	    dataSource : citydata,
-	    onSelect: function(nodedata) {
-	    	if (!nodedata.children && nodedata.text) {
-	    		//避免在IE浏览器下出现中文乱码
-	    		var url = encodeURI("griddata.do?method=filter&city="+nodedata.text);
-	    		$("#grid").omGrid("setData", url);
-	    	} else {
-	    		$("#grid").omGrid("setData", "griddata.do?method=fast");
-	    	}
-	    }
+				{id:"west-panel", resizable:true, collapsible:true, title:"数据库表一览", region:"west", width:"25%"}]
 	});
 
-	$('#grid').omGrid({
-	    dataSource : 'griddata.do?method=fast',
-	    limit: 14,
-	    height: 'fit',
-	    width : 'fit',
-	    title : '标题',
-	    colModel : [ {header : 'ID', name : 'id', width : 80, align : 'center'}, 
-	                 {header : '地区', name : 'city', width : 100, align : 'left'}, 
-	                 {header : '地址', name : 'address', align : 'left', width : 'autoExpand'} ]
+
+	$("#mytree2").omTree({
+		dataSource : ${dbInfo},
+		onClick : function(nodeData, event){ },
+		onDblClick : function(nodeData, event){
+			if (nodeData.hasChildren) {
+				// 父结点，取得表一览
+				$.ajax({
+					url: '/dbm/ajax/gettbllist.do?catalog=' + nodeData.text,
+					method: 'POST',
+					dataType: 'json',
+					success: function(data){
+						$("#mytree2").omTree("insert", data, nodeData);
+					}
+				});
+			} else {
+				// 查询指定表的数据
+				//var url = encodeURI("griddata.do?method=filter&city="+nodedata.text);
+				//$("#grid").omGrid("setData", url);
+
+				//首先从服务器端获取表头数据，再初始化数据表
+				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + nodeData.text, function(data) {
+					$("#grid").omGrid({
+							limit: 25,
+		height: 'fit',
+		width : 'fit',
+					title : '表名: ' + nodeData.text,
+						dataSource: "/dbm/ajax/griddata.do?tblname=" + nodeData.text,
+						colModel : data
+					});
+				});
+			}
+		}
 	});
+
 	$(window).resize(function() {
-	    $('#grid').omGrid("resize");
+		$('#grid').omGrid("resize");
 	});
 });
 </script>
 </head>
 
 <body>
-<div id="center-panel">
-    <table id="grid"></table>
+<div id="center-panel" style="border:0px">
+	<table id="grid"></table>
 </div>
 <div id="west-panel">
-    <ul id="mytree2"></ul>
+	<ul id="mytree2"></ul>
 </div>
 </body>
 </html>
