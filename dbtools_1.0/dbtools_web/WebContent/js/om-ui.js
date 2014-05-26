@@ -4705,6 +4705,9 @@ $.extend($.om.sortable, {
 				autoExpandColIndex = -1;
 				thead=$('<thead></thead>');
 				tr=$('<tr style="height:25px;background: #e6e6e6;"></tr>').appendTo(thead);
+
+			$('table thead',this.bDiv).empty();
+
 			//渲染序号列
 			if(op.showIndex){
 				var cell=$('<th></th>').attr({axis:'indexCol',align:'center'}).addClass('indexCol').append($('<div class="indexheader" style="text-align:center;width:25px;"></div>'));
@@ -4740,7 +4743,7 @@ $.extend($.om.sortable, {
 			//tr.append($('<th></th'));
 			el.prepend(thead);
 
-			$('table thead',this.bDiv).empty();
+		//	$('table thead',this.bDiv).empty();
 			$('table',this.bDiv).append(thead);
 			this._fixHeaderWidth(autoExpandColIndex , allColsWidth);
 			this.thead=thead;
