@@ -2,10 +2,8 @@ package com.dbm.web.biz.controller;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -16,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dbm.common.db.DbClient;
+import com.dbm.common.db.DbClientFactory;
 
 /**
  * [name]<br>
@@ -26,7 +26,7 @@ import com.alibaba.fastjson.JSONObject;
  * 2014/05/05 ver1.00 JiangJusheng<br>
  */
 @Controller
-public class Mpc0110 extends DefaultController {
+public class Man002 extends DefaultController {
 
 
 	@RequestMapping("/ajax/gridcol.do")
@@ -34,11 +34,11 @@ public class Mpc0110 extends DefaultController {
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
 		logger.debug("/ajax/sale/mpc0110query.do =>mpc0110query()");
 		String _tblName = requestParam.get("tblname");
+
+		DbClient dbClient = DbClientFactory.getDbClient();
+
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-
-			Connection _dbConn = DriverManager.getConnection("jdbc:mysql://172.60.100.101:3306/ctdw", "root", "123456");
-
+			Connection _dbConn = dbClient.getConnection();
 			DatabaseMetaData dmd = _dbConn.getMetaData();
 
 			// 取得指定表的所有列的信息
@@ -67,12 +67,9 @@ public class Mpc0110 extends DefaultController {
 		logger.debug("/ajax/sale/mpc0120dispinfo.do =>mpc0120dispinfo()");
 		String _tblName = requestParam.get("tblname");
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection _dbConn = DriverManager.getConnection("jdbc:mysql://172.60.100.101:3306/ctdw", "root", "123456");
-			String action = "select * from " + _tblName;
-			Statement stmt = _dbConn.createStatement();
-			ResultSet rs = stmt.executeQuery(action);
+			DbClient dbClient = DbClientFactory.getDbClient();
+			ResultSet rs = dbClient.executeQuery(_tblName);
 
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();
@@ -90,53 +87,6 @@ public class Mpc0110 extends DefaultController {
 			JSONObject params = new JSONObject();
 			params.put("total", columnInfo.size());
 			params.put("rows", columnInfo);
-			return params.toJSONString();
-
-		} catch (Exception exp) {
-			logger.error("", exp);
-			return "";
-		}
-	}
-
-
-	@RequestMapping("/ajax/alldata.do")
-	@ResponseBody
-	public String alldispinfo(@RequestParam Map<String,String> requestParam) {
-		logger.debug("/ajax/sale/mpc0120dispinfo.do =>mpc0120dispinfo()");
-		String _tblName = requestParam.get("tblname");
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-
-			Connection _dbConn = DriverManager.getConnection("jdbc:mysql://172.60.100.101:3306/ctdw", "root", "123456");
-			String action = "select * from " + _tblName;
-			Statement stmt = _dbConn.createStatement();
-			ResultSet rs = stmt.executeQuery(action);
-
-			String colName = null;
-			ResultSetMetaData rsm = rs.getMetaData();
-			
-			ArrayList<String> columnInfo = null;
-			ArrayList<ArrayList<String>> dataInfo = new ArrayList<ArrayList<String>>();
-			while (rs.next()) {
-				ArrayList<String> rowdata = new ArrayList<String>();
-				
-				if (columnInfo == null) {
-					columnInfo = new ArrayList<String>();
-					for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
-						colName = rsm.getColumnName(i);
-						columnInfo.add(colName);
-					}
-				}
-
-				for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
-					rowdata.add(rs.getString(i));
-				}
-				dataInfo.add(rowdata);
-			}
-
-			JSONObject params = new JSONObject();
-			params.put("coldata", columnInfo);
-			params.put("gridata", dataInfo);
 			return params.toJSONString();
 
 		} catch (Exception exp) {

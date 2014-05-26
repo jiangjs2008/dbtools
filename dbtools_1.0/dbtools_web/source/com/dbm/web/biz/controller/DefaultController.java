@@ -34,7 +34,7 @@ public abstract class DefaultController {
 	@ExceptionHandler(Exception.class)
 	public ModelAndView processException(Exception exp, HttpServletRequest request) {
 		logger.error(request.getServletPath(), exp);
-		return new ModelAndView("common/syserror");
+		return new ModelAndView("syserror");
 	}
 
 }
