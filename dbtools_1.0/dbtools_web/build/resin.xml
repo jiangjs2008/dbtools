@@ -1,0 +1,49 @@
+<!--
+   - Minimal configuration for starting server using an apache-style
+   - document tree in /var/resin/htdocs.
+   -
+   - unix> java -jar lib/resin.jar -root-directory /var/resin \
+   -            -conf conf/minimal.xml
+   -
+   - resin.root is /var/resin, documents are in /var/resin/htdocs.
+  -->
+
+<resin xmlns="http://caucho.com/ns/resin"
+       xmlns:resin="urn:java:com.caucho.resin">
+
+  <!-- Logging configuration for the JDK logging API -->
+  <log-handler name="" level="all" path="stdout:"
+               timestamp="[%y-%m-%d %H:%M:%S.%s]"
+               format=" {${thread}} ${log.message}"/>
+               
+  <!-- 
+     - Alternative pseudo-TTCC log format
+     -
+     - <log-handler name="" level="all" path="stdout:"
+     -           timestamp="%y-%m-%d %H:%M:%S.%s"
+     -           format=" [${thread}] ${log.level} ${log.shortName} - ${log.message}"/>
+    -->
+   
+  <!--
+     - level='info' for production
+     - 'fine' or 'finer' for development and troubleshooting
+    -->
+  <logger name="" level="${log_level?:'info'}"/>
+
+  <logger name="com.caucho.java" level="config"/>
+  <logger name="com.caucho.loader" level="config"/>
+
+  <cluster-default>
+    <resin:import path="${resin.home}/conf/app-default.xml"/>
+  </cluster-default>
+
+  <cluster id="app">
+    <server id="">
+      <http port="8080"/>
+    </server>
+
+    <host id="" root-directory=".">
+      <web-app id="/dbm" root-directory="D:\w-ctcw\dbTools_2.0\WebContent"/>
+    </host>
+  </cluster>
+</resin>
