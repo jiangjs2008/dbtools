@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,7 +58,7 @@ public class Man001 extends DefaultController {
 		}
 	}
 
-	@RequestMapping("/man001.do")
+	@RequestMapping("/login.do")
 	public ModelAndView login(@RequestParam Map<String,String> requestParam) {
 		int favrId = NumberUtils.toInt(requestParam.get("favrid"), -1);
 		if (favrId < 0) {
@@ -96,6 +95,13 @@ public class Man001 extends DefaultController {
 		return new ModelAndView("man002").addObject("dbInfo", JSON.toJSONString(dbInfo));
 	}
 
+	@RequestMapping("/logout.do")
+	public ModelAndView logout() {
+		// 关闭数据库连接
+		DbClientFactory.close();
+		return new ModelAndView("man001");
+	}
+
 	@RequestMapping("/ajax/gettbllist.do")
 	@ResponseBody
 	public String getTblList(@RequestParam Map<String,String> requestParam) {
@@ -110,9 +116,7 @@ public class Man001 extends DefaultController {
 			}
 			List<String> tblList = dbClient.getDbObjList(null, schema, "%", new String[] { tblName });
 
-
 		// 显示数据库内容：表、视图等等
-
 		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(tblList.size());
 		for (String item : tblList) {
 			HashMap<String, Object> objMap = new HashMap<String, Object>(2);

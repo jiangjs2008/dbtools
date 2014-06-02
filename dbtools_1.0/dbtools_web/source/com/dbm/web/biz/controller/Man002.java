@@ -69,7 +69,8 @@ public class Man002 extends DefaultController {
 		try {
 
 			DbClient dbClient = DbClientFactory.getDbClient();
-			ResultSet rs = dbClient.executeQuery(_tblName);
+			dbClient.setTableName(_tblName);
+			ResultSet rs = dbClient.getPage(1);
 
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();

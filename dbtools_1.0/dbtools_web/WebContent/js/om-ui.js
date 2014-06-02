@@ -4706,7 +4706,7 @@ $.extend($.om.sortable, {
 				thead=$('<thead></thead>');
 				tr=$('<tr style="height:25px;background: #e6e6e6;"></tr>').appendTo(thead);
 
-			$('table thead',this.bDiv).empty();
+			$('table thead',this.bDiv).remove();
 
 			//渲染序号列
 			if(op.showIndex){
