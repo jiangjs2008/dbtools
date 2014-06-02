@@ -9,14 +9,17 @@ import java.awt.event.KeyEvent;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import javax.swing.DefaultCellEditor;
 import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.TableColumnModel;
 
 import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.ui.Session;
 import com.dbm.client.ui.tbldata.MyDefaultTableModel;
+import com.dbm.client.ui.tbllist.TableCellEditorListener;
 import com.dbm.client.util.TableUtil;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
@@ -171,7 +174,10 @@ public class MyActionListener extends AbstractActionListener {
 				
 			}
 		}
-		TableUtil.fitTableColumns(jTable1);
+
+		DefaultCellEditor editor = new DefaultCellEditor(new JTextField());
+		editor.addCellEditorListener(new TableCellEditorListener());
+		TableUtil.fitTableColumns(jTable1, editor);
 	}
 
 }

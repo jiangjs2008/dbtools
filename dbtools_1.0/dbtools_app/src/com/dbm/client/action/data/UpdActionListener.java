@@ -12,6 +12,7 @@ import javax.swing.table.TableCellEditor;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Msg01Dialog;
 import com.dbm.client.ui.Msg02Dialog;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
@@ -124,12 +125,36 @@ public class UpdActionListener extends AbstractActionListener {
 	}
 
 	/**
+	 * 设定要更新的数据库表名
+	 *
+	 * @param tblName 表名称
+	 */
+	public boolean hasDataUpd() {
+		if (params != null && params.size() > 0
+			|| addMapPara != null && addMapPara.size() > 0
+			|| delListPara != null && delListPara.size() > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * 更新数据<br>
 	 * 执行顺序：更新->追加->删除
 	 */
 	@Override
 	protected void doActionPerformed(ActionEvent e) {
 		logger.debug("UpdActionListener tbl: " + tblName);
+		DbClient dbClient = DbClientFactory.getDbClient();
+		if (dbClient == null) {
+			// 数据库未连接
+			return;
+		}
+		if (!dbClient.isConnected()) {
+			Msg01Dialog.showMsgDialog(10003);
+			return;
+		}
+
 		JTable jt = (JTable) AppUIAdapter.getUIObj(AppUIAdapter.TableDataUIObj);
 		TableCellEditor editor = jt.getCellEditor();
 		if (editor != null) {
@@ -140,7 +165,9 @@ public class UpdActionListener extends AbstractActionListener {
 			logger.debug("have no table to update");
 			return;
 		}
-		if (params == null && addMapPara == null && delListPara == null) {
+		if ((params == null || params.isEmpty())
+				&& (addMapPara == null || addMapPara.isEmpty())
+				&& (delListPara == null || delListPara.isEmpty())) {
 			logger.debug("have no data to update");
 			return;
 		}
@@ -165,8 +192,7 @@ public class UpdActionListener extends AbstractActionListener {
 			}
 		}
 
-		DbClient dbClient = DbClientFactory.getDbClient();
-		dbClient.executeUpdate(tblName, params, addList, delListPara);
+		dbClient.executeUpdate(params, addList, delListPara);
 
 		if (params != null && params.size() > 0) {
 			params.clear();
@@ -180,7 +206,7 @@ public class UpdActionListener extends AbstractActionListener {
 		}
 
 		// 更新后再刷新画面
-		ResultSet rowSet = dbClient.executeQuery(tblName);
+		ResultSet rowSet = dbClient.getPage(1);
 		int dataCnt = dbClient.size();
 
 		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);

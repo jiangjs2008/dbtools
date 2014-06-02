@@ -6,6 +6,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
 
+import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -16,6 +17,7 @@ import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.ui.Session;
 import com.dbm.client.ui.tbldata.MyDefaultTableModel;
+import com.dbm.client.ui.tbllist.TableCellEditorListener;
 import com.dbm.client.util.TableUtil;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
@@ -40,6 +42,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 	// 总件数
 	private int _dataCnt = 0;
 
+	Vector<String> colName = null;
 	private ResultSet _rowSet = null;
 	private DbClient dbClient = null;
 
@@ -98,7 +101,6 @@ public class PageJumpActionListener extends AbstractActionListener {
 	 */
 	private void setTableData(int offSite, int length) {
 
-		Vector<String> colName = null;
 		Vector<Vector<String>> allData = null;
 		try {
 			// set table column name
@@ -116,6 +118,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 
 			// 如果分页，开始只显示第一页的数据
 			allData = new Vector<Vector<String>>(length);
+			_rowSet.beforeFirst();
 			// set table data
 			for (int i = 1; i <= length; i ++) {
 
@@ -127,7 +130,12 @@ public class PageJumpActionListener extends AbstractActionListener {
 				colValue.add(Integer.toString(i + (currPage - 1) * dataLimit));
 
 				for (int k = 1; k < colCount; k ++) {
-					colValue.add(_rowSet.getString(k));
+					Object obj = _rowSet.getObject(k);
+					if (obj == null) {
+						colValue.add("");
+					} else {
+						colValue.add(dbClient.procCellData(obj));
+					}
 				}
 				allData.add(colValue);
 			}
@@ -144,7 +152,10 @@ public class PageJumpActionListener extends AbstractActionListener {
 		// 最后一页加空行
 		jTable1Model.addRow(new String[]{});
 		jTable1.setModel(jTable1Model);
-		TableUtil.fitTableColumns(jTable1);
+
+		DefaultCellEditor editor = new DefaultCellEditor(new JTextField());
+		editor.addCellEditorListener(new TableCellEditorListener());
+		TableUtil.fitTableColumns(jTable1, editor);
 
 		JScrollBar jscrollBar = ((JScrollPane) jTable1.getParent().getParent()).getVerticalScrollBar();
 		if (jscrollBar != null) {
@@ -157,7 +168,9 @@ public class PageJumpActionListener extends AbstractActionListener {
 	}
 
 	/**
-	 * 必须先判断该数据驱动是否支持数据集滚动
+	 * 翻页操作<br>
+	 * 翻页前必须检查是否有数据被编辑过需要更新，并提醒用户<br>
+	 * 对于直接执行查询所得结果只可向前翻页，且不可更新
 	 */
 	@Override
 	protected void doActionPerformed(ActionEvent e) {
@@ -169,31 +182,22 @@ public class PageJumpActionListener extends AbstractActionListener {
 			if (currPage == 1) {
 				return;
 			}
-			if (dbClient.supportsPageScroll() < 3) {
-				return;
-			}
+
 			currPage = 1;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
-			_rowSet = dbClient.getPage(currPage, currRowIdx, length);
+			_rowSet = dbClient.getPage(currPage);
 
 		} else if ("backward".equals(actionName)) {
 			// 上一页
 			if (currPage == 1) {
 				return;
 			}
-			if (dbClient.supportsPageScroll() == 1) {
-				return;
-			}
+
 			currPage --;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
-			
-			if (dbClient.supportsPageScroll() == 3) {
-				_rowSet = dbClient.getPage(currPage, currRowIdx, length);
-			} else if (dbClient.supportsPageScroll() == 2) {
-				_rowSet = dbClient.getPreviousPage();
-			}
+			_rowSet = dbClient.getPage(currPage);
 
 		} else if ("forward".equals(actionName)) {
 			// 下一页
@@ -203,31 +207,21 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage ++;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
-			
-			if (dbClient.supportsPageScroll() == 3) {
-				_rowSet = dbClient.getPage(currPage, currRowIdx, length);
-			} else if (dbClient.supportsPageScroll() == 2) {
-				_rowSet = dbClient.getNextPage();
-			}
+			_rowSet = dbClient.getPage(currPage);
 
 		} else if ("last".equals(actionName)) {
 			// 最后一页
 			if (currPage == pageCnt) {
 				return;
 			}
-			if (dbClient.supportsPageScroll() < 3) {
-				return;
-			}
+
 			currPage = pageCnt;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = _dataCnt - (currPage - 1) * dataLimit;
-			_rowSet = dbClient.getPage(currPage, currRowIdx, length);
+			_rowSet = dbClient.getPage(currPage);
 
 		} else if ("go".equals(actionName)) {
 			// 查看指定页
-			if (dbClient.supportsPageScroll() < 3) {
-				return;
-			}
 			if (inputPageTxtField == null) {
 				return;
 			}
@@ -245,7 +239,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			if (currPage == pageCnt) {
 				length = _dataCnt - (currPage - 1) * dataLimit;
 			}
-			_rowSet = dbClient.getPage(currPage, currRowIdx, length);
+			_rowSet = dbClient.getPage(currPage);
 
 		} else {
 			throw new BaseException(40002, actionName);
