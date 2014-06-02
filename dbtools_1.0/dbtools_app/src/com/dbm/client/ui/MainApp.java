@@ -31,6 +31,8 @@ public class MainApp {
 	*/
 	public static void main(String[] args) {
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandlerFactory.getExceptionHandler());
+		Thread.currentThread().setUncaughtExceptionHandler(ExceptionHandlerFactory.getExceptionHandler());
+
 		ss = new SplashScreen("Splash.png");
 		ss.showScreen();
 

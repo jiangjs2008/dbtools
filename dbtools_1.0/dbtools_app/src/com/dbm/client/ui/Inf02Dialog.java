@@ -78,6 +78,6 @@ public class Inf02Dialog extends javax.swing.JDialog {
 
 		TableModel tableModel = new DefaultTableModel(allData, columnInfo);
 		jTable2.setModel(tableModel);
-		TableUtil.fitTableColumns2(jTable2);
+		TableUtil.fitTableColumns(jTable2, null);
 	}
 }

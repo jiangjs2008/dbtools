@@ -7,7 +7,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -219,6 +218,7 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 //			}
 
 			dbClient.start(new String[] { connInfo.driver, item2, item3, item4 });
+			dbClient.setPageSize(Session.PageDataLimit);
 
 			// 显示数据库内容：表、视图等等
 			List<String> objList = dbClient.getDbMetaData();
@@ -244,13 +244,7 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 			if (node instanceof TableTypesGroupNode) {
 				// 显示DB所属对象一览
 				DbClient dbClient = DbClientFactory.getDbClient();
-				String schema = null;
-				try {
-					schema = dbClient.getConnection().getMetaData().getUserName();
-				} catch (SQLException ex) {
-					logger.error(ex);
-				}
-				((BaseNode) node).expand(dbClient.getDbObjList(null, schema, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
+				((BaseNode) node).expand(dbClient.getDbObjList(null, null, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
 			}
 		}
 
