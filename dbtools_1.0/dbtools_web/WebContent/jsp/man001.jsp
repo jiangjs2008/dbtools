@@ -75,11 +75,11 @@ function showerror() {
 	</tr>
 	<tr>
 		<td>用户：</td>
-		<td align="left"><input type="text" id="account" name="user" value="root" style="width:150px;line-height:20px;height:20px"/></td>
+		<td align="left"><input type="text" id="account" name="user"  style="width:150px;line-height:20px;height:20px"/></td>
 	</tr>
 	<tr>
 		<td>密码：</td>
-		<td align="left"><input type="password" id="password" name="pwd" value="123456" style="width:150px;line-height:20px;height:20px"/></td>
+		<td align="left"><input type="password" id="password" name="pwd"  style="width:150px;line-height:20px;height:20px"/></td>
 	</tr>
 	<tr>
 		<td align="center" colspan="2"><input type="button" id="aButton" value="确定" style="width:60px;"/></td>

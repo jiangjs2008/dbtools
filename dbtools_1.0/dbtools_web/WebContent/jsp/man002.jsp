@@ -40,12 +40,13 @@ $(document).ready(function() {
 				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + nodeData.text, function(data) {
 					$("#tblname").text(nodeData.text),
 					$("#grid").omGrid({
-						limit: 25,
+						limit: 100,
 						height: 'fit',
 						width : 'fit',
-						dataSource: "/dbm/ajax/griddata.do?tblname=" + nodeData.text,
+					//	dataSource: "/dbm/ajax/griddata.do?tblname=" + nodeData.text,
 						colModel : data
 					});
+					$("#grid").omGrid('setData', "/dbm/ajax/griddata.do?tblname=" + nodeData.text);
 				});
 			}
 		}
@@ -75,7 +76,12 @@ $(document).ready(function() {
 </form>
 </div>
 <div id="center-panel" style="border:0px">
+	<div style="height:500px">
 	<table id="grid"></table>
+	</div>
+	<div>
+<input type="button" id="bButton" value="退出a" style="width:60px;"/>
+	</div>
 </div>
 
 </body>

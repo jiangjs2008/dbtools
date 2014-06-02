@@ -21,6 +21,7 @@ import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
 import com.dbm.common.util.SecuUtil;
+import com.dbm.common.util.StringUtil;
 
 /**
  * [name]<br>
@@ -80,6 +81,7 @@ public class Man001 extends DefaultController {
 		// 登陆到数据库
 		DbClientFactory.createDbClient(connInfo.action);
 		DbClient dbClient = DbClientFactory.getDbClient();
+		dbClient.setPageSize(StringUtil.parseInt(PropUtil.getAppConfig("page.data.count")));
 		dbClient.start(new String[] { connInfo.driver, favr.url, userId, passwd });
 
 		// 显示数据库内容：表、视图等等
