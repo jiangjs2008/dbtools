@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.sql.rowset.CachedRowSet;
-
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
 import com.dbm.common.log.LoggerWrapper;
@@ -50,14 +48,37 @@ public abstract class DbClient {
 	 * 数据库连接对象
 	 */
 	protected Connection _dbConn = null;
-	/**
-	 * 数据缓存对象
-	 */
-	protected CachedRowSet _allRowSet = null;
+
 	/**
 	 * 指定表(当前查询)的数据件数
 	 */
 	protected int _size = 0;
+
+	/**
+	 * 每页显示的数据件数
+	 */
+	protected int _pageSize = 0;
+
+	/**
+	 * @param _pageSize the _pageSize to set
+	 */
+	public void setPageSize(int pageSize) {
+		this._pageSize = pageSize;
+	}
+
+	/**
+	 * 每页显示的数据件数
+	 */
+	protected String _tblName = null;
+
+	/**
+	 * @param _pageSize the _pageSize to set
+	 */
+	public void setTableName(String tblName) {
+		this._tblName = tblName;
+	}
+
+	public abstract int getCurrPageNum();
 
 	/**
 	 * 判断数据库是否已连接
@@ -78,15 +99,6 @@ public abstract class DbClient {
 	}
 
 	/**
-	 * 设置数据缓存对象
-	 *
-	 * @param crs 数据缓存对象
-	 */
-	public final void setCachedRowSet(CachedRowSet crs) {
-		_allRowSet = crs;
-	}
-
-	/**
 	 * 取得指定表(当前查询)的数据件数
 	 *
 	 * @return int 查询结果件数
@@ -94,6 +106,8 @@ public abstract class DbClient {
 	public final int size() {
 		return _size;
 	}
+
+	public abstract String procCellData(Object obj);
 
 	/*
 	 * 取得指定位置的数据
@@ -153,25 +167,10 @@ public abstract class DbClient {
 	 */
 	public abstract boolean directExec(String action);
 
-	/**
-	 * 取得游标移动方式<br>
-	 * 1:只能向前移动
-	 * 2:可以向前或向后移动翻页
-	 * 3:可以定位到任意一页
-	 *
-	 * @return int 
-	 */
-	public abstract int supportsPageScroll();
 
-	public abstract int getCurrPageNum();
-	
-	public abstract ResultSet getPreviousPage();
-
-	
-	public abstract ResultSet getNextPage();
-
-	
-	public abstract ResultSet getPage(int pageNum, int rowIdx, int pageSize);
+	protected String getLimitString(String sql, int pageNum) {
+		return sql;
+	}
 
 	/**
 	 * 取得指定表的所有数据
@@ -180,7 +179,7 @@ public abstract class DbClient {
 	 *
 	 * @return ResultSet 查询结果数据
 	 */
-	public abstract ResultSet executeQuery(String tblName);
+	public abstract ResultSet getPage(int pageNum);
 
 	/**
 	 * 执行数据更新
@@ -192,7 +191,7 @@ public abstract class DbClient {
 	 *
 	 * @return boolean 执行结果，成功返回true,否则false
 	 */
-	public abstract void executeUpdate(String tblName, HashMap<Integer, HashMap<Integer, String>> params,
+	public abstract void executeUpdate(HashMap<Integer, HashMap<Integer, String>> params,
 			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams);
 
 	/**

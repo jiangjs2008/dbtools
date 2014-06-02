@@ -3,6 +3,7 @@
  */
 package com.dbm.common.db;
 
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,12 +13,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.spi.SyncProviderException;
 import javax.sql.rowset.spi.SyncResolver;
 
 import com.dbm.common.error.BaseExceptionWrapper;
-import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * 缺省数据库操作类
@@ -28,23 +27,18 @@ public class DbClient4DefaultImpl extends DbClient {
 
 	protected Statement stmt = null;
 	protected ResultSet rs = null;
-	protected CachedRowSet allRowSet = null;
 
 	@Override
 	public String getTableDataAt(int rowNum, int colNum) {
-		if (allRowSet != null) {
+		if (rs != null) {
 			try {
-				allRowSet.absolute(rowNum);
-				return allRowSet.getString(colNum);
+				rs.absolute(rowNum);
+				return rs.getString(colNum);
 			} catch (Exception exp) {
 				throw new BaseExceptionWrapper(exp);
 			}
 		}
 		return null;
-	}
-
-	public void setCachedRowSetImpl(CachedRowSet crs) {
-		allRowSet = crs;
 	}
 
 	@Override
@@ -60,6 +54,46 @@ public class DbClient4DefaultImpl extends DbClient {
 				_dbConn = DriverManager.getConnection(_dbArgs[1], _dbArgs[2], _dbArgs[3]);
 			}
 			_isConnected = true;
+
+		     DatabaseMetaData dbMeta = _dbConn.getMetaData();
+		     logger.info(dbMeta.getDriverName() + " ## " + dbMeta.getDriverVersion());
+		     if (dbMeta.supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY)) {
+		    	 // 默认的cursor 类型，仅仅支持结果集forward ，不支持backforward ，random ，last ，first 等操作。
+		    	 logger.debug("ResultSet.TYPE_FORWARD_ONLY");
+		     } else if (dbMeta.supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE)) {
+		    	 // 支持结果集backforward ，random ，last ，first 等操作，对其它session 对数据库中数据做出的更改是不敏感的。
+		    	 logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE");
+		     } else if (dbMeta.supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE)) {
+		    	 // 支持结果集backforward ，random ，last ，first 等操作，对其它session 对数据库中数据做出的更改是敏感的，
+		    	 // 即其他session 修改了数据库中的数据，会反应到本结果集中。
+		    	 logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE");
+		     }
+		     
+		     if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+		    	 logger.debug("ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY");
+		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+		    	 logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY");
+		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+		    	 logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY");
+		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) {
+		    	 logger.debug("ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE");
+		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+		    	 logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE");
+		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+		    	 logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE");
+		     }
+
+		     // 判断ResultSetHoldability
+		     // 需要注意的地方：
+		     // 1 ：Oracle 只支持HOLD_CURSORS_OVER_COMMIT 。
+		     // 2 ：当Statement 执行下一个查询，生成第二个ResultSet 时，第一个ResultSet 会被关闭，这和是否支持支持HOLD_CURSORS_OVER_COMMIT 无关。
+		     if (dbMeta.supportsResultSetHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+		    	 // 在事务commit 或rollback 后，ResultSet 仍然可用。
+		    	 logger.debug("ResultSet.HOLD_CURSORS_OVER_COMMIT");
+		     } else if (dbMeta.supportsResultSetHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+		    	 // 在事务commit 或rollback 后，ResultSet 被关闭
+		    	 logger.debug("ResultSet.CLOSE_CURSORS_AT_COMMIT");
+		     }
 
 		} catch (Exception exp) {
 			throw new BaseExceptionWrapper(exp);
@@ -79,9 +113,6 @@ public class DbClient4DefaultImpl extends DbClient {
 			if (_dbConn != null) {
 				_dbConn.close();
 			}
-			if (allRowSet != null) {
-				allRowSet.close();
-			}
 		} catch (SQLException exp) {
 			logger.error(exp);
 		}
@@ -91,7 +122,7 @@ public class DbClient4DefaultImpl extends DbClient {
 	public ResultSet directQuery(String action) {
 		// 查询数据，此处只需考虑分页，不需考虑更新
 		try {
-			stmt = _dbConn.createStatement();
+			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			rs = stmt.executeQuery(action);
 			return rs;
 		} catch (SQLException exp) {
@@ -114,7 +145,8 @@ public class DbClient4DefaultImpl extends DbClient {
 		try {
 			int rslt = stmt.executeUpdate(action);
 			if (rslt == 0) {
-				// TODO msg
+				logger.error("更新不成功: " + action);
+				return false;
 			}
 
 		} catch (Exception exp) {
@@ -126,10 +158,6 @@ public class DbClient4DefaultImpl extends DbClient {
 	// 当前页数
 	protected int currPage = 0;
 
-	public int supportsPageScroll() {
-		return 3;
-	}
-
 	/**
 	 * 取得当前页数
 	 *
@@ -138,43 +166,15 @@ public class DbClient4DefaultImpl extends DbClient {
 	public int getCurrPageNum() {
 		return currPage;
 	}
-	
-	public ResultSet getPreviousPage() {
-		return null;
-	}
 
-	
-	public ResultSet getNextPage() {
-		return null;
-	}
-
-	
 	@Override
-	public ResultSet getPage(int pageNum, int rowIdx, int pageSize) {
-//		if (currPage < pageNum) {
-//			rs.
-//		}
+	public String procCellData(Object obj) {
+		return obj.toString();
+	}
+
+	@Override
+	public ResultSet getPage(int pageNum) {
 		currPage = pageNum;
-
-		try {
-			if (allRowSet != null) {
-				allRowSet.release();
-				allRowSet.close();
-			}
-
-			allRowSet = new CachedRowSetImpl();
-			allRowSet.setMaxRows(500);
-			allRowSet.setPageSize(pageSize);
-
-			allRowSet.populate(rs, rowIdx);
-		} catch (SQLException exp) {
-			throw new BaseExceptionWrapper(exp);
-		}
-		return allRowSet;
-	}
-
-	@Override
-	public ResultSet executeQuery(String tblName) {
 		try {
 			if (rs != null) {
 				rs.close();
@@ -185,36 +185,37 @@ public class DbClient4DefaultImpl extends DbClient {
 		}
 		try {
 			// 先取得该表的数据总件数
-			Statement istmt = null;
-			ResultSet irs = null;
-			try {
-				istmt = _dbConn.createStatement();
-				irs = istmt.executeQuery("select count(1) from " + tblName);
-				if (irs.next()) {
-					_size = irs.getInt(1);
-					logger.debug("TBL: " + tblName + " size: " + _size);
-				}
-			} catch (SQLException exp) {
-				throw new BaseExceptionWrapper(exp);
-			} finally {
+			if (pageNum == 1) {
+				Statement istmt = null;
+				ResultSet irs = null;
 				try {
-					if (irs != null) {
-						irs.close();
-					}
-					if (istmt != null) {
-						istmt.close();
+					istmt = _dbConn.createStatement();
+					irs = istmt.executeQuery("select count(1) from " + _tblName);
+					if (irs.next()) {
+						_size = irs.getInt(1);
+						logger.debug("TBL: " + _tblName + " size: " + _size);
 					}
 				} catch (SQLException exp) {
-					logger.error(exp);
+					throw new BaseExceptionWrapper(exp);
+				} finally {
+					try {
+						if (irs != null) {
+							irs.close();
+						}
+						if (istmt != null) {
+							istmt.close();
+						}
+					} catch (SQLException exp) {
+						logger.error(exp);
+					}
 				}
 			}
 
 			// 查询表数据
-			String action = "select * from " + tblName;
+			String action = getLimitString(_tblName, pageNum);
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			rs = stmt.executeQuery(action);
-
-			return getPage(1, 1, 500);
+			return rs;
 
 		} catch (Exception exp) {
 			throw new BaseExceptionWrapper(exp);
@@ -222,14 +223,14 @@ public class DbClient4DefaultImpl extends DbClient {
 	}
 
 	@Override
-	public void executeUpdate(String tblName, HashMap<Integer, HashMap<Integer, String>> params,
+	public void executeUpdate(HashMap<Integer, HashMap<Integer, String>> params,
 			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams) {
 		int colNum = 0;
 		String colValue = null;
 		try {
 			// 更新
 			if (params != null && params.size() > 0) {
-				allRowSet.setTableName(tblName);
+				//rs.setTableName(tblName);
 				int rowNum = 0;
 				for (Iterator<Entry<Integer, HashMap<Integer, String>>> iter = params.entrySet().iterator(); iter.hasNext(); ) {
 
@@ -237,7 +238,7 @@ public class DbClient4DefaultImpl extends DbClient {
 					rowNum = entry.getKey();
 
 					// update data
-					allRowSet.absolute(rowNum);
+					rs.absolute(rowNum);
 
 					HashMap<Integer, String> rowMap = entry.getValue();
 					for (Iterator<Entry<Integer, String>> iter2 = rowMap.entrySet().iterator(); iter2.hasNext(); ) {
@@ -246,20 +247,20 @@ public class DbClient4DefaultImpl extends DbClient {
 						colNum = entry2.getKey();
 						colValue = entry2.getValue();
 
-						allRowSet.updateString(colNum, colValue);
+						rs.updateString(colNum, colValue);
 					}
 
-					allRowSet.updateRow();
+					rs.updateRow();
 				}
 			}
 
 			// 追加
 			if (addParams != null && addParams.size() > 0) {
-				allRowSet.setTableName(tblName);
+				//allRowSet.setTableName(tblName);
 
 				for (HashMap<Integer, String> addLine : addParams) {
 					// insert data
-					allRowSet.moveToInsertRow();
+					rs.moveToInsertRow();
 
 					for (Iterator<Entry<Integer, String>> iter2 = addLine.entrySet().iterator(); iter2.hasNext(); ) {
 						
@@ -267,24 +268,24 @@ public class DbClient4DefaultImpl extends DbClient {
 						colNum = entry2.getKey();
 						colValue = entry2.getValue();
 
-						allRowSet.updateString(colNum, colValue);
+						rs.updateString(colNum, colValue);
 					}
 
-					allRowSet.insertRow();
-					allRowSet.moveToCurrentRow();
+					rs.insertRow();
+					rs.moveToCurrentRow();
 				}
 			}
 
 			// 删除
 			if (delParams != null && delParams.size() > 0) {
 				for (Integer rowNum : delParams) {
-					allRowSet.absolute(rowNum);
-					allRowSet.deleteRow();
+					rs.absolute(rowNum);
+					rs.deleteRow();
 				}
 			}
 
 			getConnection().setAutoCommit(false);
-			allRowSet.acceptChanges(_dbConn);
+			//rs.acceptChanges(_dbConn);
 
 		} catch (SyncProviderException exp) {
 			SyncResolver resolver = exp.getSyncResolver();
@@ -301,12 +302,12 @@ public class DbClient4DefaultImpl extends DbClient {
 					logger.debug("resolver status: " + status);
 					if (status == SyncResolver.UPDATE_ROW_CONFLICT) {
 						int row = resolver.getRow();
-						allRowSet.absolute(row);
-						int colCount = allRowSet.getMetaData().getColumnCount();
+						rs.absolute(row);
+						int colCount = rs.getMetaData().getColumnCount();
 						for (int j = 1; j <= colCount; j++) {
 							if (resolver.getConflictValue(j) != null) {
 								// value in crs
-								crsValue = allRowSet.getObject(j);
+								crsValue = rs.getObject(j);
 								logger.debug("value in crs: " + crsValue);
 								// value in the SyncResolver object
 								resolverValue = resolver.getConflictValue(j);

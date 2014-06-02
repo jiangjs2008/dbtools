@@ -3,23 +3,25 @@
  */
 package com.dbm.common.db;
 
-import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.HashMap;
+
+import javax.sql.rowset.CachedRowSet;
 
 import jdbc.wrapper.mongo.MongoCachedRowSetImpl;
+import jdbc.wrapper.mongo.MongoConnection;
 import jdbc.wrapper.mongo.MongoResultSet;
+
+import org.bson.types.ObjectId;
 
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
-import com.dbm.common.util.StringUtil;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
 import com.mongodb.util.JSON;
 
 /**
@@ -27,43 +29,25 @@ import com.mongodb.util.JSON;
  *
  * @author JiangJusheng
  */
-public class DbClient4MongoImpl extends DbClient4DefaultImpl {
+public class DbClient4MongoImpl extends DbClient {
 
 	private DB dbObj = null;
+	protected Statement stmt = null;
+	protected ResultSet rs = null;
 
 	@Override
 	public void start(String[] args) {
 		_dbArgs = args;
-		// connect to db 
+		String dbUrl = _dbArgs[1];
+
 		try {
-			String dbUrl = _dbArgs[1];
-			String[] dbType = dbUrl.split("//");
-			String dbArr[] = dbType[1].split("/");
-			String urlArr[] = dbArr[0].split(":");
-			MongoClient mongoClient = new MongoClient(urlArr[0], StringUtil.parseInt(urlArr[1]));
-			dbObj = mongoClient.getDB(dbArr[1]);
-
-			try {
-				Class.forName(_dbArgs[0]);
-				_dbConn = DriverManager.getConnection(dbUrl);
-				_isConnected = true;
-			} catch (Exception exp) {
-				throw new BaseExceptionWrapper(exp);
-			}
-
-		} catch (IOException exp) {
+			Class.forName(_dbArgs[0]);
+			_dbConn = DriverManager.getConnection(dbUrl, _dbArgs[2], _dbArgs[3]);
+			_isConnected = true;
+		} catch (Exception exp) {
 			throw new BaseExceptionWrapper(exp);
 		}
-		if (dbObj == null) {
-			throw new WarningException(20003);
-		}
-		if (_dbArgs[2] != null && !_dbArgs[2].isEmpty()) {
-			if (!dbObj.authenticate(_dbArgs[2], _dbArgs[3].toCharArray())) {
-				throw new WarningException(20004);
-			}
-		}
-
-		_isConnected = true;
+		dbObj = ((MongoConnection) _dbConn).getMongoDb();
 	}
 
 	@Override
@@ -98,17 +82,15 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 
 		if (action.indexOf(".find(") > 0) {
 			// 查询
-			if (allRowSet != null) {
+			if (rs != null) {
 				try {
-					allRowSet.close();
+					rs.close();
 				} catch (SQLException exp) {
 					logger.error(exp);
 				}
 			}
+			rs = new MongoCachedRowSetImpl(_dbConn, tblName, 1, 500, null);
 
-			allRowSet = new MongoCachedRowSetImpl(dbObj.getCollection(tblName).find());
-			//TableUtil.setTableData(allRowSet, true);
-			
 		} else if (action.indexOf(".findOne(") > 0) {
 			
 			
@@ -155,36 +137,31 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 		return false;
 	}
 
+	CachedRowSet allRowSet = null;
+
+	ObjectId lastId = null;
+
 	@Override
-	public ResultSet getPage(int pageNum, int rowIdx, int pageSize) {
-		currPage = pageNum;
-
-		try {
-			if (allRowSet != null) {
-				allRowSet.release();
-				allRowSet.close();
-			}
-			allRowSet.populate(null, rowIdx);
-
-		} catch (SQLException exp) {
-			throw new BaseExceptionWrapper(exp);
-		}
-		return allRowSet;
+	public void setTableName(String tblName) {
+		this._tblName = tblName;
+		lastId = null;
 	}
 
 	@Override
-	public ResultSet executeQuery(String tblName) {
+	public ResultSet getPage(int pageNum) {
+		currPage = pageNum;
+
 		try {
-			if (rs != null) {
-				rs.close();
-				rs = null;
+			// 先取得该表的数据总件数
+			if (pageNum == 1) {
+				allRowSet = new MongoCachedRowSetImpl(_dbConn, _tblName, 0, 0, null);
+				_size = allRowSet.size();
+				logger.debug("TBL: " + _tblName + " size: " + _size);
 			}
-		} catch (SQLException exp) {
-			logger.error(exp);
-		}
-		try {
-			allRowSet = new MongoCachedRowSetImpl(dbObj.getCollection(tblName));
-			_size = allRowSet.size();
+
+			allRowSet = new MongoCachedRowSetImpl(_dbConn, _tblName, pageNum, 500, lastId);
+			allRowSet.beforeFirst();
+			lastId = ((MongoCachedRowSetImpl) allRowSet).getLastIdxObj();
 			return allRowSet;
 
 		} catch (Exception exp) {
@@ -192,34 +169,35 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 		}
 	}
 
+	// 当前页数
+	protected int currPage = 0;
+
 	@Override
-	public List<String> getDbMetaData() {
-		List<String> rslt = new ArrayList<String>();
-		rslt.add("Collections");
-		rslt.add("Stored JavaScript");
-		rslt.add("GridFs");
-		return rslt;
+	public int getCurrPageNum() {
+		return currPage;
 	}
 
 	@Override
-	public List<String> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
-		if (types == null || types.length == 0) {
-			return null;
-		}
-		ArrayList<String> list = new ArrayList<String>();
-		if ("Collections".equals(types[0])) {
-			Set<String> colls = dbObj.getCollectionNames();
-			for (String tblName : colls) {
-				if ("fs.chunks".equals(tblName) || "fs.files".equals(tblName)
-						|| "system.indexes".equals(tblName) ||"system.users".equals(tblName)) {
-					continue;
-				} else {
-					list.add(tblName);
-				}
-			}
-		} else if ("GridFs".equals(types[0])) {
-			list.add("fs.files");
-		}
-		return list;
+	public String procCellData(Object obj) {
+		return obj.toString();
+	}
+
+	@Override
+	public String getTableDataAt(int rowNum, int colNum) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void executeUpdate(HashMap<Integer, HashMap<Integer, String>> params,
+			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	void close() {
+		// TODO Auto-generated method stub
+		
 	}
 }

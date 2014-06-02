@@ -7,7 +7,13 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
+import java.util.logging.Logger;
+
+import com.dbm.common.util.StringUtil;
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
 
 /**
  * @author jiangjs
@@ -34,7 +40,28 @@ public class MongoDriver implements Driver {
 	 */
 	@Override
 	public Connection connect(String url, Properties info) throws SQLException {
-		return new MongoConnection();
+		String[] dbType = url.split("//");
+		String dbArr[] = dbType[1].split("/");
+		String urlArr[] = dbArr[0].split(":");
+		DB dbObj = null;
+		try {
+			MongoClient mongoClient = new MongoClient(urlArr[0], StringUtil.parseInt(urlArr[1]));
+			dbObj = mongoClient.getDB(dbArr[1]);
+		} catch (Exception exp) {
+			throw new SQLException("create MongoClient " + url + " error: " + exp.toString());
+		}
+		if (dbObj == null) {
+			throw new SQLException("create MongoClient error: no db =>" + url);
+		}
+
+		String user = info.getProperty("user");
+		String password = info.getProperty("password");
+		if (user != null && password != null) {
+			if (!dbObj.authenticate(user, password.toCharArray())) {
+				throw new SQLException("no authenticate: " + url + " <= " + user + " : " + password);
+			}
+		}
+		return new MongoConnection(dbObj);
 	}
 
 	/* (non-Javadoc)
@@ -75,6 +102,12 @@ public class MongoDriver implements Driver {
 	@Override
 	public boolean jdbcCompliant() {
 		return false;
+	}
+
+	@Override
+	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
