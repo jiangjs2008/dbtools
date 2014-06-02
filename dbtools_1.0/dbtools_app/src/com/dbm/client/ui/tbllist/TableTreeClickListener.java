@@ -288,8 +288,6 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 					// 列的大小
 					columnInfo.add(columnRs.getString(7));
 
-
-
 					// 是否可为空
 					if (columnRs.getInt(11) == 1) {
 						// 可为空
@@ -352,9 +350,10 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 		updMng.setTblName(tblName);
 
 		DbClient dbClient = DbClientFactory.getDbClient();
-		ResultSet rowSet = dbClient.executeQuery(tblName);
+		dbClient.setTableName(tblName);
+		ResultSet rowSet = dbClient.getPage(1);
 		int dataCnt = dbClient.size();
-		
+
 		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
 		pageAction.displayTableData(rowSet, dataCnt);
 		
