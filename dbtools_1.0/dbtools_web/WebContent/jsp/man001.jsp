@@ -29,7 +29,7 @@ $(document).ready(function() {
 		});
 	});
 	$('#aButton').omButton({});
-	$('#aButton').click(function onFormSubmitReg() {
+	$('#aButton').click(function () {
 		var checkInput = $("#account").val();
 		if (checkInput) {
 			$("#account").val(base64encode(checkInput));
@@ -65,9 +65,9 @@ function showerror() {
 </head>
 
 <body>
-<form method="post" id="man001form" action="/dbm/man001.do">
+<div style="padding-top:150px">
+<form method="post" id="man001form" action="/dbm/login.do">
 <input type="hidden" id="favrid" name="favrid"/>
-<div style="padding-top:150px;overflow:visible">
 <table cellspacing="0" cellpadding="0" border="0" style="height:200px" align="center">
 	<tr>
 		<td>请选择数据库：</td>
@@ -85,7 +85,7 @@ function showerror() {
 		<td align="center" colspan="2"><input type="button" id="aButton" value="确定" style="width:60px;"/></td>
 	</tr>
 </table>
-</div>
 </form>
+</div>
 </body>
 </html>

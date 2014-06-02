@@ -11,11 +11,12 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
-	var element = $('body').omBorderLayout({
-		panels:[{id:"center-panel", header:false, region:"center"},
-				{id:"west-panel", resizable:true, collapsible:true, title:"数据库表一览", region:"west", width:"25%"}]
+	var element = $("body").omBorderLayout({
+		spacing : 3,
+		panels:[{id:"north-panel", header:false, region:"north", height:120},
+				{id:"center-panel", header:false, region:"center"},
+				{id:"west-panel", resizable:true, collapsible:true, title:"数据库表一览", region:"west", width:200, expandToTop:true}]
 	});
-
 
 	$("#mytree2").omTree({
 		dataSource : ${dbInfo},
@@ -25,7 +26,6 @@ $(document).ready(function() {
 				// 父结点，取得表一览
 				$.ajax({
 					url: '/dbm/ajax/gettbllist.do?catalog=' + nodeData.text,
-					method: 'POST',
 					dataType: 'json',
 					success: function(data){
 						$("#mytree2").omTree("insert", data, nodeData);
@@ -38,11 +38,11 @@ $(document).ready(function() {
 
 				//首先从服务器端获取表头数据，再初始化数据表
 				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + nodeData.text, function(data) {
+					$("#tblname").text(nodeData.text),
 					$("#grid").omGrid({
-							limit: 25,
-		height: 'fit',
-		width : 'fit',
-					title : '表名: ' + nodeData.text,
+						limit: 25,
+						height: 'fit',
+						width : 'fit',
 						dataSource: "/dbm/ajax/griddata.do?tblname=" + nodeData.text,
 						colModel : data
 					});
@@ -54,16 +54,29 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		$('#grid').omGrid("resize");
 	});
+
+	$('#aButton').omButton({});
+	$('#aButton').click(function () {
+		document.forms[0].submit();
+	});
 });
 </script>
 </head>
 
 <body>
+
+<div id="west-panel">
+<div style="height:20px;padding-left:5px;line-height:20px;background-color:#99FFCC;">当前选择：[<span id="tblname"></span>]</div>
+	<ul id="mytree2"></ul>
+</div>
+<div id="north-panel" style="border-bottom-style:none">
+<form method="post" id="man002form" action="/dbm/logout.do">
+	<input type="button" id="aButton" value="退出" style="width:60px"/>
+</form>
+</div>
 <div id="center-panel" style="border:0px">
 	<table id="grid"></table>
 </div>
-<div id="west-panel">
-	<ul id="mytree2"></ul>
-</div>
+
 </body>
 </html>
