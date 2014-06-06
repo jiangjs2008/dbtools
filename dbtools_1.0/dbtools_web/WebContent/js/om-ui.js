@@ -14848,7 +14848,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 		var content = config.content;
 		if (config.type == 'prompt') {
 			content = content || '';
-			content += '<br/><input id="om-messageBox-prompt-input" type="text"/>';
+			content += '<br/><input id="om-messageBox-prompt-input" style="height:20px;line-height:20px;" type="text"/>';
 		}
 		messageBox.find('td.om-message-content-html').html(content);
 		var buttonSet = messageBox.find('div.om-messageBox-buttonset');
