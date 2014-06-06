@@ -434,6 +434,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		// separate line
 		jMenu2.add(new JSeparator());
 
+		FavrMenuActionListener connAction = new FavrMenuActionListener();
 		// 显示最近使用数据库一览
 		// load favorite database
 		for (FavrBean fbInfo : PropUtil.getFavrInfo()) {
@@ -442,9 +443,10 @@ public class MainAppJFrame extends javax.swing.JFrame {
 			}
 			JMenuItem jMenuItem22 = new JMenuItem();
 			jMenu2.add(jMenuItem22);
+			jMenuItem22.setName("favr:" + Integer.toString(fbInfo.favrId));
 			jMenuItem22.setText(fbInfo.name);
 			jMenuItem22.setToolTipText(StringUtil.printTipText(fbInfo.url, "user :=  " + StringUtil.NVL(fbInfo.user)));
-			jMenuItem22.addActionListener(new FavrMenuActionListener(fbInfo, null));
+			jMenuItem22.addActionListener(connAction);
 		}
 
 		// Database menu ==========================================================================
@@ -468,9 +470,10 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		for (ConnBean cbInfo : PropUtil.getDbConnInfo()) {
 			JMenuItem jMenuItem32 = new JMenuItem();
 			jMenu3.add(jMenuItem32);
+			jMenuItem32.setName("conn:" + Integer.toString(cbInfo.driverid));
 			jMenuItem32.setText(cbInfo.name);
 			jMenuItem32.setToolTipText(StringUtil.printTipText(cbInfo.driver, cbInfo.description));
-			jMenuItem32.addActionListener(new FavrMenuActionListener(null, cbInfo));
+			jMenuItem32.addActionListener(connAction);
 		}
 
 		// Help menu ==============================================================================

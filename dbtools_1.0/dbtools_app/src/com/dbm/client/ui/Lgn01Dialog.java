@@ -155,18 +155,16 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 	 */
 	private void setDbInfo() {
 		FavrBean favrInfo = Session.getCurrFavrInfo();
-		ConnBean connInfo = null;
 
 		if (favrInfo != null) {
 			// 如果是从点击快捷方式而来
-			connInfo = PropUtil.getDbConnInfo(favrInfo.driverId);
 			jTextField1.setText(favrInfo.name);
 			jTextField2.setText(favrInfo.url);
 			jTextField3.setText(SecuUtil.decryptBASE64(favrInfo.user));
 			jTextField4.setText(SecuUtil.decryptBASE64(favrInfo.password));
 
 		} else {
-			connInfo = Session.getCurrConnInfo();
+			ConnBean connInfo = Session.getCurrConnInfo();
 			jTextField1.setText(connInfo.name);
 			jTextField2.setText(connInfo.sampleUrl);
 			jTextField3.setText("");
@@ -195,17 +193,10 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 				// 如果是从点击快捷方式而来
 				// 用户可能会修改连接信息
 				connInfo = PropUtil.getDbConnInfo(favrInfo.driverId);
-				favrInfo.url = item2;
-				favrInfo.user = item3;
-				favrInfo.password = item4;
-
 			} else {
 				// 直接选择数据库方式
 				// 用户可能会修改连接信息
 				connInfo = Session.getCurrConnInfo();
-				connInfo.sampleUrl = item2;
-				connInfo.user = item3;
-				connInfo.password = item4;
 			}
 
 			// 登陆到数据库

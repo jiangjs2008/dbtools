@@ -10,16 +10,10 @@ import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
+import com.dbm.common.property.PropUtil;
+import com.dbm.common.util.StringUtil;
 
 public class FavrMenuActionListener extends AbstractActionListener {
-
-	private FavrBean favrInfo = null;
-	private ConnBean connInfo = null;
-
-	public FavrMenuActionListener(FavrBean favrInfo, ConnBean connInfo) {
-		this.favrInfo = favrInfo;
-		this.connInfo = connInfo;
-	}
 
 	@Override
 	protected void doActionPerformed(ActionEvent e) {
@@ -29,8 +23,34 @@ public class FavrMenuActionListener extends AbstractActionListener {
 			Msg01Dialog.showMsgDialog(10004);
 			return;
 		}
-		Session.setCurrFavrInfo(favrInfo);
-		Session.setCurrConnInfo(connInfo);
+
+		String menuId = ((javax.swing.JMenuItem) e.getSource()).getName();
+		if (menuId == null) {
+			logger.info("menu id is null");
+			return;
+		}
+		
+		int id = 0;
+		if (menuId.startsWith("favr:")) {
+			menuId = menuId.substring(5);
+			id = StringUtil.parseInt(menuId, -1);
+			if (id >= 0) {
+				FavrBean favrInfo = PropUtil.getFavrInfo(id);
+				Session.setCurrFavrInfo(favrInfo);
+			}
+
+		} else if (menuId.startsWith("conn:")) {
+			menuId = menuId.substring(5);
+			id = StringUtil.parseInt(menuId, -1);
+			if (id >= 0) {
+				ConnBean connInfo = PropUtil.getDbConnInfo(id);
+				Session.setCurrConnInfo(connInfo);
+			}
+
+		} else {
+			logger.info("menu id is invalid");
+			return;
+		}
 
 		// set database info
 		Lgn01Dialog dbDialog = new Lgn01Dialog();
