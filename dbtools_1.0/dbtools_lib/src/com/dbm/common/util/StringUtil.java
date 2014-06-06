@@ -106,6 +106,17 @@ public final class StringUtil {
 		}
 	}
 
+	public static int parseInt(String value, int defaultValue) {
+		if (value == null || "".equals(value.trim())) {
+			return defaultValue;
+		}
+		try {
+			return Integer.parseInt(value.trim());
+		} catch (NumberFormatException nfe) {
+			return defaultValue;
+		}
+	}
+
 	/**
 	 * plits this string around matches of the given string
 	 *
