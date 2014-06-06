@@ -91,10 +91,4 @@ public class LocalDriver implements Driver {
 		return false;
 	}
 
-	@Override
-	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

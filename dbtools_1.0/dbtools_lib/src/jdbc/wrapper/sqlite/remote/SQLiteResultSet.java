@@ -46,27 +46,6 @@ public class SQLiteResultSet extends AbstractResultSet {
 		}
 	}
 
-	public int findColumn(String columnName) throws SQLException {
-		return 0;
-	}
-
-	public int getRow() throws SQLException {
-		return 0;
-	}
-
-	public boolean previous() throws SQLException {
-		return false;
-	}
-
-	public boolean absolute(int row) throws SQLException {
-		return true;
-	}
-
-	public boolean relative(int row) throws SQLException {
-
-		return true;
-	}
-
 	public void setFetchDirection(int dir) throws SQLException {
 		if (dir != ResultSet.FETCH_FORWARD) {
 			throw new SQLException("only forward fetch direction supported");
@@ -451,50 +430,6 @@ public class SQLiteResultSet extends AbstractResultSet {
 	public void updateObject(String colName, Object obj, int s) throws SQLException {
 		int col = findColumn(colName);
 		updateObject(col, obj, s);
-	}
-
-	public Statement getStatement() throws SQLException {
-		return null;
-	}
-
-	public void close() throws SQLException {
-	}
-
-	@Override
-	public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-		return null;
-	}
-
-	@Override
-	public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
-		return null;
-	}
-
-	@Override
-	public RowId getRowId(int columnIndex) throws SQLException {
-		return null;
-	}
-
-	@Override
-	public RowId getRowId(String columnLabel) throws SQLException {
-		return null;
-	}
-
-	@Override
-	public boolean isClosed() throws SQLException {
-		return false;
-	}
-
-	@Override
-	public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

@@ -23,56 +23,6 @@ public class SQLiteDatabaseMetaData extends AbstractDatabaseMetaData {
 	}
 
 	@Override
-	public int getDatabaseMajorVersion() throws SQLException {
-		return 0;
-	}
-
-	@Override
-	public int getDatabaseMinorVersion() throws SQLException {
-		return 0;
-	}
-
-	@Override
-	public String getDatabaseProductName() throws SQLException {
-		return null;
-	}
-
-	@Override
-	public String getDatabaseProductVersion() throws SQLException {
-		return null;
-	}
-
-	@Override
-	public int getDriverMajorVersion() {
-		return 0;
-	}
-
-	@Override
-	public int getDriverMinorVersion() {
-		return 0;
-	}
-
-	@Override
-	public String getDriverName() throws SQLException {
-		return null;
-	}
-
-	@Override
-	public String getDriverVersion() throws SQLException {
-		return null;
-	}
-
-	@Override
-	public int getJDBCMajorVersion() throws SQLException {
-		return 0;
-	}
-
-	@Override
-	public int getJDBCMinorVersion() throws SQLException {
-		return 0;
-	}
-
-	@Override
 	public ResultSet getTableTypes() throws SQLException {
 		String[] cols = { "TABLE_TYPE" };
 		String[][] row = { { "TABLE" }, { "VIEW" } };
@@ -180,19 +130,6 @@ public class SQLiteDatabaseMetaData extends AbstractDatabaseMetaData {
 
 		SQLiteResultSet rs = new SQLiteResultSet(colName, allData);
 		return rs;
-	}
-
-	@Override
-	public ResultSet getPseudoColumns(String catalog, String schemaPattern, String tableNamePattern,
-			String columnNamePattern) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean generatedKeyAlwaysReturned() throws SQLException {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }
