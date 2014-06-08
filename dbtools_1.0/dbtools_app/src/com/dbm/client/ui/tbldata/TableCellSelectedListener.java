@@ -49,15 +49,19 @@ public class TableCellSelectedListener extends MouseAdapter {
             if(!inSelected){  
             	jTable.setRowSelectionInterval(row, row);  
             }  
-            //生成右键菜单
-            JPopupMenu popMenu = new JPopupMenu();  
-			JMenuItem jMenuItem2 = new JMenuItem("Table Info");
-			popMenu.add(jMenuItem2);
 
-			JMenuItem jMenuItem3 = new JMenuItem("Index Info");
-			popMenu.add(jMenuItem3);
-
-            popMenu.show(e.getComponent(), e.getX(), e.getY());  
+			int selCol = jTable.getSelectedColumn();
+			if (selCol == 0) {
+	            // 生成右键菜单
+	            JPopupMenu popMenu = new JPopupMenu();  
+				JMenuItem jMenuItem2 = new JMenuItem("Table Info");
+				popMenu.add(jMenuItem2);
+	
+				JMenuItem jMenuItem3 = new JMenuItem("Index Info");
+				popMenu.add(jMenuItem3);
+	
+	            popMenu.show(e.getComponent(), e.getX(), e.getY());  
+			}
 		}
 	}
 

@@ -428,7 +428,8 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jMenuItem21.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				Fav02Dialog dbDialog = new Fav02Dialog();
+				dbDialog.setVisible(true);
 			}
 		});
 		// separate line

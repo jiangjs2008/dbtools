@@ -172,6 +172,11 @@ public class UpdActionListener extends AbstractActionListener {
 			return;
 		}
 
+		// 判断是否支持更新
+		// 如果该表没有定义主键，且不支持rowid之类的属性，
+		// 则提示用户不能使用本方法更新数据，要求直接执行SQL更新脚本
+		
+		
 		// 让用户确认数据更新
 		Msg02Dialog msg02 = Msg02Dialog.showMsgDialog(10002);
 		if (!msg02.isOK()) {
@@ -192,7 +197,7 @@ public class UpdActionListener extends AbstractActionListener {
 			}
 		}
 
-		dbClient.executeUpdate(params, addList, delListPara);
+		dbClient.defaultUpdate(params, addList, delListPara);
 
 		if (params != null && params.size() > 0) {
 			params.clear();
@@ -206,7 +211,7 @@ public class UpdActionListener extends AbstractActionListener {
 		}
 
 		// 更新后再刷新画面
-		ResultSet rowSet = dbClient.getPage(1);
+		ResultSet rowSet = dbClient.defaultQuery(1);
 		int dataCnt = dbClient.size();
 
 		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);

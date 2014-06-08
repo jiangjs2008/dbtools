@@ -186,7 +186,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage = 1;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
-			_rowSet = dbClient.getPage(currPage);
+			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else if ("backward".equals(actionName)) {
 			// 上一页
@@ -197,7 +197,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage --;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
-			_rowSet = dbClient.getPage(currPage);
+			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else if ("forward".equals(actionName)) {
 			// 下一页
@@ -207,7 +207,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage ++;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = dataLimit;
-			_rowSet = dbClient.getPage(currPage);
+			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else if ("last".equals(actionName)) {
 			// 最后一页
@@ -218,7 +218,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			currPage = pageCnt;
 			currRowIdx = (currPage - 1) * dataLimit + 1;
 			length = _dataCnt - (currPage - 1) * dataLimit;
-			_rowSet = dbClient.getPage(currPage);
+			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else if ("go".equals(actionName)) {
 			// 查看指定页
@@ -239,7 +239,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			if (currPage == pageCnt) {
 				length = _dataCnt - (currPage - 1) * dataLimit;
 			}
-			_rowSet = dbClient.getPage(currPage);
+			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else {
 			throw new BaseException(40002, actionName);

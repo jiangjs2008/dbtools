@@ -59,7 +59,7 @@ public class ExecActionListener extends AbstractActionListener {
 
 		if (dbClient.getExecScriptType(action) == 1) {
 			// 数据检索
-			ResultSet rs = dbClient.directQuery(action);
+			ResultSet rs = dbClient.directQuery(action, 1);
 			
 			PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
 			pageAction.displayTableData(rs, -1);

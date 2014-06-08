@@ -351,7 +351,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 		DbClient dbClient = DbClientFactory.getDbClient();
 		dbClient.setTableName(tblName);
-		ResultSet rowSet = dbClient.getPage(1);
+		ResultSet rowSet = dbClient.defaultQuery(1);
 		int dataCnt = dbClient.size();
 
 		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
