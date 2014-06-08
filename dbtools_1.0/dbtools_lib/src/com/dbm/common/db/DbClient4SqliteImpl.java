@@ -5,11 +5,11 @@ package com.dbm.common.db;
 
 
 /**
- * Mysql数据库操作类(postgresql 也可使用)
+ * Sqlite数据库操作类
  *
  * @author JiangJusheng
  */
-public class DbClient4MysqlImpl extends DbClient4DefaultImpl {
+public class DbClient4SqliteImpl extends DbClient4DefaultImpl {
 
 	@Override
 	protected String getLimitString(String tblName, int pageNum) {

@@ -74,9 +74,7 @@ public abstract class DbClient {
 	/**
 	 * @param _pageSize the _pageSize to set
 	 */
-	public void setTableName(String tblName) {
-		this._tblName = tblName;
-	}
+	public abstract void setTableName(String tblName);
 
 	public abstract int getCurrPageNum();
 
@@ -155,7 +153,7 @@ public abstract class DbClient {
 	 *
 	 * @return ResultSet 执行结果
 	 */
-	public abstract ResultSet directQuery(String action);
+	public abstract ResultSet directQuery(String sqlStr, int pageNum);
 
 	/**
 	 * 执行数据库脚本-更新<br>
@@ -165,7 +163,7 @@ public abstract class DbClient {
 	 *
 	 * @return boolean 执行结果
 	 */
-	public abstract boolean directExec(String action);
+	public abstract boolean directExec(String sqlStr);
 
 
 	protected String getLimitString(String sql, int pageNum) {
@@ -179,7 +177,7 @@ public abstract class DbClient {
 	 *
 	 * @return ResultSet 查询结果数据
 	 */
-	public abstract ResultSet getPage(int pageNum);
+	public abstract ResultSet defaultQuery(int pageNum);
 
 	/**
 	 * 执行数据更新
@@ -191,7 +189,7 @@ public abstract class DbClient {
 	 *
 	 * @return boolean 执行结果，成功返回true,否则false
 	 */
-	public abstract void executeUpdate(HashMap<Integer, HashMap<Integer, String>> params,
+	public abstract void defaultUpdate(HashMap<Integer, HashMap<Integer, String>> params,
 			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams);
 
 	/**

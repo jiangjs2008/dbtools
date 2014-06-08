@@ -119,8 +119,42 @@ public class DbClient4DefaultImpl extends DbClient {
 	}
 
 	@Override
-	public ResultSet directQuery(String action) {
+	public void setTableName(String tblName) {
+		this._tblName = tblName;
+	}
+
+	@Override
+	public ResultSet directQuery(String sqlStr, int pageNum) {
+		currPage = pageNum;
+		if (pageNum == 1) {
+			// 先取得该查询的数据总件数
+			Statement istmt = null;
+			ResultSet irs = null;
+			try {
+				istmt = _dbConn.createStatement();
+				irs = istmt.executeQuery("select count(1) from ( " + sqlStr + " ) as tbl");
+				if (irs.next()) {
+					_size = irs.getInt(1);
+					logger.debug("该查询的数据总件数: size= " + _size);
+				}
+			} catch (SQLException exp) {
+				throw new BaseExceptionWrapper(exp);
+			} finally {
+				try {
+					if (irs != null) {
+						irs.close();
+					}
+					if (istmt != null) {
+						istmt.close();
+					}
+				} catch (SQLException exp) {
+					logger.error(exp);
+				}
+			}	
+		}
+
 		// 查询数据，此处只需考虑分页，不需考虑更新
+		String action = getLimitString(sqlStr, pageNum);
 		try {
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			rs = stmt.executeQuery(action);
@@ -173,7 +207,7 @@ public class DbClient4DefaultImpl extends DbClient {
 	}
 
 	@Override
-	public ResultSet getPage(int pageNum) {
+	public ResultSet defaultQuery(int pageNum) {
 		currPage = pageNum;
 		try {
 			if (rs != null) {
@@ -183,34 +217,35 @@ public class DbClient4DefaultImpl extends DbClient {
 		} catch (SQLException exp) {
 			logger.error(exp);
 		}
-		try {
-			// 先取得该表的数据总件数
-			if (pageNum == 1) {
-				Statement istmt = null;
-				ResultSet irs = null;
+
+		// 先取得该表的数据总件数
+		if (pageNum == 1) {
+			Statement istmt = null;
+			ResultSet irs = null;
+			try {
+				istmt = _dbConn.createStatement();
+				irs = istmt.executeQuery("select count(1) from " + _tblName);
+				if (irs.next()) {
+					_size = irs.getInt(1);
+					logger.debug("该表的数据总件数 TBL: " + _tblName + " size= " + _size);
+				}
+			} catch (SQLException exp) {
+				throw new BaseExceptionWrapper(exp);
+			} finally {
 				try {
-					istmt = _dbConn.createStatement();
-					irs = istmt.executeQuery("select count(1) from " + _tblName);
-					if (irs.next()) {
-						_size = irs.getInt(1);
-						logger.debug("TBL: " + _tblName + " size: " + _size);
+					if (irs != null) {
+						irs.close();
+					}
+					if (istmt != null) {
+						istmt.close();
 					}
 				} catch (SQLException exp) {
-					throw new BaseExceptionWrapper(exp);
-				} finally {
-					try {
-						if (irs != null) {
-							irs.close();
-						}
-						if (istmt != null) {
-							istmt.close();
-						}
-					} catch (SQLException exp) {
-						logger.error(exp);
-					}
+					logger.error(exp);
 				}
 			}
+		}
 
+		try {
 			// 查询表数据
 			String action = getLimitString(_tblName, pageNum);
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -223,7 +258,7 @@ public class DbClient4DefaultImpl extends DbClient {
 	}
 
 	@Override
-	public void executeUpdate(HashMap<Integer, HashMap<Integer, String>> params,
+	public void defaultUpdate(HashMap<Integer, HashMap<Integer, String>> params,
 			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams) {
 		int colNum = 0;
 		String colValue = null;

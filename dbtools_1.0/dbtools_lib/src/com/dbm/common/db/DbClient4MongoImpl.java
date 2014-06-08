@@ -74,13 +74,13 @@ public class DbClient4MongoImpl extends DbClient {
 	}
 
 	@Override
-	public ResultSet directQuery(String action) {
+	public ResultSet directQuery(String sqlStr, int pageNum) {
 		// 查询数据，此处只需考虑分页，不需考虑更新
-		int dot_1st = action.indexOf(".");
-		int dot_2nd = action.indexOf(".", dot_1st + 1);
-		String tblName = action.substring(dot_1st + 1, dot_2nd);
+		int dot_1st = sqlStr.indexOf(".");
+		int dot_2nd = sqlStr.indexOf(".", dot_1st + 1);
+		String tblName = sqlStr.substring(dot_1st + 1, dot_2nd);
 
-		if (action.indexOf(".find(") > 0) {
+		if (sqlStr.indexOf(".find(") > 0) {
 			// 查询
 			if (rs != null) {
 				try {
@@ -91,10 +91,10 @@ public class DbClient4MongoImpl extends DbClient {
 			}
 			rs = new MongoCachedRowSetImpl(_dbConn, tblName, 1, 500, null);
 
-		} else if (action.indexOf(".findOne(") > 0) {
+		} else if (sqlStr.indexOf(".findOne(") > 0) {
 			
 			
-		} else if (action.indexOf(".count(") > 0) {
+		} else if (sqlStr.indexOf(".count(") > 0) {
 			long size = dbObj.getCollection(tblName).count();
 			_size = 1;
 			return new MongoResultSet(new String[] {"count"}, new String[][] { new String[]{ Long.toString(size) } });
@@ -139,16 +139,10 @@ public class DbClient4MongoImpl extends DbClient {
 
 	CachedRowSet allRowSet = null;
 
-	ObjectId lastId = null;
+	private ObjectId lastId = null;
 
 	@Override
-	public void setTableName(String tblName) {
-		this._tblName = tblName;
-		lastId = null;
-	}
-
-	@Override
-	public ResultSet getPage(int pageNum) {
+	public ResultSet defaultQuery(int pageNum) {
 		currPage = pageNum;
 
 		try {
@@ -189,7 +183,7 @@ public class DbClient4MongoImpl extends DbClient {
 	}
 
 	@Override
-	public void executeUpdate(HashMap<Integer, HashMap<Integer, String>> params,
+	public void defaultUpdate(HashMap<Integer, HashMap<Integer, String>> params,
 			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams) {
 		// TODO Auto-generated method stub
 		
@@ -197,6 +191,12 @@ public class DbClient4MongoImpl extends DbClient {
 
 	@Override
 	void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTableName(String tblName) {
 		// TODO Auto-generated method stub
 		
 	}
