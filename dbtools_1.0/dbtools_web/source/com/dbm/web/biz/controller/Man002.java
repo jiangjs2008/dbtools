@@ -70,7 +70,7 @@ public class Man002 extends DefaultController {
 
 			DbClient dbClient = DbClientFactory.getDbClient();
 			dbClient.setTableName(_tblName);
-			ResultSet rs = dbClient.getPage(1);
+			ResultSet rs = dbClient.defaultQuery(1);
 
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();
