@@ -71,15 +71,12 @@ $(document).ready(function() {
 <div id="north-panel" style="border-bottom-style:none">
 <form method="post" id="man002form" action="/dbm/logout.do">
 	<input type="button" id="aButton" value="退出" style="width:60px"/>
+	<input type="button" id="bButton" value="执行SQL" style="width:60px;"/>
+	<input type="button" id="cButton" value="确认更新" style="width:60px;"/>
 </form>
 </div>
 <div id="center-panel" style="border:0px">
-	<div style="height:500px">
 	<table id="grid"></table>
-	</div>
-	<div>
-<input type="button" id="bButton" value="退出a" style="width:60px;"/>
-	</div>
 </div>
 
 </body>
