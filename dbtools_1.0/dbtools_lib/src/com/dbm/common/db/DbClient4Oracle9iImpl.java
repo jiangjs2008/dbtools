@@ -6,6 +6,7 @@ package com.dbm.common.db;
 import java.sql.SQLException;
 import java.util.List;
 
+import oracle.sql.Datum;
 import oracle.sql.ROWID;
 import oracle.sql.STRUCT;
 
@@ -48,6 +49,9 @@ public class DbClient4Oracle9iImpl extends DbClient4DefaultImpl {
 
 	@Override
 	public String procCellData(Object obj) {
+		if (obj == null) {
+			return "";
+		}
 		if (obj instanceof STRUCT) {
 			// 如果是空间数据类型
 			try {
@@ -60,6 +64,13 @@ public class DbClient4Oracle9iImpl extends DbClient4DefaultImpl {
 
 		} else if (obj instanceof ROWID) {
 			return ((ROWID) obj).stringValue();
+		} else if (obj instanceof Datum) {
+			try {
+				return ((Datum) obj).stringValue();
+			} catch (SQLException ex) {
+				logger.error(ex);
+				return "";
+			}
 		} else {
 			return obj.toString();
 		}
