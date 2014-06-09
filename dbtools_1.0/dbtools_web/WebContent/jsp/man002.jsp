@@ -15,17 +15,16 @@ $(document).ready(function() {
 		spacing : 3,
 		panels:[{id:"north-panel", header:false, region:"north", height:120},
 				{id:"center-panel", header:false, region:"center"},
-				{id:"west-panel", resizable:true, collapsible:true, title:"数据库表一览", region:"west", width:200, expandToTop:true}]
+				{id:"west-panel", resizable:true, collapsible:true, title:"数据库表一览", region:"west", width:250, expandToTop:true}]
 	});
 
 	$("#mytree2").omTree({
 		dataSource : ${dbInfo},
-		onClick : function(nodeData, event){ },
 		onDblClick : function(nodeData, event){
 			if (nodeData.hasChildren) {
 				// 父结点，取得表一览
 				$.ajax({
-					url: '/dbm/ajax/gettbllist.do?catalog=' + nodeData.text,
+					url: '/dbm/ajax/gettbllist.do?catalog=' + nodeData.text + '&t=' + parseInt(Math.random()*100000),
 					dataType: 'json',
 					success: function(data){
 						$("#mytree2").omTree("insert", data, nodeData);
@@ -37,16 +36,15 @@ $(document).ready(function() {
 				//$("#grid").omGrid("setData", url);
 
 				//首先从服务器端获取表头数据，再初始化数据表
-				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + nodeData.text, function(data) {
+				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + nodeData.text + '&t=' + parseInt(Math.random()*100000), function(data) {
 					$("#tblname").text(nodeData.text),
 					$("#grid").omGrid({
 						limit: 100,
 						height: 'fit',
 						width : 'fit',
-					//	dataSource: "/dbm/ajax/griddata.do?tblname=" + nodeData.text,
+						dataSource: "/dbm/ajax/griddata.do?tblname=" + nodeData.text + "&t=" + parseInt(Math.random()*100000),
 						colModel : data
 					});
-					$("#grid").omGrid('setData', "/dbm/ajax/griddata.do?tblname=" + nodeData.text);
 				});
 			}
 		}
@@ -67,7 +65,7 @@ $(document).ready(function() {
 <body>
 
 <div id="west-panel">
-<div style="height:20px;padding-left:5px;line-height:20px;background-color:#99FFCC;">当前选择：[<span id="tblname"></span>]</div>
+<div style="height:20px;padding-left:5px;line-height:20px;background-color:#99FFCC;white-space: nowrap">当前选择：[<span id="tblname"></span>]</div>
 	<ul id="mytree2"></ul>
 </div>
 <div id="north-panel" style="border-bottom-style:none">

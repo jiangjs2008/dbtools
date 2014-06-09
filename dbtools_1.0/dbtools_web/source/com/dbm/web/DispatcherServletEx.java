@@ -23,7 +23,7 @@ public class DispatcherServletEx extends DispatcherServlet {
 	 */
 	public DispatcherServletEx() {
 		// 初始化配置信息
-		PropUtil.load(DispatcherServletEx.class.getResource("/").getPath());
+		PropUtil.load();
 	}
 
 	@Override

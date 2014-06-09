@@ -7,6 +7,8 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,6 +36,11 @@ public class Man002 extends DefaultController {
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
 		logger.debug("/ajax/sale/mpc0110query.do =>mpc0110query()");
 		String _tblName = requestParam.get("tblname");
+		
+		if (_tblName.indexOf('.') > 0) {
+			String[] arr = StringUtils.split(_tblName, '.');
+			_tblName = arr[1];
+		}
 
 		DbClient dbClient = DbClientFactory.getDbClient();
 
@@ -66,11 +73,18 @@ public class Man002 extends DefaultController {
 	public String mpc0120dispinfo(@RequestParam Map<String,String> requestParam) {
 		logger.debug("/ajax/sale/mpc0120dispinfo.do =>mpc0120dispinfo()");
 		String _tblName = requestParam.get("tblname");
+		int start = NumberUtils.toInt(requestParam.get("start"), -1);
+		int pageNum = 0;
+		if (start == -1) {
+			pageNum = 1;
+		} else {
+			pageNum = start / 100 + 1;
+		}
 		try {
 
 			DbClient dbClient = DbClientFactory.getDbClient();
 			dbClient.setTableName(_tblName);
-			ResultSet rs = dbClient.defaultQuery(1);
+			ResultSet rs = dbClient.defaultQuery(pageNum);
 
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();
@@ -80,19 +94,23 @@ public class Man002 extends DefaultController {
 				JSONObject params = new JSONObject();
 				for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
 					colName = rsm.getColumnName(i);
-					params.put(colName, rs.getString(i));
+					params.put(colName, dbClient.procCellData(rs.getObject(i)));
 				}
 				columnInfo.add(params);
 			}
 
 			JSONObject params = new JSONObject();
-			params.put("total", columnInfo.size());
+			params.put("total", dbClient.size());
 			params.put("rows", columnInfo);
 			return params.toJSONString();
 
 		} catch (Exception exp) {
 			logger.error("", exp);
-			return "";
+			JSONObject params = new JSONObject();
+			params.put("total", 0);
+			params.put("rows", new ArrayList<JSONObject>());
+			params.put("errorMsg ", exp.toString());
+			return params.toJSONString();
 		}
 	}
 
