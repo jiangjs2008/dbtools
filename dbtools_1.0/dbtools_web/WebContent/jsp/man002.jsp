@@ -32,9 +32,6 @@ $(document).ready(function() {
 				});
 			} else {
 				// 查询指定表的数据
-				//var url = encodeURI("griddata.do?method=filter&city="+nodedata.text);
-				//$("#grid").omGrid("setData", url);
-
 				//首先从服务器端获取表头数据，再初始化数据表
 				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + nodeData.text + '&t=' + parseInt(Math.random()*100000), function(data) {
 					$("#tblname").text(nodeData.text),
