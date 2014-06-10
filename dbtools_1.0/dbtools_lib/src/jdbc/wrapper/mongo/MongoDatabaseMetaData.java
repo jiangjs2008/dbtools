@@ -1,23 +1,26 @@
 package jdbc.wrapper.mongo;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Set;
 
-import com.mongodb.DB;
-
 import jdbc.wrapper.AbstractDatabaseMetaData;
+
+import com.mongodb.DB;
 
 public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 
 	private DB _dbObj = null;
+	private MongoConnection _dbConn = null;
 
 	/**
 	 * 缺省构造函数
 	 */
-	MongoDatabaseMetaData(DB dbObj) {
-		this._dbObj = dbObj;
+	MongoDatabaseMetaData(MongoConnection dbConn) {
+		_dbConn = dbConn;
+		this._dbObj = dbConn.getMongoDb();
 	}
 
 	@Override
@@ -64,4 +67,17 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 		return new MongoResultSet(null, rslt);
 	}
 
+	@Override
+	public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
+			throws SQLException {
+		ResultSet rs = new MongoCachedRowSetImpl(_dbConn, tableNamePattern, 0, 0, null);
+		rs.beforeFirst();
+		ResultSetMetaData rsm = rs.getMetaData();
+		int colCnt = rsm.getColumnCount();
+		String[][] rslt = new String[colCnt][4];
+		for (int i = 0; i < colCnt; i ++) {
+			rslt[i][3] = rsm.getColumnName(i + 1);
+		}
+		return new MongoResultSet(null, rslt);
+	}
 }

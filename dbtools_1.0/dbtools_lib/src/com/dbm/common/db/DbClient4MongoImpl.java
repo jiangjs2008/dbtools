@@ -173,6 +173,9 @@ public class DbClient4MongoImpl extends DbClient {
 
 	@Override
 	public String procCellData(Object obj) {
+		if (obj == null) {
+			return "";
+		}
 		return obj.toString();
 	}
 
@@ -197,7 +200,6 @@ public class DbClient4MongoImpl extends DbClient {
 
 	@Override
 	public void setTableName(String tblName) {
-		// TODO Auto-generated method stub
-		
+		this._tblName = tblName;
 	}
 }

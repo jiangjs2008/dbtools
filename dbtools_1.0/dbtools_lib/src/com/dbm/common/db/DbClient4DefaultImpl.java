@@ -177,6 +177,7 @@ public class DbClient4DefaultImpl extends DbClient {
 			logger.error(exp);
 		}
 		try {
+			stmt = _dbConn.createStatement();
 			int rslt = stmt.executeUpdate(action);
 			if (rslt == 0) {
 				logger.error("更新不成功: " + action);

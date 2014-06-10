@@ -2,7 +2,6 @@ package jdbc.wrapper.mongo;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.concurrent.Executor;
 
 import jdbc.wrapper.AbstractConnection;
 
@@ -26,7 +25,7 @@ public class MongoConnection extends AbstractConnection {
 
 	public DatabaseMetaData getMetaData() throws SQLException {
 		if (meta == null) {
-			meta = new MongoDatabaseMetaData(this._dbObj);
+			meta = new MongoDatabaseMetaData(this);
 		}
 		return meta;
 	}
