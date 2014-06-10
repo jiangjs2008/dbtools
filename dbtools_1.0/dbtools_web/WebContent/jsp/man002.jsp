@@ -13,7 +13,7 @@
 $(document).ready(function() {
 	var element = $("body").omBorderLayout({
 		spacing : 3,
-		panels:[{id:"north-panel", header:false, region:"north", height:120},
+		panels:[{id:"north-panel", header:false, region:"north", height:140},
 				{id:"center-panel", header:false, region:"center"},
 				{id:"west-panel", resizable:true, collapsible:true, title:"数据库表一览", region:"west", width:250, expandToTop:true}]
 	});
@@ -82,6 +82,19 @@ $(document).ready(function() {
 	$('#aButton').click(function () {
 		document.forms[0].submit();
 	});
+
+	$('#bButton').omButton({});
+	$('#bButton').click(function () {
+		var sqlScript = $('#sqlscript').val();
+		if (sqlScript.length > 0) {
+			$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + $('#sqlscript').val() + '&t=' + parseInt(Math.random()*100000), function(data) {
+				if (data.msg != '1') {
+					alert(data.msg);
+				}
+			});
+		}
+	});
+
 });
 </script>
 </head>
@@ -95,6 +108,7 @@ $(document).ready(function() {
 </div>
 <div id="north-panel" style="border-bottom-style:none">
 <form method="post" id="man002form" action="/dbm/logout.do">
+	<textarea id="sqlscript"  name="sqlscript" cols="120" rows="9"></textarea>
 	<input type="button" id="aButton" value="退出" style="width:60px"/>
 	<input type="button" id="bButton" value="执行SQL" style="width:60px;"/>
 	<input type="button" id="cButton" value="确认更新" style="width:60px;"/>

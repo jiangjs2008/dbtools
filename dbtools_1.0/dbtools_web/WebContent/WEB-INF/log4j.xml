@@ -21,5 +21,9 @@
 		<level value="info" />
 		<appender-ref ref="debugappender" />
 	</logger>
+	<logger name="jdbc">
+		<level value="info" />
+		<appender-ref ref="debugappender" />
+	</logger>
 
 </log4j:configuration>

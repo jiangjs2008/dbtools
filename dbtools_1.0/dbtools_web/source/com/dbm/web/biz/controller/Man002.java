@@ -40,7 +40,7 @@ public class Man002 extends DefaultController {
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
 		logger.debug("/ajax/sale/mpc0110query.do =>mpc0110query()");
 		String _tblName = requestParam.get("tblname");
-		
+
 		if (_tblName.indexOf('.') > 0) {
 			String[] arr = StringUtils.split(_tblName, '.');
 			_tblName = arr[1];
