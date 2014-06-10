@@ -44,8 +44,35 @@ $(document).ready(function() {
 					});
 				});
 			}
-		}
+		},
+        onRightClick : function(nodedata, e){
+        	// 通过节点的text属性来判断是否响应右键菜单，也可以自行添加特殊属性来判断
+        	if (!nodedata.hasChildren) {
+        		//右键选中并显示菜单
+          	    $('#menu').omMenu('show', e);
+        	}
+        	e.preventDefault(); 
+        }
+
 	});
+
+    $('#menu').omMenu({
+    	contextMenu : true,
+        dataSource : [{id:'001', label:'Table Info'},
+                      {id:'002', label:'Index Info'}
+                     ],
+        onSelect : function(item){
+        	var node = $("#mytree2").omTree("getSelected");
+        	
+        	$("#menu").omMenu("hide");
+        	if (item.id == "001") {
+        		window.showModalDialog("/dbm/biz/inf001.do?tblname=" + node.text + "&t=" + parseInt(Math.random()*100000), null, 'dialogWidth:850px;dialogHeight:450px;center:yes;toolbar:no; menubar:no; scrollbars:no;scroll:no');
+
+        	} else if (item.id  == "002") {
+      
+        	}
+        }
+    });
 
 	$(window).resize(function() {
 		$('#grid').omGrid("resize");
@@ -62,8 +89,9 @@ $(document).ready(function() {
 <body>
 
 <div id="west-panel">
-<div style="height:20px;padding-left:5px;line-height:20px;background-color:#99FFCC;white-space: nowrap">当前选择：[<span id="tblname"></span>]</div>
+	<div style="height:20px;padding-left:5px;line-height:20px;background-color:#99FFCC;white-space: nowrap">当前选择：[<span id="tblname"></span>]</div>
 	<ul id="mytree2"></ul>
+	<div id="menu"></div>
 </div>
 <div id="north-panel" style="border-bottom-style:none">
 <form method="post" id="man002form" action="/dbm/logout.do">
