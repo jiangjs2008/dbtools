@@ -1,7 +1,11 @@
-
+#!/bin/bash
 @echo on
 
 rem Make sure prerequisite environment variables are set
+
+export TSP_PROJECT_HOME=/home/semuser/dbm/
+export CLASSPATH=$CLASSPATH:$(echo $TSP_PROJECT_HOME/lib/*.jar|sed 's/ /:/g')
+export CLASSPATH=$CLASSPATH:$TSP_PROJECT_HOME/conf
 
 rem Otherwise either JRE or JDK are fine
 echo check java environment
@@ -32,7 +36,7 @@ if not exist "%java_dir%\bin\java.exe" goto noJava
 if not exist "%java_dir%\bin\javaw.exe" goto noJava
 
 echo run this program
-start %java_dir%/bin/javaw -cp ./bin -Djava.ext.dirs=./lib com.dbm.client.ui.MainAppJFrame
+start %java_dir%/bin/javaw -cp $CLASSPATH com.dbm.client.ui.MainAppJFrame
 exit /b 0
 
 :exit
