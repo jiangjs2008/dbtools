@@ -13,14 +13,12 @@ import com.mongodb.DB;
 public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 
 	private DB _dbObj = null;
-	private MongoConnection _dbConn = null;
 
 	/**
 	 * 缺省构造函数
 	 */
-	MongoDatabaseMetaData(MongoConnection dbConn) {
-		_dbConn = dbConn;
-		this._dbObj = dbConn.getMongoDb();
+	MongoDatabaseMetaData(DB dbObj) {
+		this._dbObj = dbObj;
 	}
 
 	@Override
@@ -70,14 +68,19 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 	@Override
 	public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
 			throws SQLException {
-		ResultSet rs = new MongoCachedRowSetImpl(_dbConn, tableNamePattern, 0, 0, null);
+		ResultSet rs = new MongoCachedRowSetImpl(_dbObj, tableNamePattern, 1, 1, null);
 		rs.beforeFirst();
 		ResultSetMetaData rsm = rs.getMetaData();
+		if (rsm == null) {
+			return null;
+		}
+
 		int colCnt = rsm.getColumnCount();
-		String[][] rslt = new String[colCnt][4];
+		String[][] rslt = new String[colCnt][12];
 		for (int i = 0; i < colCnt; i ++) {
 			rslt[i][3] = rsm.getColumnName(i + 1);
 		}
 		return new MongoResultSet(null, rslt);
 	}
+
 }

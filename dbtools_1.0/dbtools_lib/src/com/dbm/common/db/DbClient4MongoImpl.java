@@ -89,7 +89,7 @@ public class DbClient4MongoImpl extends DbClient {
 					logger.error(exp);
 				}
 			}
-			rs = new MongoCachedRowSetImpl(_dbConn, tblName, 1, 500, null);
+			rs = new MongoCachedRowSetImpl(dbObj, tblName, 1, 500, null);
 
 		} else if (sqlStr.indexOf(".findOne(") > 0) {
 			
@@ -148,12 +148,12 @@ public class DbClient4MongoImpl extends DbClient {
 		try {
 			// 先取得该表的数据总件数
 			if (pageNum == 1) {
-				allRowSet = new MongoCachedRowSetImpl(_dbConn, _tblName, 0, 0, null);
+				allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, 0, 0, null);
 				_size = allRowSet.size();
 				logger.debug("TBL: " + _tblName + " size: " + _size);
 			}
 
-			allRowSet = new MongoCachedRowSetImpl(_dbConn, _tblName, pageNum, 500, lastId);
+			allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, pageNum, _pageSize, lastId);
 			allRowSet.beforeFirst();
 			lastId = ((MongoCachedRowSetImpl) allRowSet).getLastIdxObj();
 			return allRowSet;

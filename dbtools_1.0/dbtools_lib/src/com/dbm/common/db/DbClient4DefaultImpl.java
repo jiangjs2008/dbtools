@@ -54,6 +54,7 @@ public class DbClient4DefaultImpl extends DbClient {
 				_dbConn = DriverManager.getConnection(_dbArgs[1], _dbArgs[2], _dbArgs[3]);
 			}
 			_isConnected = true;
+			_hasSchema = true;
 
 		     DatabaseMetaData dbMeta = _dbConn.getMetaData();
 		     logger.info(dbMeta.getDriverName() + " ## " + dbMeta.getDriverVersion());
@@ -154,10 +155,10 @@ public class DbClient4DefaultImpl extends DbClient {
 		}
 
 		// 查询数据，此处只需考虑分页，不需考虑更新
-		String action = getLimitString(sqlStr, pageNum);
+		//String action = getLimitString(sqlStr, pageNum);
 		try {
-			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			rs = stmt.executeQuery(action);
+			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			rs = stmt.executeQuery(sqlStr);
 			return rs;
 		} catch (SQLException exp) {
 			logger.error(exp);
@@ -249,7 +250,7 @@ public class DbClient4DefaultImpl extends DbClient {
 		try {
 			// 查询表数据
 			String action = getLimitString(_tblName, pageNum);
-			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			rs = stmt.executeQuery(action);
 			return rs;
 

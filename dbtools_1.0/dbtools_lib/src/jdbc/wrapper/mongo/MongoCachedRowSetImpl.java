@@ -41,7 +41,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	private DBCursor _cur = null;
 
 	private ArrayList<String> colNameList = null;
-	private ArrayList<ArrayList<Object>> dataList = null;
+	private ArrayList<DBObject> dataList = null;
 
 	private int curDataIdx = -1;
 	private int dataCount = 0;
@@ -61,23 +61,24 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	/**
 	 * 构造函数
 	 */
-	public MongoCachedRowSetImpl(Connection conn, String tblName, int pageNum, int limit, ObjectId lastId) {
+	public MongoCachedRowSetImpl(DB dbObj, String tblName, int pageNum, int limit, ObjectId lastId) {
 		// 查询所有的数据
-		DB dbObj = ((MongoConnection) conn).getMongoDb();
 		_tblObj = dbObj.getCollection(tblName);
 
 		if (pageNum == 0) {
+			// 不分页
 			_cur = _tblObj.find();
+		} else if (pageNum == 1) {
+			_cur = _tblObj.find().sort(orderObj).limit(limit);
 		} else {
-			if (lastId == null) {
-				_cur = _tblObj.find().sort(orderObj).skip((pageNum - 1) * limit).limit(limit);
-			} else {
-				values.put("$gt", lastId);
-				reqObj.put("_id", values);
-				_cur = _tblObj.find(reqObj).sort(orderObj).skip((pageNum - 1) * limit).limit(limit);
-			}
+			values.put("$gt", lastId);
+			reqObj.put("_id", values);
+			_cur = _tblObj.find(reqObj).sort(orderObj).limit(limit);
 		}
 		dataCount = _cur.size();
+		if (dataCount == 0) {
+			logger.info("此次查询结果为0");
+		}
 	}
 
 	/**
@@ -87,28 +88,16 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		return _lastId;
 	}
 
-	/**
-	 * 构造函数
-	 */
-	public MongoCachedRowSetImpl(DBCursor dataObj) {
-		_tblObj = null;
-		_cur = dataObj;
-		dataCount = _cur.size();
-	}
-
 	@Override
 	public void beforeFirst() throws SQLException {
 		// 复制数据(只复制当前页数据)
 		if (_cur.hasNext()) {
-			dataList = new ArrayList<ArrayList<Object>>(dataCount);
+			dataList = new ArrayList<DBObject>(dataCount);
 
 			ArrayList<Object> rowValue = null;
 			while (_cur.hasNext()) {
 				DBObject data = _cur.next();
-				
-				rowValue = new ArrayList<Object>();
-				rowValue.addAll(data.toMap().values());
-				dataList.add(rowValue);
+				dataList.add(data);
 			}
 
 			if (colNameList == null) {
@@ -125,6 +114,8 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 			}
 			
 			_lastId = (ObjectId) _cur.curr().get("_id");
+		} else {
+			logger.info("此次查询无结果");
 		}
 	}
 
@@ -175,14 +166,14 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		if (curDataIdx == -1) {
 			throw new SQLException("have no data");
 		}
-		ArrayList<Object> rowObj = dataList.get((int) curDataIdx);
+		DBObject rowObj = dataList.get((int) curDataIdx);
 		if (rowObj == null) {
 			return null;
 		} else {
-			if (columnIndex >= rowObj.size()) {
-				return null;
-			}
-			Object objValue = rowObj.get(columnIndex);
+//			if (columnIndex >= rowObj.size()) {
+//				return null;
+//			}
+			Object objValue = rowObj.get(colNameList.get(columnIndex));
 			if (objValue == null) {
 				return null;
 			} else {
@@ -212,16 +203,16 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	 */
 	@Override
 	public Object getObject(int columnIndex) throws SQLException {
-		ArrayList<Object> rowObj = dataList.get(curDataIdx);
+		DBObject rowObj = dataList.get(curDataIdx);
 		if (rowObj == null) {
 			return null;
 		} else {
-			if (columnIndex >= rowObj.size()) {
-				logger.error("IndexOutOfBoundsException");
-				return "";
-			} else {
-				return rowObj.get(columnIndex);
-			}
+//			if (columnIndex >= rowObj.size()) {
+//				logger.error("IndexOutOfBoundsException");
+//				return "";
+//			} else {
+				return rowObj.get(colNameList.get(columnIndex));
+//			}
 		}
 	}
 

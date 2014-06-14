@@ -25,7 +25,7 @@ public class MongoConnection extends AbstractConnection {
 
 	public DatabaseMetaData getMetaData() throws SQLException {
 		if (meta == null) {
-			meta = new MongoDatabaseMetaData(this);
+			meta = new MongoDatabaseMetaData(_dbObj);
 		}
 		return meta;
 	}

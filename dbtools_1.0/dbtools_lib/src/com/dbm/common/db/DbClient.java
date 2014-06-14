@@ -78,6 +78,12 @@ public abstract class DbClient {
 
 	public abstract int getCurrPageNum();
 
+	protected boolean _hasSchema = false;
+
+	public final boolean hasSchema() {
+		return _hasSchema;
+	}
+
 	/**
 	 * 判断数据库是否已连接
 	 *
