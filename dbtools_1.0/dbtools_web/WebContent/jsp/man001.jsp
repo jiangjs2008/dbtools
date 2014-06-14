@@ -25,6 +25,14 @@ $(document).ready(function() {
 			},
 			inputField : function(data, index) {
 				return data.name;
+			},
+			onValueChange:function(target, newValue, oldValue, event) { 
+				$.getJSON("/dbm/ajax/getdblogininfo.do?favrid=" + newValue, function(data) {
+					if (data.status == 'ok') {
+						$("#account").val(data.account);
+						$("#password").val(data.password);
+					}
+				});
 			}
 		});
 	});

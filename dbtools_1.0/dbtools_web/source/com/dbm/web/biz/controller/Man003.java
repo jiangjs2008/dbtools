@@ -26,7 +26,6 @@ public class Man003 extends DefaultController {
 	@RequestMapping("/ajax/sqlscript.do")
 	@ResponseBody
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
-
 		String sqlScript = requestParam.get("sqlscript");
 
 		JSONObject params = new JSONObject();

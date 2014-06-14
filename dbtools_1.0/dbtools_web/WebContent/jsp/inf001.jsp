@@ -25,6 +25,7 @@ $(document).ready(function() {
 	});
 
 	$("#tblgrid").omGrid('setData', "/dbm/ajax/tblinfo.do?tblname=${tblname}&t=" + parseInt(Math.random()*100000));
+
 });
 </script>
 </head>

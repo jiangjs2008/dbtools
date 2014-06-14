@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
@@ -34,26 +35,39 @@ import com.dbm.common.util.StringUtil;
 @Controller
 public class Man002 extends DefaultController {
 
+	private String getRealTblName(DbClient dbClient, String tblName) {
+		if (dbClient.hasSchema()) {
+			String realName = tblName;
+			if (tblName.indexOf('.') > 0) {
+				String[] arr = StringUtils.split(tblName, '.');
+				realName = arr[1];
+			}
+			return realName;
+
+		} else {
+			return tblName;
+		}
+	}
 
 	@RequestMapping("/ajax/gridcol.do")
 	@ResponseBody
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
 		logger.debug("/ajax/sale/mpc0110query.do =>mpc0110query()");
-		String _tblName = requestParam.get("tblname");
-
-		if (_tblName.indexOf('.') > 0) {
-			String[] arr = StringUtils.split(_tblName, '.');
-			_tblName = arr[1];
-		}
-
 		DbClient dbClient = DbClientFactory.getDbClient();
 
 		try {
 			Connection _dbConn = dbClient.getConnection();
 			DatabaseMetaData dmd = _dbConn.getMetaData();
 
+			String realName = getRealTblName(dbClient, requestParam.get("tblname"));
+			logger.debug(realName);
+
 			// 取得指定表的所有列的信息
-			ResultSet columnRs = dmd.getColumns(null, null, _tblName, "%");
+			ResultSet columnRs = dmd.getColumns(null, null, realName, "%");
+			if (columnRs == null) {
+				return new JSONArray().toJSONString();
+			}
+
 			String colName = null;
 			ArrayList<JSONObject> columnInfo = new ArrayList<JSONObject>();
 			while (columnRs.next()) {
@@ -92,7 +106,13 @@ public class Man002 extends DefaultController {
 
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();
-			
+			if (rsm == null) {
+				JSONObject params = new JSONObject();
+				params.put("total", 0);
+				params.put("rows", new ArrayList<JSONObject>());
+				return params.toJSONString();
+			}
+
 			ArrayList<JSONObject> columnInfo = new ArrayList<JSONObject>();
 			while (rs.next()) {
 				JSONObject params = new JSONObject();
@@ -128,23 +148,22 @@ public class Man002 extends DefaultController {
 	@ResponseBody
 	public String getTblInfo(@RequestParam Map<String,String> requestParam) {
 
-		String _tblName = requestParam.get("tblname");
-		String realName = _tblName;
-		String[] tblNameArr = StringUtil.split(_tblName, ".");
-		if (tblNameArr.length == 2) {
-			realName = tblNameArr[1];
-		}
-
-		ArrayList<JSONObject> allData = new ArrayList<JSONObject>();
 		try {
 			DbClient dbClient = DbClientFactory.getDbClient();
 			DatabaseMetaData dmd = dbClient.getConnection().getMetaData();
+
+			String realName = getRealTblName(dbClient, requestParam.get("tblname"));
+
 			// 取得指定表的主键信息
 			ResultSet pkRs = dmd.getPrimaryKeys(null, null, realName);
 			ArrayList<String> pkList = new ArrayList<String>();
-			while (pkRs.next()) {
-				pkList.add(pkRs.getString(4));
+			if (pkRs != null) {
+				while (pkRs.next()) {
+					pkList.add(pkRs.getString(4));
+				}
 			}
+
+			ArrayList<JSONObject> allData = new ArrayList<JSONObject>();
 			// 取得指定表的所有列的信息
 			ResultSet columnRs = dmd.getColumns(null, null, realName, "%");
 			String colName = null;

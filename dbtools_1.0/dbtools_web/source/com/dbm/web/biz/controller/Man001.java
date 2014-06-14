@@ -59,6 +59,32 @@ public class Man001 extends DefaultController {
 		}
 	}
 
+	@RequestMapping("/ajax/getdblogininfo.do")
+	@ResponseBody
+	public String getDbLoginInfo(@RequestParam Map<String,String> requestParam) {
+
+		JSONObject item = new JSONObject();
+
+		int deployType = NumberUtils.toInt(PropUtil.getAppConfig("deploy.type"));
+		if (deployType == 1) {
+			// 本程序部署在远程服务器上，为确保安全性，必须手动输入用户名及密码
+			return item.toJSONString();
+		}
+
+		int favrId = NumberUtils.toInt(requestParam.get("favrid"), -1);
+		if (favrId < 0) {
+			return item.toJSONString();
+		}
+
+		FavrBean favr = PropUtil.getFavrInfo(favrId);
+
+		item.put("status", "ok");
+		item.put("account", SecuUtil.decryptBASE64(favr.user));
+		item.put("password", SecuUtil.decryptBASE64(favr.password));
+
+		return item.toJSONString();
+	}
+
 	@RequestMapping("/login.do")
 	public ModelAndView login(@RequestParam Map<String,String> requestParam) {
 		int favrId = NumberUtils.toInt(requestParam.get("favrid"), -1);
@@ -91,6 +117,8 @@ public class Man001 extends DefaultController {
 			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
 			objMap.put("text", item);
 			objMap.put("hasChildren", true);
+			objMap.put("isCatalog", true);
+			objMap.put("isQuery", false);
 			dbInfo.add(objMap);
 		}
 		
@@ -110,13 +138,15 @@ public class Man001 extends DefaultController {
 		String tblName = requestParam.get("catalog");
 
 		DbClient dbClient = DbClientFactory.getDbClient();
-			String schema = null;
-			try {
+		String schema = null;
+		try {
+			if (dbClient.hasSchema()) {
 				schema = dbClient.getConnection().getMetaData().getUserName();
-			} catch (SQLException ex) {
-				logger.error(ex);
 			}
-			List<String> tblList = dbClient.getDbObjList(null, schema, "%", new String[] { tblName });
+		} catch (SQLException ex) {
+			logger.error(ex);
+		}
+		List<String> tblList = dbClient.getDbObjList(null, schema, "%", new String[] { tblName });
 
 		// 显示数据库内容：表、视图等等
 		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(tblList.size());
@@ -125,7 +155,7 @@ public class Man001 extends DefaultController {
 			objMap.put("text", item);
 			dbInfo.add(objMap);
 		}
-		
+
 		return JSON.toJSONString(dbInfo);
 	}
 }
