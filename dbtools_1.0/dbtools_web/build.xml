@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="createwar" basedir=".">
+
+<property name="dest.dir" location="./build"/>
+<property name="war.name" value="dbm.war"/>
+
+<!-- 生成Webapp war文件-->
+<target name="createwar">
+	<delete file="${dest.dir}/${war.name}" />
+	<war warfile="${dest.dir}/${war.name}" webxml="./WebContent/WEB-INF/web.xml" >
+		<fileset dir="./WebContent" />
+	</war>
+</target>
+
+</project>
