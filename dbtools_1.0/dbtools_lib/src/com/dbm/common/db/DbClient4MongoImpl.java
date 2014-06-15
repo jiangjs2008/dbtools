@@ -139,6 +139,7 @@ public class DbClient4MongoImpl extends DbClient {
 
 	CachedRowSet allRowSet = null;
 
+	private ObjectId backId = null;
 	private ObjectId lastId = null;
 
 	@Override
@@ -153,9 +154,26 @@ public class DbClient4MongoImpl extends DbClient {
 				logger.debug("TBL: " + _tblName + " size: " + _size);
 			}
 
+			int span = currPage - pageNum;
+			if (span == 1) {
+				// 后退 <=
+				
+				
+			} else if (span == -1) {
+				// 前进 =>
+				
+				
+			} else {
+				// 跳转到指定页
+				
+				
+			}
+
 			allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, pageNum, _pageSize, lastId);
 			allRowSet.beforeFirst();
-			lastId = ((MongoCachedRowSetImpl) allRowSet).getLastIdxObj();
+
+//			backId = lastId;
+//			lastId = ((MongoCachedRowSetImpl) allRowSet).getLastIdxObj();
 			return allRowSet;
 
 		} catch (Exception exp) {
@@ -201,5 +219,7 @@ public class DbClient4MongoImpl extends DbClient {
 	@Override
 	public void setTableName(String tblName) {
 		this._tblName = tblName;
+		backId = null;
+//		prevId = null;
 	}
 }

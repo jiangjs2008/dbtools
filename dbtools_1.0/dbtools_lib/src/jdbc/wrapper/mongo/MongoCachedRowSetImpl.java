@@ -69,18 +69,26 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 			// 不分页
 			_cur = _tblObj.find();
 		} else if (pageNum == 1) {
-			_cur = _tblObj.find().sort(orderObj).limit(limit);
+			_cur = _tblObj.find().limit(limit);
 		} else {
-			values.put("$gt", lastId);
-			reqObj.put("_id", values);
-			_cur = _tblObj.find(reqObj).sort(orderObj).limit(limit);
+
+			_cur = _tblObj.find().skip((pageNum - 1) * limit).limit(limit);
 		}
 		dataCount = _cur.size();
 		if (dataCount == 0) {
 			logger.info("此次查询结果为0");
 		}
 	}
-
+//	if (pageNum == 0) {
+//		// 不分页
+//		_cur = _tblObj.find();
+//	} else if (pageNum == 1) {
+//		_cur = _tblObj.find().sort(orderObj).limit(limit);
+//	} else {
+//		values.put("$gt", lastId);
+//		reqObj.put("_id", values);
+//		_cur = _tblObj.find(reqObj).sort(orderObj).limit(limit);
+//	}
 	/**
 	 * @return the _lastId
 	 */
