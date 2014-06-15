@@ -62,7 +62,10 @@ $(document).ready(function() {
 						height: 'fit',
 						width : 'fit',
 						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
-						colModel : data
+						colModel : data,
+						onAfterEdit:function(rowIndex , rowData){
+					         alert("您刚刚编辑的记录索引为:" + rowIndex);
+					    }
 					});
 				});
 			}
