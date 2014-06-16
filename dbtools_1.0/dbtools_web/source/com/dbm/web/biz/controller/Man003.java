@@ -30,22 +30,23 @@ public class Man003 extends DefaultController {
 
 		JSONObject params = new JSONObject();
 		if (sqlScript == null || sqlScript.length() == 0) {
-			params.put("msg", "0");
+			params.put("ecd", "0");
 			return params.toJSONString();
 		}
 
 		try {
 			DbClient dbClient = DbClientFactory.getDbClient();
 			if (dbClient.directExec(sqlScript)) {
-				params.put("msg", "1");
+				params.put("ecd", "1");
 			} else {
-				params.put("msg", "2");
+				params.put("ecd", "2");
 			}
 
 			return params.toJSONString();
 
 		} catch (Exception exp) {
 			logger.error("", exp);
+			params.put("ecd", "3");
 			params.put("msg", exp.toString());
 			return params.toJSONString();
 		}

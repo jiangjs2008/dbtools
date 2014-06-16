@@ -44,6 +44,7 @@ $(document).ready(function() {
 						limit: 100,
 						height: 'fit',
 						width : 'fit',
+						editMode:"insert",
 						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
 						colModel : data
 					});
@@ -118,12 +119,28 @@ $(document).ready(function() {
 		if (sqlScript.length > 0) {
 
 			var target = $('#mytree2').omTree('getSelected');
-			$('#mytree2').omTree('unselect', target);
+			if (target != null) {
+				$('#mytree2').omTree('unselect', target);
+			}
 			$("#tblname").text(''),
 
 			$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) {
-				if (data.msg != '1') {
-					alert(data.msg);
+				if (data.ecd == '1') {
+				   $.omMessageBox.waiting({
+			           content: 'SQL语句执行成功！'
+			       });
+			       setTimeout("$.omMessageBox.waiting('close');", 1000);
+
+				} else if (data.ecd == '2') {
+			       $.omMessageBox.alert({
+			           content: 'SQL语句执行失败，请再次确认你的SQL语句'
+			       });
+
+				} else if (data.ecd == '3') {
+			       $.omMessageBox.alert({
+			           content: '执行SQL语句时发生错误，请再次确认你的SQL语句，并可查看LOG文件<br>' + data.msg
+			       });
+
 				}
 			});
 		}

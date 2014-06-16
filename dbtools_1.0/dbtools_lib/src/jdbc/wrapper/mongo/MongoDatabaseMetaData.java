@@ -68,7 +68,7 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 	@Override
 	public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
 			throws SQLException {
-		ResultSet rs = new MongoCachedRowSetImpl(_dbObj, tableNamePattern, 1, 1, null);
+		ResultSet rs = new MongoCachedRowSetImpl(_dbObj, tableNamePattern, 1, 1);
 		rs.beforeFirst();
 		ResultSetMetaData rsm = rs.getMetaData();
 		if (rsm == null) {

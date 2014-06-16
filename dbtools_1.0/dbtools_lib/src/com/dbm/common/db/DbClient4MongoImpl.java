@@ -16,8 +16,6 @@ import jdbc.wrapper.mongo.MongoCachedRowSetImpl;
 import jdbc.wrapper.mongo.MongoConnection;
 import jdbc.wrapper.mongo.MongoResultSet;
 
-import org.bson.types.ObjectId;
-
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
 import com.mongodb.DB;
@@ -89,7 +87,7 @@ public class DbClient4MongoImpl extends DbClient {
 					logger.error(exp);
 				}
 			}
-			rs = new MongoCachedRowSetImpl(dbObj, tblName, 1, 500, null);
+			rs = new MongoCachedRowSetImpl(dbObj, tblName, 1, 500);
 
 		} else if (sqlStr.indexOf(".findOne(") > 0) {
 			
@@ -139,9 +137,20 @@ public class DbClient4MongoImpl extends DbClient {
 
 	CachedRowSet allRowSet = null;
 
-	private ObjectId backId = null;
-	private ObjectId lastId = null;
-
+	/**
+	 * 分页方案1.<br>
+	 * 	对"_id"排序，记住关键点的_id，此方案弊端是只能前后翻页，不能跳转到指定页面<br>
+	 * 	DBObject orderObj = new BasicDBObject("_id", 1);<br>
+	 * 	DBObject values.put("$gt", lastId);<br>
+	 * 	DBObject reqObj.put("_id", values);<br>
+	 * 	DBCursor _cur = _tblObj.find(reqObj).sort(orderObj).limit(limit);<br>
+	 * <br><br>
+	 * 分页方案2.<br>
+	 * 使用skip() 加limit(), 此方案弊端是如果数据量超大，例如到了上亿条数据，翻转到靠后的页面时，费时较多<br>
+	 * DBCursor _cur = _tblObj.find().skip((pageNum - 1) * limit).limit(limit);<br>
+	 * <br><br>
+	 * 目前采用方案2分页<br>
+	 */
 	@Override
 	public ResultSet defaultQuery(int pageNum) {
 		currPage = pageNum;
@@ -149,31 +158,13 @@ public class DbClient4MongoImpl extends DbClient {
 		try {
 			// 先取得该表的数据总件数
 			if (pageNum == 1) {
-				allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, 0, 0, null);
+				allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, 0, 0);
 				_size = allRowSet.size();
 				logger.debug("TBL: " + _tblName + " size: " + _size);
 			}
 
-			int span = currPage - pageNum;
-			if (span == 1) {
-				// 后退 <=
-				
-				
-			} else if (span == -1) {
-				// 前进 =>
-				
-				
-			} else {
-				// 跳转到指定页
-				
-				
-			}
-
-			allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, pageNum, _pageSize, lastId);
+			allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, pageNum, _pageSize);
 			allRowSet.beforeFirst();
-
-//			backId = lastId;
-//			lastId = ((MongoCachedRowSetImpl) allRowSet).getLastIdxObj();
 			return allRowSet;
 
 		} catch (Exception exp) {
@@ -219,7 +210,5 @@ public class DbClient4MongoImpl extends DbClient {
 	@Override
 	public void setTableName(String tblName) {
 		this._tblName = tblName;
-		backId = null;
-//		prevId = null;
 	}
 }

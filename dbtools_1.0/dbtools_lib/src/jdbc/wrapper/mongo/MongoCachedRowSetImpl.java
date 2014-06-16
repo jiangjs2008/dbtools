@@ -46,22 +46,11 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	private int curDataIdx = -1;
 	private int dataCount = 0;
 	private int pageSize = 0;
-	private int curPageIdx = -1;
-	private int curPageDataCnt = 0;
-
-	/**
-	 * 排序用键定义(升序)
-	 */
-	private static DBObject orderObj = new BasicDBObject("_id", 1);
-	DBObject values = new BasicDBObject();
-	DBObject reqObj = new BasicDBObject();
-
-	ObjectId _lastId = null;
 
 	/**
 	 * 构造函数
 	 */
-	public MongoCachedRowSetImpl(DB dbObj, String tblName, int pageNum, int limit, ObjectId lastId) {
+	public MongoCachedRowSetImpl(DB dbObj, String tblName, int pageNum, int limit) {
 		// 查询所有的数据
 		_tblObj = dbObj.getCollection(tblName);
 
@@ -71,29 +60,12 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		} else if (pageNum == 1) {
 			_cur = _tblObj.find().limit(limit);
 		} else {
-
 			_cur = _tblObj.find().skip((pageNum - 1) * limit).limit(limit);
 		}
 		dataCount = _cur.size();
 		if (dataCount == 0) {
 			logger.info("此次查询结果为0");
 		}
-	}
-//	if (pageNum == 0) {
-//		// 不分页
-//		_cur = _tblObj.find();
-//	} else if (pageNum == 1) {
-//		_cur = _tblObj.find().sort(orderObj).limit(limit);
-//	} else {
-//		values.put("$gt", lastId);
-//		reqObj.put("_id", values);
-//		_cur = _tblObj.find(reqObj).sort(orderObj).limit(limit);
-//	}
-	/**
-	 * @return the _lastId
-	 */
-	public ObjectId getLastIdxObj() {
-		return _lastId;
 	}
 
 	@Override
@@ -102,7 +74,6 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		if (_cur.hasNext()) {
 			dataList = new ArrayList<DBObject>(dataCount);
 
-			ArrayList<Object> rowValue = null;
 			while (_cur.hasNext()) {
 				DBObject data = _cur.next();
 				dataList.add(data);
@@ -120,8 +91,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 				
 				mrsr = new MongoResultSetMetaData(nameArray);
 			}
-			
-			_lastId = (ObjectId) _cur.curr().get("_id");
+
 		} else {
 			logger.info("此次查询无结果");
 		}
@@ -320,8 +290,6 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		curDataIdx = -1;
 		dataCount = 0;
 		pageSize = 0;
-		curPageIdx = -1;
-		curPageDataCnt = 0;
 	}
 
 	/* (non-Javadoc)
