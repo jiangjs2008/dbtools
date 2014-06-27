@@ -1,5 +1,6 @@
 package com.dbm.web.biz.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,11 @@ public class Man003 extends DefaultController {
 	@ResponseBody
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
 		String sqlScript = requestParam.get("sqlscript");
+		try {
+			sqlScript = new String(sqlScript.getBytes("ISO-8859-1"), "utf-8");
+		} catch (UnsupportedEncodingException eop) {
+			logger.error("", eop);
+		}
 
 		JSONObject params = new JSONObject();
 		if (sqlScript == null || sqlScript.length() == 0) {
