@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: . lib/fastjson-1.1.41.jar lib/log4j-1.2.17.jar lib/db2jcc4.jar lib/mongo-java-driver-2.11.3.jar
- lib/mysql-connector-java-5.1.25-bin.jar lib/ojdbc6.jar lib/postgresforest510.jar
- lib/postgresql-9.2-1002.jdbc4.jar lib/sqlite-jdbc-3.7.15-M1.jar lib/sqljdbc4.jar
-Main-Class: com.dbm.client.ui.MainApp
-
