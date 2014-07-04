@@ -1,5 +1,4 @@
-
-@echo on
+@echo off
 
 rem Make sure prerequisite environment variables are set
 
@@ -32,7 +31,7 @@ if not exist "%java_dir%\bin\java.exe" goto noJava
 if not exist "%java_dir%\bin\javaw.exe" goto noJava
 
 echo run this program
-start %java_dir%/bin/java -cp ./bin -Djava.ext.dirs=./lib com.dbm.client.ui.MainAppJFrame
+start %java_dir%/bin/javaw -cp ./conf -Djava.ext.dirs=./lib com.dbm.client.ui.MainApp
 exit /b 0
 
 :exit
