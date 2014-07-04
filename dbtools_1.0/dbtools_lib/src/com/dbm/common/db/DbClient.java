@@ -144,6 +144,7 @@ public abstract class DbClient {
 			sqlType = 1;
 		} else if ("create".equalsIgnoreCase(typeStr) || "update".equalsIgnoreCase(typeStr)
 				|| "insert".equalsIgnoreCase(typeStr) || "delete".equalsIgnoreCase(typeStr)
+				|| "alter".equalsIgnoreCase(typeStr.substring(0, 5))
 				|| "drop".equalsIgnoreCase(typeStr.substring(0, 4)) ) {
 			sqlType = 2;
 		} else {

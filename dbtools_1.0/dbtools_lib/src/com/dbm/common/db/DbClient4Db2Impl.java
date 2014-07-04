@@ -12,9 +12,6 @@ import javax.sql.rowset.CachedRowSet;
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.sun.rowset.CachedRowSetImpl;
 
-
-
-
 /**
  * 缺省数据库操作类
  *
@@ -74,7 +71,6 @@ public class DbClient4Db2Impl extends DbClient4DefaultImpl {
 			rs = stmt.executeQuery(action);
 
 			CachedRowSet allRowSet = new CachedRowSetImpl();
-			//allRowSet.setMaxRows(500);
 			allRowSet.setPageSize(500);
 
 			allRowSet.populate(rs, (pageNum - 1) * 500 + 1);
@@ -85,10 +81,13 @@ public class DbClient4Db2Impl extends DbClient4DefaultImpl {
 		}
 	}
 
-	@Override
-	protected String getLimitString(String tblName, int pageNum) {
-		String sql = "select * from " + tblName;
-		return "SELECT * FROM ( SELECT B.*, ROWNUMBER() OVER() AS RN FROM ( " + sql + " ) AS B ) AS A WHERE A.RN BETWEEN " 
-			+ ( pageNum - 1) * _pageSize + " AND " + pageNum  * _pageSize;
+	protected CachedRowSet getCachedRowSetImpl() {
+		try {
+			CachedRowSet allRowSet = new CachedRowSetImpl();
+			return allRowSet;
+		} catch (SQLException exp) {
+			logger.error(exp);
+			return null;
+		}
 	}
 }

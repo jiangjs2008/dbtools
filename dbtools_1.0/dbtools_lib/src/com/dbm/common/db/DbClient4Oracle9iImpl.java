@@ -3,12 +3,18 @@
  */
 package com.dbm.common.db;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.rowset.CachedRowSet;
+
+import oracle.jdbc.rowset.OracleCachedRowSet;
 import oracle.sql.Datum;
 import oracle.sql.ROWID;
 import oracle.sql.STRUCT;
+
+import com.dbm.common.error.BaseExceptionWrapper;
 
 
 /**
@@ -20,31 +26,51 @@ public class DbClient4Oracle9iImpl extends DbClient4DefaultImpl {
 
 	@Override
 	protected String getLimitString(String tblName, int pageNum) {
-		
-		String sql = "select rowid rowidex,t.* from " + tblName + " t";
-		boolean hasOffset = pageNum > 1;
+		return "select t.* from " + tblName + " t";
+//		String sql = "select rowid rowidex,t.* from " + tblName + " t";
+//		boolean hasOffset = pageNum > 1;
+//
+//		final StringBuilder pagingSelect = new StringBuilder( sql.length() + 100 );
+//		if (hasOffset) {
+//			pagingSelect.append( "select * from ( select row_.*, rownum rownum_ from ( " );
+//		} else {
+//			pagingSelect.append( "select * from ( " );
+//		}
+//		pagingSelect.append( sql );
+//		if (hasOffset) {
+//			int beg = ( pageNum - 1) * _pageSize;
+//			int end = ( pageNum ) * _pageSize;
+//			pagingSelect.append( " ) row_ where rownum <= " );
+//			pagingSelect.append( end );
+//			pagingSelect.append( " ) where rownum_ > " );
+//			pagingSelect.append( beg );
+//
+//		} else {
+//			pagingSelect.append( " ) where rownum <= " );
+//			pagingSelect.append( _pageSize);
+//		}
+//
+//		return pagingSelect.toString();
+	}
 
-		final StringBuilder pagingSelect = new StringBuilder( sql.length() + 100 );
-		if (hasOffset) {
-			pagingSelect.append( "select * from ( select row_.*, rownum rownum_ from ( " );
-		} else {
-			pagingSelect.append( "select * from ( " );
+	@Override
+	protected CachedRowSet getCachedRowSetImpl(String tblName, int pageNum) {
+		try {
+			// 查询表数据
+			String action = getLimitString(_tblName, pageNum);
+			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			rs = stmt.executeQuery(action);
+
+			allRowSet = new OracleCachedRowSet();
+			allRowSet.setPageSize(500);
+
+			allRowSet.populate(rs, (pageNum - 1) * 500 + 1);
+			allRowSet.setTableName(tblName);
+			return allRowSet;
+
+		} catch (SQLException exp) {
+			throw new BaseExceptionWrapper(exp);
 		}
-		pagingSelect.append( sql );
-		if (hasOffset) {
-			int beg = ( pageNum - 1) * _pageSize;
-			int end = ( pageNum ) * _pageSize;
-			pagingSelect.append( " ) row_ where rownum <= " );
-			pagingSelect.append( end );
-			pagingSelect.append( " ) where rownum_ > " );
-			pagingSelect.append( beg );
-
-		} else {
-			pagingSelect.append( " ) where rownum <= " );
-			pagingSelect.append( _pageSize);
-		}
-
-		return pagingSelect.toString();
 	}
 
 	@Override

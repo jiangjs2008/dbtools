@@ -13,10 +13,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.spi.SyncProviderException;
 import javax.sql.rowset.spi.SyncResolver;
 
 import com.dbm.common.error.BaseExceptionWrapper;
+import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * 缺省数据库操作类
@@ -27,10 +29,11 @@ public class DbClient4DefaultImpl extends DbClient {
 
 	protected Statement stmt = null;
 	protected ResultSet rs = null;
+	CachedRowSet allRowSet = null;
 
 	@Override
 	public String getTableDataAt(int rowNum, int colNum) {
-		if (rs != null) {
+		if (rs != null && rowNum <= size()) {
 			try {
 				rs.absolute(rowNum);
 				return rs.getString(colNum);
@@ -133,13 +136,13 @@ public class DbClient4DefaultImpl extends DbClient {
 			ResultSet irs = null;
 			try {
 				istmt = _dbConn.createStatement();
-				irs = istmt.executeQuery("select count(1) from ( " + sqlStr + " ) as tbl");
+				irs = istmt.executeQuery("select count(1) from ( " + sqlStr + " ) ");
 				if (irs.next()) {
 					_size = irs.getInt(1);
 					logger.debug("该查询的数据总件数: size= " + _size);
 				}
 			} catch (SQLException exp) {
-				throw new BaseExceptionWrapper(exp);
+				//throw new BaseExceptionWrapper(exp);
 			} finally {
 				try {
 					if (irs != null) {
@@ -247,14 +250,23 @@ public class DbClient4DefaultImpl extends DbClient {
 			}
 		}
 
+		return getCachedRowSetImpl(_tblName, pageNum);
+	}
+
+	protected CachedRowSet getCachedRowSetImpl(String tblName, int pageNum) {
 		try {
 			// 查询表数据
 			String action = getLimitString(_tblName, pageNum);
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			rs = stmt.executeQuery(action);
-			return rs;
 
-		} catch (Exception exp) {
+			allRowSet = new CachedRowSetImpl();
+			allRowSet.setPageSize(500);
+
+			allRowSet.populate(rs, (pageNum - 1) * 500 + 1);
+			return allRowSet;
+
+		} catch (SQLException exp) {
 			throw new BaseExceptionWrapper(exp);
 		}
 	}
@@ -267,7 +279,6 @@ public class DbClient4DefaultImpl extends DbClient {
 		try {
 			// 更新
 			if (params != null && params.size() > 0) {
-				//rs.setTableName(tblName);
 				int rowNum = 0;
 				for (Iterator<Entry<Integer, HashMap<Integer, String>>> iter = params.entrySet().iterator(); iter.hasNext(); ) {
 
@@ -275,7 +286,7 @@ public class DbClient4DefaultImpl extends DbClient {
 					rowNum = entry.getKey();
 
 					// update data
-					rs.absolute(rowNum);
+					allRowSet.absolute(rowNum);
 
 					HashMap<Integer, String> rowMap = entry.getValue();
 					for (Iterator<Entry<Integer, String>> iter2 = rowMap.entrySet().iterator(); iter2.hasNext(); ) {
@@ -284,20 +295,18 @@ public class DbClient4DefaultImpl extends DbClient {
 						colNum = entry2.getKey();
 						colValue = entry2.getValue();
 
-						rs.updateString(colNum, colValue);
+						allRowSet.updateString(colNum, colValue);
 					}
 
-					rs.updateRow();
+					allRowSet.updateRow();
 				}
 			}
 
 			// 追加
 			if (addParams != null && addParams.size() > 0) {
-				//allRowSet.setTableName(tblName);
-
 				for (HashMap<Integer, String> addLine : addParams) {
 					// insert data
-					rs.moveToInsertRow();
+					allRowSet.moveToInsertRow();
 
 					for (Iterator<Entry<Integer, String>> iter2 = addLine.entrySet().iterator(); iter2.hasNext(); ) {
 						
@@ -305,24 +314,23 @@ public class DbClient4DefaultImpl extends DbClient {
 						colNum = entry2.getKey();
 						colValue = entry2.getValue();
 
-						rs.updateString(colNum, colValue);
+						allRowSet.updateString(colNum, colValue);
 					}
 
-					rs.insertRow();
-					rs.moveToCurrentRow();
+					allRowSet.insertRow();
+					allRowSet.moveToCurrentRow();
 				}
 			}
 
 			// 删除
 			if (delParams != null && delParams.size() > 0) {
 				for (Integer rowNum : delParams) {
-					rs.absolute(rowNum);
-					rs.deleteRow();
+					allRowSet.absolute(rowNum);
+					allRowSet.deleteRow();
 				}
 			}
 
-			getConnection().setAutoCommit(false);
-			//rs.acceptChanges(_dbConn);
+			allRowSet.acceptChanges(_dbConn);
 
 		} catch (SyncProviderException exp) {
 			SyncResolver resolver = exp.getSyncResolver();
