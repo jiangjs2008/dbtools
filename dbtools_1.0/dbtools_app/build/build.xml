@@ -8,9 +8,10 @@
 	<delete file="app.zip"/>
 	<mkdir dir="${dest.dir}" />
 
-	<copy file="readme.html" todir="${dest.dir}" />
 	<copy file="run.bat" todir="${dest.dir}" />
 	<copy file="run.sh"  todir="${dest.dir}" />
+	<copy file="readme.html" todir="${dest.dir}" />
+	<copy file="LICENSE-2.0.txt"  todir="${dest.dir}" />
 
 	<copy todir="${dest.dir}/lib">
 		<fileset dir="../lib"/>
