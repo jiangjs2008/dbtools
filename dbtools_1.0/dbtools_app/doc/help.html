@@ -12,3 +12,29 @@ http://www.oracle.com/technetwork/database/features/jdbc/index-091264.html
 
 MS SQL Server jdbc driver
 http://www.microsoft.com/en-US/download/details.aspx?id=11774
+
+
+2. 数据库驱动信息表
+
+	Create TABLE driverinfo (
+		[driverid]    smallint PRIMARY KEY,
+		[drivertype]  text     UNIQUE NOT NULL,
+		[description] text,
+		[action]      text     NOT NULL,
+		[jarname]     text，
+		[driver]      text,
+		[sampleurl]   text
+	);
+
+3. 常用数据库信息表
+
+	Create TABLE favrinfo (
+		[id]          smallint PRIMARY KEY,
+		[driverid]    smallint NOT NULL,
+		[name]        text     UNIQUE NOT NULL,
+		[description] text,
+		[url]         text     NOT NULL,
+		[user]        text,
+		[password]    text,
+		[useflg]      tinyint  NOT NULL DEFAULT 1
+	);
