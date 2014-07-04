@@ -7,6 +7,7 @@ import javax.swing.event.ChangeEvent;
 
 import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Session;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 
@@ -25,9 +26,10 @@ public class TableCellEditorListener implements CellEditorListener {
 		// 判断当前更该行是否大于该表的数据总件数
 		DbClient dbClient = DbClientFactory.getDbClient();
 		int dataCnt = dbClient.size();
+		int curPage = dbClient.getCurrPageNum();
 
 		UpdActionListener updMng = UpdActionListener.getInstance();
-		if (row <= dataCnt) {
+		if (row + (curPage - 1) * Session.PageDataLimit <= dataCnt) {
 			// 更新数据
 			String value = DbClientFactory.getDbClient().getTableDataAt(row, col);
 			if (!obj.equals(value)) {

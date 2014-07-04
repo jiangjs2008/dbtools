@@ -178,7 +178,7 @@ public class UpdActionListener extends AbstractActionListener {
 		
 		
 		// 让用户确认数据更新
-		Msg02Dialog msg02 = Msg02Dialog.showMsgDialog(10002);
+		Msg02Dialog msg02 = Msg02Dialog.showMsgDialog(10002, 100021);
 		if (!msg02.isOK()) {
 			// 不更新，退出
 			logger.debug("don't update, exit");

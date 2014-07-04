@@ -45,9 +45,9 @@ public class Msg02Dialog extends javax.swing.JDialog {
 	private JLabel jTextArea1 = null;
 
 
-	public static Msg02Dialog showMsgDialog(int msgId) {
-		String msgs = LoggerWrapper.getMessage(msgId);
-		inst.setMessage(msgs);
+	public static Msg02Dialog showMsgDialog(int titleId, int msgId) {
+		inst.setTitle(LoggerWrapper.getMessage(titleId));
+		inst.setMessage(LoggerWrapper.getMessage(msgId));
 		inst.setVisible(true);
 		return inst;
 	}

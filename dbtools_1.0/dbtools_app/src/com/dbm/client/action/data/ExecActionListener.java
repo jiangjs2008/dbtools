@@ -65,7 +65,7 @@ public class ExecActionListener extends AbstractActionListener {
 			}
 			
 			PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
-			pageAction.displayTableData(rs, -1);
+			pageAction.displayTableData(rs, dbClient.size());
 
 		} else {
 			// 更新数据
