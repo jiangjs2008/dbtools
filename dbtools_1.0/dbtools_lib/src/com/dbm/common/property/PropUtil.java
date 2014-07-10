@@ -54,18 +54,18 @@ public class PropUtil {
 			for (Map.Entry<Object, Object> m : p.entrySet()) {
 
 				JSONObject json = JSON.parseObject((String) m.getValue());
-				if (json.getIntValue("useflg") == 1) {
-					FavrBean favrBean = new FavrBean();
-					favrBean.favrId = StringUtil.parseInt((String) m.getKey());
 
-					favrBean.name = json.getString("name");
-					favrBean.driverId = json.getIntValue("driverid");
-					favrBean.description = json.getString("description");
-					favrBean.url = json.getString("url");
-					favrBean.user = json.getString("user");
-					favrBean.password = json.getString("password");
-					favrList[favrBean.favrId] = favrBean;
-				}
+				FavrBean favrBean = new FavrBean();
+				favrBean.favrId = StringUtil.parseInt((String) m.getKey());
+				favrBean.name = json.getString("name");
+				favrBean.driverId = json.getIntValue("driverid");
+				favrBean.description = json.getString("description");
+				favrBean.url = json.getString("url");
+				favrBean.user = json.getString("user");
+				favrBean.password = json.getString("password");
+				favrBean.useFlg = StringUtil.parseInt(json.getString("useflg"), 0) == 1;
+
+				favrList[favrBean.favrId] = favrBean;
 			}
 			p.clear();
 			//favrPrp.storeToXML(new FileOutputStream(PropUtil.class.getClassLoader().getResource("_favrinfo.xml").getFile()), "");
@@ -88,6 +88,7 @@ public class PropUtil {
 				connBean.action = json.getString("action");
 				connBean.driver = json.getString("driver");
 				connBean.sampleUrl = json.getString("sampleurl");
+
 				connList[connBean.driverid] = connBean;
 			}
 			p.clear();
@@ -135,18 +136,19 @@ public class PropUtil {
 			for (Map.Entry<Object, Object> m : p.entrySet()) {
 
 				JSONObject json = JSON.parseObject((String) m.getValue());
-				if (json.getIntValue("useflg") == 1) {
-					FavrBean favrBean = new FavrBean();
-					favrBean.favrId = StringUtil.parseInt((String) m.getKey());
 
-					favrBean.name = json.getString("name");
-					favrBean.driverId = json.getIntValue("driverid");
-					favrBean.description = json.getString("description");
-					favrBean.url = json.getString("url");
-					favrBean.user = json.getString("user");
-					favrBean.password = json.getString("password");
-					favrList[favrBean.favrId] = favrBean;
-				}
+				FavrBean favrBean = new FavrBean();
+				favrBean.favrId = StringUtil.parseInt((String) m.getKey());
+
+				favrBean.name = json.getString("name");
+				favrBean.driverId = json.getIntValue("driverid");
+				favrBean.description = json.getString("description");
+				favrBean.url = json.getString("url");
+				favrBean.user = json.getString("user");
+				favrBean.password = json.getString("password");
+				favrBean.useFlg = StringUtil.parseInt(json.getString("useflg"), 0) == 1;
+			
+				favrList[favrBean.favrId] = favrBean;
 			}
 			p.clear();
 			//favrPrp.storeToXML(new FileOutputStream(PropUtil.class.getClassLoader().getResource("_favrinfo.xml").getFile()), "");

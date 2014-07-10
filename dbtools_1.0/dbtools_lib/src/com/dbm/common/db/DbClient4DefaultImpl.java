@@ -263,7 +263,7 @@ public class DbClient4DefaultImpl extends DbClient {
 			allRowSet = new CachedRowSetImpl();
 			allRowSet.setPageSize(500);
 
-			allRowSet.populate(rs, (pageNum - 1) * 500 + 1);
+			allRowSet.populate(rs, (pageNum - 1) * 500);
 			return allRowSet;
 
 		} catch (SQLException exp) {

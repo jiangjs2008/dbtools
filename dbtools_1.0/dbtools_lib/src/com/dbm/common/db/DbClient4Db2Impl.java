@@ -70,10 +70,17 @@ public class DbClient4Db2Impl extends DbClient4DefaultImpl {
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			rs = stmt.executeQuery(action);
 
-			CachedRowSet allRowSet = new CachedRowSetImpl();
+			allRowSet = new CachedRowSetImpl();
 			allRowSet.setPageSize(500);
 
 			allRowSet.populate(rs, (pageNum - 1) * 500 + 1);
+			String tableName = null;
+			if (_tblName.indexOf(".") > 0) {
+				tableName = _tblName.substring(_tblName.indexOf(".") + 1);
+			} else {
+				tableName = _tblName;
+			}
+			allRowSet.setTableName(tableName);
 			return allRowSet;
 
 		} catch (Exception exp) {

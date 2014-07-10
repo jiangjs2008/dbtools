@@ -40,5 +40,5 @@ public class FavrBean {
 	/**
 	 * 利用标志位，1：可用； 0：不可用
 	 */
-	//public boolean useFlg = false;
+	public boolean useFlg = false;
 }
