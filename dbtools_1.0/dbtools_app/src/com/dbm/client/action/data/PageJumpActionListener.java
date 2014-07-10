@@ -119,7 +119,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			// 如果分页，开始只显示第一页的数据
 			allData = new Vector<Vector<String>>(length);
 			_rowSet.beforeFirst();
-			// set table data
+
 			for (int i = 1; i <= length; i ++) {
 
 				if (!_rowSet.next()) {

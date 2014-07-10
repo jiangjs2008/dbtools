@@ -190,6 +190,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jTable1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jTable1.setCellSelectionEnabled(true);
 		jTable1.addMouseListener(new TableCellSelectedListener());
+		jTable1.setRowHeight(18);
 
 		// copy&paste action
 		MyActionListener myListener = new MyActionListener();
@@ -439,7 +440,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		// 显示最近使用数据库一览
 		// load favorite database
 		for (FavrBean fbInfo : PropUtil.getFavrInfo()) {
-			if (fbInfo == null) {
+			if (fbInfo == null || !fbInfo.useFlg) {
 				continue;
 			}
 			JMenuItem jMenuItem22 = new JMenuItem();

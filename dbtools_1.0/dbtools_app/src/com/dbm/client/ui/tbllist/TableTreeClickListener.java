@@ -356,7 +356,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
 		pageAction.displayTableData(rowSet, dataCnt);
-		
+
 		// 使[更新]按钮可用
 		JButton button = (JButton) AppUIAdapter.getUIObj(AppUIAdapter.BTN_UPDATE);
 		button.setEnabled(true);
