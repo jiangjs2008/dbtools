@@ -38,12 +38,17 @@ public class MongoDriver implements Driver {
 	 */
 	@Override
 	public Connection connect(String url, Properties info) throws SQLException {
+		if (url.indexOf("mongo") < 0) {
+			return null;
+		}
 		String[] dbType = url.split("//");
 		String dbArr[] = dbType[1].split("/");
 		String urlArr[] = dbArr[0].split(":");
 		DB dbObj = null;
 		try {
 			MongoClient mongoClient = new MongoClient(urlArr[0], StringUtil.parseInt(urlArr[1]));
+			mongoClient.getMongoOptions().connectTimeout = 10;
+			
 			dbObj = mongoClient.getDB(dbArr[1]);
 		} catch (Exception exp) {
 			throw new SQLException("create MongoClient " + url + " error: " + exp.toString());

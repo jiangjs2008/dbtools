@@ -49,8 +49,8 @@ public class DbClient4DefaultImpl extends DbClient {
 		_dbArgs = args;
 		// connect to db 
 		try {
-			Class.forName(_dbArgs[0]);
-			DriverManager.setLoginTimeout(1800);
+	//		Class.forName(_dbArgs[0]);
+			DriverManager.setLoginTimeout(10);
 			if (_dbArgs[2] == null || _dbArgs[2].isEmpty()) {
 				_dbConn = DriverManager.getConnection(_dbArgs[1]);
 			} else {
