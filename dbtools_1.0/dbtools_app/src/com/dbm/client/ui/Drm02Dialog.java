@@ -4,10 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 
 import javax.swing.DefaultCellEditor;
@@ -16,8 +13,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -30,6 +25,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import com.dbm.client.action.AbstractActionListener;
+import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
 
@@ -48,13 +44,13 @@ import com.dbm.common.property.PropUtil;
 
 /**
  * [name]<br>
- * Fav02Dialog<br><br>
+ * Drm02Dialog<br><br>
  * [function]<br>
- * 管理连接快捷方式<br><br>
+ * 管理jdbc驱动信息<br><br>
  * [history]<br>
  * 2014/06/08 ver1.0 JiangJusheng<br>
  */
-public class Fav02Dialog extends javax.swing.JDialog {
+public class Drm02Dialog extends javax.swing.JDialog {
 
 	/**
 	 * serialVersionUID
@@ -68,9 +64,8 @@ public class Fav02Dialog extends javax.swing.JDialog {
 	/**
 	 * 构造函数
 	 */
-	public Fav02Dialog() {
+	public Drm02Dialog() {
 		super();
-		setTitle("快捷方式一览");
 		rootPane.registerKeyboardAction(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -86,72 +81,62 @@ public class Fav02Dialog extends javax.swing.JDialog {
 
 		jButton1 = new JButton();
 		jPanel1.add(jButton1);
-		jButton1.setBounds(280, 485, 90, 30);
+		jButton1.setBounds(300, 375, 90, 30);
 		jButton1.setText("取消");
 		jButton1.addActionListener(btnActListener);
 
 		jButton2 = new JButton();
 		jPanel1.add(jButton2);
-		jButton2.setBounds(550, 485, 90, 30);
+		jButton2.setBounds(650, 375, 90, 30);
 		jButton2.setText("确定");
 		jButton2.addActionListener(btnActListener);
 
 		jLabel1 = new JLabel();
 		jPanel1.add(jLabel1);
-		jLabel1.setText("可以在此处修改数据库连接信息,  并可设置该连接是否有效.  确认修改请点击\"确定\"按钮.");
-		jLabel1.setBounds(25, 10, 650, 30);
+		jLabel1.setText("快捷方式一览");
+		jLabel1.setBounds(25, 15, 120, 25);
 
 		jTable1 = new JTable();
-		JScrollPane jsp = new JScrollPane(jTable1);
-		jsp.setBounds(25, 45, 1050, 419);
-		jPanel1.add(jsp);
-
-		FavrBean[] favList = PropUtil.getFavrInfo();
-		int leng = favList.length;
+		jPanel1.add(jTable1);
+		jTable1.setBounds(25, 45, 1250, 300);
+		
+		ConnBean[] connList = PropUtil.getDbConnInfo();
+		int leng = connList.length;
 		String[][] favData = new String[leng][8];
 		for (int i = 0; i < leng; i++) {
-			FavrBean favItem = favList[i];
-			if (favItem == null) {
+			ConnBean connItem = connList[i];
+			if (connItem == null) {
 				continue;
 			}
 			favData[i][0] = Integer.toString(i + 1);
-			favData[i][1] = Boolean.toString(favItem.useFlg);
-			favData[i][2] = Integer.toString(favItem.driverId);
-			favData[i][3] = favItem.name;
-			favData[i][4] = favItem.description;
-			favData[i][5] = favItem.url;
-			favData[i][6] = favItem.user;
-			favData[i][7] = favItem.password;
+			favData[i][1] = connItem.name;
+			favData[i][2] = connItem.description;
+			favData[i][3] = connItem.action;
+			favData[i][4] = connItem.driver;
+			favData[i][5] = connItem.sampleUrl;
+			favData[i][6] = "";
 		}
 
-		DefaultTableModel jTable1Model = new DefaultTableModel( favData,
-				new String[] { "NO.", "", "driverid", "name", "description", "url", "user", "password" });
-		jTable1Model.addRow(new String[]{});
+		TableModel jTable1Model =
+			new DefaultTableModel(
+					new String[] { "NO.", "name", "description", "action", "driver", "sampleurl", "jarname" }, 1);
+		jTable1.setModel(jTable1Model);
+		jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		jTable1.getTableHeader().setReorderingAllowed(false);
+		jTable1Model = new DefaultTableModel( favData,
+					new String[] { "NO.", "name", "description", "action", "driver", "sampleurl", "jarname" });
 
 		jTable1.setModel(jTable1Model);
 		jTable1.setRowHeight(20);
-		jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-	    TableColumn col = jTable1.getColumnModel().getColumn(1);
-	    MyCheckBoxRenderer cellRenderer = new MyCheckBoxRenderer();
-		cellRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-		col.setCellRenderer(cellRenderer);
-	    col.setCellEditor(new DefaultCellEditor(new JCheckBox()));
-
-
-
-		DefaultTableCellRenderer cellRenderer3 = new DefaultTableCellRenderer();
-		cellRenderer3.setHorizontalAlignment(SwingConstants.CENTER);
-		col = jTable1.getColumn("driverid");
-		col.setCellRenderer(cellRenderer3);
 
 		DefaultTableCellRenderer cellRenderer2 = new DefaultTableCellRenderer();
 		cellRenderer2.setHorizontalAlignment(SwingConstants.CENTER);
 		cellRenderer2.setBackground(Color.LIGHT_GRAY);
-		col = jTable1.getColumn("NO.");
+		TableColumn  col = jTable1.getColumn("NO.");
 		col.setCellRenderer(cellRenderer2);
 
-	    setSize(1100, 570);
+	    setSize(1300, 460);
 		setLocationRelativeTo(null);
 		setModal(true);
 		fitTableColumns(jTable1);
@@ -202,26 +187,21 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		private static final long serialVersionUID = 1L;
 
 		public MyCheckBoxRenderer() {
-			addMouseListener(new MouseAdapter() {
-				@Override
-				public void mousePressed(MouseEvent e) {
-					if (e.getModifiers() == InputEvent.BUTTON1_MASK) {
-						Object oc = e.getSource();
-
-					}
-				}
-			});
 		}
 
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 				boolean hasFocus, int row, int column) {
-			boolean curSelValue = false;
-			if (value != null && value instanceof Boolean) {
-				curSelValue = ((Boolean) value).booleanValue();
-			} else if (value != null && value instanceof String) {
-				curSelValue = "true".equals(value);
+			if (isSelected) {
+				setForeground(table.getSelectionForeground());
+				setBackground(table.getSelectionBackground());
+			} else {
+				setForeground(table.getForeground());
+				setBackground(table.getBackground());
 			}
-			setSelected(curSelValue);
+			if (value == null || !(value instanceof Boolean)) {
+				value = new Boolean(false);
+			}
+			setSelected(((Boolean) value).booleanValue());
 			return this;
 		}
 	}

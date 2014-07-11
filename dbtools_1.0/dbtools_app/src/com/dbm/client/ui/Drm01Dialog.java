@@ -12,10 +12,14 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import com.dbm.client.action.AbstractActionListener;
+import com.dbm.client.ui.tbldata.TableHeaderSelectedListener;
 import com.dbm.common.util.SecuUtil;
 
 /**
@@ -33,13 +37,13 @@ import com.dbm.common.util.SecuUtil;
 
 /**
  * [name]<br>
- * Fav01Dialog<br><br>
+ * Drm01Dialog<br><br>
  * [function]<br>
- * 把当前连接加入到快捷方式<br><br>
+ * 新建jdbc驱动信息<br><br>
  * [history]<br>
  * 2014/06/08 ver1.0 JiangJusheng<br>
  */
-public class Fav01Dialog extends javax.swing.JDialog {
+public class Drm01Dialog extends javax.swing.JDialog {
 
 	/**
 	 * serialVersionUID
@@ -50,11 +54,12 @@ public class Fav01Dialog extends javax.swing.JDialog {
 	private JTextField jTextField4;
 	private JTextField jTextField2;
 	private JTextField jTextField1;
+	private JTable jTable1;
 
 	/**
 	 * 构造函数
 	 */
-	public Fav01Dialog() {
+	public Drm01Dialog() {
 		super();
 		rootPane.registerKeyboardAction(new ActionListener() {
 			@Override
@@ -68,7 +73,7 @@ public class Fav01Dialog extends javax.swing.JDialog {
 		jPanel1.setLayout(null);
 		jPanel1.setPreferredSize(new java.awt.Dimension(500, 200));
 
-		setSize(500, 200);
+		this.setSize(579, 315);
 		setModal(true);
 
 		// set location
@@ -88,12 +93,6 @@ public class Fav01Dialog extends javax.swing.JDialog {
 		jBtnConnect.setText("Encrypt");
 		jBtnConnect.setBounds(200, 110, 85, 30);
 		jBtnConnect.addActionListener(btnActListener);
-
-		JButton jButton2 = new JButton();
-		jPanel1.add(jButton2);
-		jButton2.setText("Decrypt");
-		jButton2.setBounds(350, 110, 85, 30);
-		jButton2.addActionListener(btnActListener);
 
 		JLabel jLabel3 = new JLabel();
 		jPanel1.add(jLabel3);
@@ -120,6 +119,18 @@ public class Fav01Dialog extends javax.swing.JDialog {
 		jTextField1 = new JTextField();
 		jPanel1.add(jTextField1);
 		jTextField1.setBounds(320, 20, 150, 25);
+		{
+			TableModel jTable1Model = 
+				new DefaultTableModel(
+						new String[][] { { "1", } },
+						new String[] { "NO.", "Column 1", "Column 2", "Column 3", "Column 4" });
+			jTable1 = new JTable();
+			jPanel1.add(jTable1);
+			jTable1.setModel(jTable1Model);
+			jTable1.getTableHeader().setReorderingAllowed(false);
+			jTable1.getTableHeader().addMouseListener(new TableHeaderSelectedListener());
+			jTable1.setBounds(296, 108, 174, 78);
+		}
 	}
 
 
@@ -143,6 +154,22 @@ public class Fav01Dialog extends javax.swing.JDialog {
 				if (passwd1 != null && passwd1.length() > 0) {
 					passwd1 = passwd1.trim();
 					String passwd2 = SecuUtil.encryptBASE64(passwd1);
+					jTextField2.setText(passwd2);
+				}
+
+			} else if ("Decrypt".equals(command)) {
+				// 解密
+				String name1 = jTextField3.getText();
+				if (name1 != null && name1.length() > 0) {
+					name1 = name1.trim();
+					String name2 = SecuUtil.decryptBASE64(name1);
+					jTextField1.setText(name2);
+				}
+
+				String passwd1 = jTextField4.getText();
+				if (passwd1 != null && passwd1.length() > 0) {
+					passwd1 = passwd1.trim();
+					String passwd2 = SecuUtil.decryptBASE64(passwd1);
 					jTextField2.setText(passwd2);
 				}
 

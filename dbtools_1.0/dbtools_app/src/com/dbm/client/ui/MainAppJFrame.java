@@ -322,9 +322,8 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		JMenuItem jMenuItem3 = new JMenuItem("Close Connection");
 		jMenu1.add(jMenuItem3);
 
-		ActionListener closeAction = new CloseActionListener();
 		jMenuItem3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
-		jMenuItem3.addActionListener(closeAction);
+		jMenuItem3.addActionListener(new CloseActionListener());
 
 		jMenu1.add(new JSeparator());
 
@@ -420,7 +419,8 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jMenuItem23.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				Fav01Dialog dbDialog = new Fav01Dialog();
+				dbDialog.setVisible(true);
 			}
 		});
 
@@ -461,7 +461,17 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jMenuItem31.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				Drm01Dialog dbDialog = new Drm01Dialog();
+				dbDialog.setVisible(true);
+			}
+		});
+		JMenuItem jMenuItem33 = new JMenuItem("Driver Manage");
+		jMenu3.add(jMenuItem33);
+		jMenuItem33.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Drm02Dialog dbDialog = new Drm02Dialog();
+				dbDialog.setVisible(true);
 			}
 		});
 		// separate line
