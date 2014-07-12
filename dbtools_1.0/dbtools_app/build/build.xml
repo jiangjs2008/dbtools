@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="build" basedir=".">
 
-<property name="dest.dir" location="./build"/>
+<property name="dest.dir" location="./dist"/>
 
 <!-- 生成zip文件-->
 <target name="build">
@@ -28,7 +28,7 @@
 		 includes="**/*.*" />
 
 	<zip destfile="app.zip" basedir="${dest.dir}" />
-	<!-- delete dir="${dest.dir}" /-->
+	<delete dir="${dest.dir}" />
 </target>
 
 </project>
