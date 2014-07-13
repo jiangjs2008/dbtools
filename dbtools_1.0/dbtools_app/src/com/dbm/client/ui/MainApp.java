@@ -5,7 +5,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import com.dbm.client.error.handler.ExceptionHandlerFactory;
-import com.dbm.common.property.PropUtil;
+import com.dbm.client.util.AppPropUtil;
 
 /**
  * [name]<br>
@@ -36,7 +36,7 @@ public class MainApp {
 		ss = new SplashScreen("Splash.png");
 		ss.showScreen();
 
-		PropUtil.load(System.getProperty("user.dir") + "/conf/");
+		AppPropUtil.load(System.getProperty("user.dir") + "/conf/");
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
