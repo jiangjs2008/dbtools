@@ -5,7 +5,7 @@ package com.dbm.web;
 
 import org.springframework.web.servlet.DispatcherServlet;
 
-import com.dbm.common.property.PropUtil;
+import com.dbm.web.util.WebPropUtil;
 
 /**
  * @author jiangjs
@@ -23,7 +23,7 @@ public class DispatcherServletEx extends DispatcherServlet {
 	 */
 	public DispatcherServletEx() {
 		// 初始化配置信息
-		PropUtil.load();
+		WebPropUtil.load();
 	}
 
 	@Override
