@@ -1,5 +1,6 @@
 package com.dbm.client.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -16,7 +17,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -27,7 +27,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.common.property.FavrBean;
@@ -78,8 +77,12 @@ public class Fav02Dialog extends javax.swing.JDialog {
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
+	    setSize(1100, 570);
+		setLocationRelativeTo(null);
+		setModal(true);
+
 		JPanel jPanel1 = new JPanel();
-		getContentPane().add(jPanel1);
+		getContentPane().add(jPanel1, BorderLayout.CENTER);
 		jPanel1.setLayout(null);
 
 		ButtonActionListener btnActListener = new ButtonActionListener();
@@ -138,8 +141,6 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		col.setCellRenderer(cellRenderer);
 	    col.setCellEditor(new DefaultCellEditor(new JCheckBox()));
 
-
-
 		DefaultTableCellRenderer cellRenderer3 = new DefaultTableCellRenderer();
 		cellRenderer3.setHorizontalAlignment(SwingConstants.CENTER);
 		col = jTable1.getColumn("driverid");
@@ -151,9 +152,6 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		col = jTable1.getColumn("NO.");
 		col.setCellRenderer(cellRenderer2);
 
-	    setSize(1100, 570);
-		setLocationRelativeTo(null);
-		setModal(true);
 		fitTableColumns(jTable1);
 	}
 
@@ -161,7 +159,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		JTableHeader header = myTable.getTableHeader();
 		int rowCount = myTable.getRowCount();
 
-		Enumeration columns = myTable.getColumnModel().getColumns();
+		Enumeration<?> columns = myTable.getColumnModel().getColumns();
 		while (columns.hasMoreElements()) {
 			TableColumn column = (TableColumn) columns.nextElement();
 			int col = header.getColumnModel().getColumnIndex(column.getIdentifier());
@@ -206,7 +204,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 				@Override
 				public void mousePressed(MouseEvent e) {
 					if (e.getModifiers() == InputEvent.BUTTON1_MASK) {
-						Object oc = e.getSource();
+//						Object oc = e.getSource();
 
 					}
 				}

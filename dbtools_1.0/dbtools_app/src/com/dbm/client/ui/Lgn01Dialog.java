@@ -103,18 +103,18 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 		JButton jBtnConnect = new JButton();
 		jPanel1.add(jBtnConnect);
 		jBtnConnect.setText("Connect");
-		jBtnConnect.setBounds(415, 200, 85, 30);
+		jBtnConnect.setBounds(320, 200, 85, 30);
 		jBtnConnect.addActionListener(new ConnActionListener());
 
 		JLabel jLabel1 = new JLabel();
 		jPanel1.add(jLabel1);
 		jLabel1.setText("Alias");
-		jLabel1.setBounds(20, 40, 70, 20);
+		jLabel1.setBounds(20, 20, 70, 20);
 
 		JLabel jLabel2 = new JLabel();
 		jPanel1.add(jLabel2);
 		jLabel2.setText("Db Url");
-		jLabel2.setBounds(20, 70, 70, 20);
+		jLabel2.setBounds(20, 60, 70, 20);
 
 		JLabel jLabel3 = new JLabel();
 		jPanel1.add(jLabel3);
@@ -124,15 +124,15 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 		JLabel jLabel4 = new JLabel();
 		jPanel1.add(jLabel4);
 		jLabel4.setText("Password");
-		jLabel4.setBounds(20, 130, 70, 20);
+		jLabel4.setBounds(20, 140, 70, 20);
 
 		jTextField1 = new JTextField();
 		jPanel1.add(jTextField1);
-		jTextField1.setBounds(100, 40, 300, 25);
+		jTextField1.setBounds(100, 20, 300, 25);
 
 		jTextField2 = new JTextField();
 		jPanel1.add(jTextField2);
-		jTextField2.setBounds(100, 70, 470, 25);
+		jTextField2.setBounds(100, 60, 470, 25);
 
 		jTextField3 = new JTextField();
 		jPanel1.add(jTextField3);
@@ -140,14 +140,11 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 
 		jTextField4 = new JPasswordField();
 		jPanel1.add(jTextField4);
-		jTextField4.setBounds(100, 130, 150, 25);
+		jTextField4.setBounds(100, 140, 150, 25);
 
 		setSize(600, 300);
+		setLocationRelativeTo(null);
 		setModal(true);
-
-		// set location
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		setLocation((dim.width - 600) / 2, (dim.height - 300) / 2);
 	}
 
 	/**
@@ -178,6 +175,10 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 	private class ConnActionListener extends AbstractActionListener {
 		@Override
 		protected void doActionPerformed(ActionEvent e) {
+			if (DbClientFactory.getDbClient() != null) {
+				// 已存在数据库连接
+				return;
+			}
 			// 数据库URL
 			String item2 = jTextField2.getText();
 			// 用户名

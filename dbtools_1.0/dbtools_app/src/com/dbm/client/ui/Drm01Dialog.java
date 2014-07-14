@@ -1,8 +1,6 @@
 package com.dbm.client.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,15 +9,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import com.dbm.client.action.AbstractActionListener;
-import com.dbm.client.ui.tbldata.TableHeaderSelectedListener;
 import com.dbm.common.util.SecuUtil;
 
 /**
@@ -54,13 +47,14 @@ public class Drm01Dialog extends javax.swing.JDialog {
 	private JTextField jTextField4;
 	private JTextField jTextField2;
 	private JTextField jTextField1;
-	private JTable jTable1;
+	private JTextField jTextField5;
 
 	/**
 	 * 构造函数
 	 */
 	public Drm01Dialog() {
 		super();
+		setTitle("添加新的数据库连接驱动设置");
 		rootPane.registerKeyboardAction(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -68,71 +62,73 @@ public class Drm01Dialog extends javax.swing.JDialog {
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
+		setSize(590, 320);
+		setLocationRelativeTo(null);
+		setModal(true);
+
 		JPanel jPanel1 = new JPanel();
 		getContentPane().add(jPanel1, BorderLayout.CENTER);
 		jPanel1.setLayout(null);
-		jPanel1.setPreferredSize(new java.awt.Dimension(500, 200));
-
-		this.setSize(579, 315);
-		setModal(true);
-
-		// set location
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		setLocation((dim.width - 500) / 2, (dim.height - 200) / 2);
 
 		ButtonActionListener btnActListener = new ButtonActionListener();
 
 		JButton jButton1 = new JButton();
 		jPanel1.add(jButton1);
-		jButton1.setText("Cancel");
-		jButton1.setBounds(55, 110, 85, 30);
+		jButton1.setText("取消");
+		jButton1.setBounds(90, 235, 85, 30);
 		jButton1.addActionListener(btnActListener);
 
 		JButton jBtnConnect = new JButton();
 		jPanel1.add(jBtnConnect);
-		jBtnConnect.setText("Encrypt");
-		jBtnConnect.setBounds(200, 110, 85, 30);
+		jBtnConnect.setText("确定");
+		jBtnConnect.setBounds(320, 235, 85, 30);
 		jBtnConnect.addActionListener(btnActListener);
 
 		JLabel jLabel3 = new JLabel();
 		jPanel1.add(jLabel3);
-		jLabel3.setText("User Name");
-		jLabel3.setBounds(20, 20, 90, 25);
+		jLabel3.setText("名称");
+		jLabel3.setBounds(20, 20, 50, 25);
 
 		JLabel jLabel4 = new JLabel();
 		jPanel1.add(jLabel4);
-		jLabel4.setText("Password");
-		jLabel4.setBounds(20, 60, 90, 25);
+		jLabel4.setText("描述");
+		jLabel4.setBounds(20, 60, 50, 25);
 
-		jTextField3 = new JTextField();
-		jPanel1.add(jTextField3);
-		jTextField3.setBounds(120, 20, 150, 25);
+		JLabel jLabel1 = new JLabel();
+		jPanel1.add(jLabel1);
+		jLabel1.setText("执行类");
+		jLabel1.setBounds(20, 100, 50, 25);
 
-		jTextField4 = new JTextField();
-		jPanel1.add(jTextField4);
-		jTextField4.setBounds(120, 60, 150, 25);
+		JLabel jLabel2 = new JLabel();
+		jPanel1.add(jLabel2);
+		jLabel2.setText("驱动类");
+		jLabel2.setBounds(20, 140, 50, 25);
 
-		jTextField2 = new JTextField();
-		jPanel1.add(jTextField2);
-		jTextField2.setBounds(320, 60, 150, 25);
+		JLabel jLabel5 = new JLabel();
+		jPanel1.add(jLabel5);
+		jLabel5.setText("示例URL");
+		jLabel5.setBounds(20, 180, 50, 25);
 
 		jTextField1 = new JTextField();
 		jPanel1.add(jTextField1);
-		jTextField1.setBounds(320, 20, 150, 25);
-		{
-			TableModel jTable1Model = 
-				new DefaultTableModel(
-						new String[][] { { "1", } },
-						new String[] { "NO.", "Column 1", "Column 2", "Column 3", "Column 4" });
-			jTable1 = new JTable();
-			jPanel1.add(jTable1);
-			jTable1.setModel(jTable1Model);
-			jTable1.getTableHeader().setReorderingAllowed(false);
-			jTable1.getTableHeader().addMouseListener(new TableHeaderSelectedListener());
-			jTable1.setBounds(296, 108, 174, 78);
-		}
-	}
+		jTextField1.setBounds(80, 20, 400, 25);
 
+		jTextField2 = new JTextField();
+		jPanel1.add(jTextField2);
+		jTextField2.setBounds(80, 60, 480, 25);
+
+		jTextField3 = new JTextField();
+		jPanel1.add(jTextField3);
+		jTextField3.setBounds(80, 100, 400, 25);
+
+		jTextField4 = new JTextField();
+		jPanel1.add(jTextField4);
+		jTextField4.setBounds(80, 140, 400, 25);
+
+		jTextField5 = new JTextField();
+		jPanel1.add(jTextField5);
+		jTextField5.setBounds(80, 180, 480, 25);
+	}
 
 	/**
 	 * 按钮事件监听器
@@ -141,24 +137,8 @@ public class Drm01Dialog extends javax.swing.JDialog {
 		@Override
 		protected void doActionPerformed(ActionEvent e) {
 			String command = e.getActionCommand();
-			if ("Encrypt".equals(command)) {
-				// 加密
-				String name1 = jTextField3.getText();
-				if (name1 != null && name1.length() > 0) {
-					name1 = name1.trim();
-					String name2 = SecuUtil.encryptBASE64(name1);
-					jTextField1.setText(name2);
-				}
-
-				String passwd1 = jTextField4.getText();
-				if (passwd1 != null && passwd1.length() > 0) {
-					passwd1 = passwd1.trim();
-					String passwd2 = SecuUtil.encryptBASE64(passwd1);
-					jTextField2.setText(passwd2);
-				}
-
-			} else if ("Decrypt".equals(command)) {
-				// 解密
+			if ("确定".equals(command)) {
+				// 确定
 				String name1 = jTextField3.getText();
 				if (name1 != null && name1.length() > 0) {
 					name1 = name1.trim();

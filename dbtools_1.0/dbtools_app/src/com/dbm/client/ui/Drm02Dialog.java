@@ -1,5 +1,6 @@
 package com.dbm.client.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -7,12 +8,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Enumeration;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -26,7 +27,6 @@ import javax.swing.table.TableModel;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.common.property.ConnBean;
-import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
 
 /**
@@ -59,13 +59,13 @@ public class Drm02Dialog extends javax.swing.JDialog {
 	private JTable jTable1;
 	private JButton jButton1;
 	private JButton jButton2;
-	private JLabel jLabel1;
 
 	/**
 	 * 构造函数
 	 */
 	public Drm02Dialog() {
 		super();
+		setTitle("数据库驱动一览");
 		rootPane.registerKeyboardAction(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -73,8 +73,12 @@ public class Drm02Dialog extends javax.swing.JDialog {
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
+	    setSize(1300, 460);
+		setLocationRelativeTo(null);
+		setModal(true);
+
 		JPanel jPanel1 = new JPanel();
-		getContentPane().add(jPanel1);
+		getContentPane().add(jPanel1, BorderLayout.CENTER);
 		jPanel1.setLayout(null);
 
 		ButtonActionListener btnActListener = new ButtonActionListener();
@@ -91,14 +95,15 @@ public class Drm02Dialog extends javax.swing.JDialog {
 		jButton2.setText("确定");
 		jButton2.addActionListener(btnActListener);
 
-		jLabel1 = new JLabel();
+		JLabel jLabel1 = new JLabel();
 		jPanel1.add(jLabel1);
-		jLabel1.setText("快捷方式一览");
-		jLabel1.setBounds(25, 15, 120, 25);
+		jLabel1.setText("可以在此处修改数据库Jdbc驱动设置");
+		jLabel1.setBounds(25, 10, 600, 30);
 
 		jTable1 = new JTable();
-		jPanel1.add(jTable1);
-		jTable1.setBounds(25, 45, 1250, 300);
+		JScrollPane jsp = new JScrollPane(jTable1);
+		jsp.setBounds(25, 45, 1250, 300);
+		jPanel1.add(jsp);
 		
 		ConnBean[] connList = PropUtil.getDbConnInfo();
 		int leng = connList.length;
@@ -136,9 +141,6 @@ public class Drm02Dialog extends javax.swing.JDialog {
 		TableColumn  col = jTable1.getColumn("NO.");
 		col.setCellRenderer(cellRenderer2);
 
-	    setSize(1300, 460);
-		setLocationRelativeTo(null);
-		setModal(true);
 		fitTableColumns(jTable1);
 	}
 
@@ -146,7 +148,7 @@ public class Drm02Dialog extends javax.swing.JDialog {
 		JTableHeader header = myTable.getTableHeader();
 		int rowCount = myTable.getRowCount();
 
-		Enumeration columns = myTable.getColumnModel().getColumns();
+		Enumeration<?> columns = myTable.getColumnModel().getColumns();
 		while (columns.hasMoreElements()) {
 			TableColumn column = (TableColumn) columns.nextElement();
 			int col = header.getColumnModel().getColumnIndex(column.getIdentifier());
