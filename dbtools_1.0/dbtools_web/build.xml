@@ -8,7 +8,10 @@
 <target name="createwar">
 	<delete file="${dest.dir}/${war.name}" />
 	<war warfile="${dest.dir}/${war.name}" webxml="./WebContent/WEB-INF/web.xml" >
-		<fileset dir="./WebContent" />
+		<fileset dir="./WebContent">
+			<exclude name="WEB-INF/tmp/" />
+			<exclude name="WEB-INF/work/" />
+		</fileset>
 	</war>
 </target>
 
