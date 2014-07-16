@@ -36,7 +36,7 @@ public class MainApp {
 		ss = new SplashScreen("Splash.png");
 		ss.showScreen();
 
-		AppPropUtil.load(System.getProperty("user.dir") + "/conf/");
+		AppPropUtil.load();
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {

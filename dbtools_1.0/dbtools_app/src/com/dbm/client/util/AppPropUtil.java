@@ -1,8 +1,10 @@
 package com.dbm.client.util;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.Properties;
 
@@ -24,14 +26,16 @@ import com.dbm.common.util.StringUtil;
  */
 public class AppPropUtil extends PropUtil {
 
+	private static final String _cfgPath = System.getProperty("user.dir");
+
 	/**
 	 * 初期化
 	 */
-	public static void load(String cfgPath) {
+	public static void load() {
 		InputStream is = null;
 		try {
 			Properties p = new Properties();
-			is = new FileInputStream(cfgPath + "__favrinfo.properties");
+			is = new FileInputStream(_cfgPath + "/conf/__favrinfo.properties");
 			p.load(is);
 			is.close();
 
@@ -44,20 +48,18 @@ public class AppPropUtil extends PropUtil {
 				favrBean.favrId = StringUtil.parseInt((String) m.getKey());
 
 				favrBean.name = json.getString("name");
-				favrBean.driverId = json.getIntValue("driverid");
+				favrBean.driverId = json.getIntValue("driverId");
 				favrBean.description = json.getString("description");
 				favrBean.url = json.getString("url");
 				favrBean.user = json.getString("user");
 				favrBean.password = json.getString("password");
-				favrBean.useFlg = StringUtil.parseInt(json.getString("useflg"), 0) == 1;
-			
+				favrBean.useFlg = json.getBooleanValue("useFlg");
+
 				favrList[favrBean.favrId] = favrBean;
 			}
 			p.clear();
-			//favrPrp.storeToXML(new FileOutputStream(PropUtil.class.getClassLoader().getResource("_favrinfo.xml").getFile()), "");
-			//favrPrp.store(new FileOutputStream(PropUtil.class.getClassLoader().getResource("_favrinfo.p1").getFile()), "");
 
-			is = new FileInputStream(cfgPath + "__driver.properties");
+			is = new FileInputStream(_cfgPath + "/conf/__driver.properties");
 			p.load(is);
 			is.close();
 
@@ -77,11 +79,11 @@ public class AppPropUtil extends PropUtil {
 			}
 			p.clear();
 
-			is = new FileInputStream(cfgPath + "config.properties");
+			is = new FileInputStream(_cfgPath + "/conf/config.properties");
 			appenv.load(is);
 			is.close();
 
-			is = new FileInputStream(cfgPath + "message.properties");
+			is = new FileInputStream(_cfgPath + "/conf/message.properties");
 			p.load(is);
 			is.close();
 			for (Map.Entry<Object, Object> m : p.entrySet()) {
@@ -103,4 +105,59 @@ public class AppPropUtil extends PropUtil {
 		}
 	}
 
+	/**
+	 * 保存快捷方式一览信息
+	 */
+	public static void saveFavrInfo() {
+		OutputStream out = null;
+		try {
+			Properties p = new Properties();
+			for (FavrBean favrBean : favrList) {
+				String json = JSON.toJSONString(favrBean);
+				p.put(Integer.toString(favrBean.favrId), json);
+			}
+
+			out = new FileOutputStream(_cfgPath + "/conf/__favrinfo.properties");
+			p.store(out, "");
+
+		} catch (Exception exp) {
+			logger.error(exp);
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException ioex) {
+					logger.error(ioex);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 保存数据库jdbc驱动信息
+	 */
+	public static void saveConnInfo() {
+		OutputStream out = null;
+		try {
+			Properties p = new Properties();
+			for (ConnBean connBean : connList) {
+				String json = JSON.toJSONString(connBean);
+				p.put(Integer.toString(connBean.driverid), json);
+			}
+
+			out = new FileOutputStream(_cfgPath + "/conf/__driver.properties");
+			p.store(out, "");
+
+		} catch (Exception exp) {
+			logger.error(exp);
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException ioex) {
+					logger.error(ioex);
+				}
+			}
+		}
+	}
 }

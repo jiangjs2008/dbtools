@@ -5,23 +5,27 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -29,8 +33,11 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import com.dbm.client.action.AbstractActionListener;
+import com.dbm.client.action.menu.FavrMenuActionListener;
+import com.dbm.client.util.AppPropUtil;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
+import com.dbm.common.util.StringUtil;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -59,16 +66,21 @@ public class Fav02Dialog extends javax.swing.JDialog {
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private static boolean isUpdate = false;
+
 	private JTable jTable1;
 	private JButton jButton1;
 	private JButton jButton2;
 	private JLabel jLabel1;
+	private DefaultCellEditor _editor = null;
 
 	/**
 	 * 构造函数
 	 */
 	public Fav02Dialog() {
 		super();
+		isUpdate = false;
 		setTitle("快捷方式一览");
 		rootPane.registerKeyboardAction(new ActionListener() {
 			@Override
@@ -79,7 +91,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 
 	    setSize(1100, 570);
 		setLocationRelativeTo(null);
-		setModal(true);
+		//setModal(true);
 
 		JPanel jPanel1 = new JPanel();
 		getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -109,41 +121,44 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		jsp.setBounds(25, 45, 1050, 419);
 		jPanel1.add(jsp);
 
+		String[] tableHeads = new String[] { "NO.", "", "driverid", "name", "description", "url", "user", "password" };
+		DefaultTableModel dtm = (DefaultTableModel) jTable1.getModel();
+		dtm.setColumnIdentifiers(tableHeads);
+
 		FavrBean[] favList = PropUtil.getFavrInfo();
 		int leng = favList.length;
-		String[][] favData = new String[leng][8];
+
 		for (int i = 0; i < leng; i++) {
 			FavrBean favItem = favList[i];
 			if (favItem == null) {
 				continue;
 			}
-			favData[i][0] = Integer.toString(i + 1);
-			favData[i][1] = Boolean.toString(favItem.useFlg);
-			favData[i][2] = Integer.toString(favItem.driverId);
-			favData[i][3] = favItem.name;
-			favData[i][4] = favItem.description;
-			favData[i][5] = favItem.url;
-			favData[i][6] = favItem.user;
-			favData[i][7] = favItem.password;
+			Object[] favData = new Object[8];
+			favData[0] = Integer.toString(i + 1);
+			favData[1] = Boolean.valueOf(favItem.useFlg);
+			favData[2] = Integer.toString(favItem.driverId);
+			favData[3] = favItem.name;
+			favData[4] = favItem.description;
+			favData[5] = favItem.url;
+			favData[6] = favItem.user;
+			favData[7] = favItem.password;
+			dtm.addRow(favData);
 		}
 
-		DefaultTableModel jTable1Model = new DefaultTableModel( favData,
-				new String[] { "NO.", "", "driverid", "name", "description", "url", "user", "password" });
-		jTable1Model.addRow(new String[]{});
-
-		jTable1.setModel(jTable1Model);
 		jTable1.setRowHeight(20);
 		jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 
 	    TableColumn col = jTable1.getColumnModel().getColumn(1);
-	    MyCheckBoxRenderer cellRenderer = new MyCheckBoxRenderer();
-		cellRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-		col.setCellRenderer(cellRenderer);
-	    col.setCellEditor(new DefaultCellEditor(new JCheckBox()));
+		col.setCellRenderer(new JCheckBoxRenderer());
+		JCheckBox jcb = new JCheckBox();
+		jcb.setHorizontalAlignment(SwingConstants.CENTER);
+		DefaultCellEditor dce = new DefaultCellEditor(jcb);
+		col.setCellEditor(dce);
 
 		DefaultTableCellRenderer cellRenderer3 = new DefaultTableCellRenderer();
 		cellRenderer3.setHorizontalAlignment(SwingConstants.CENTER);
-		col = jTable1.getColumn("driverid");
+		 col = jTable1.getColumn("driverid");
 		col.setCellRenderer(cellRenderer3);
 
 		DefaultTableCellRenderer cellRenderer2 = new DefaultTableCellRenderer();
@@ -152,10 +167,12 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		col = jTable1.getColumn("NO.");
 		col.setCellRenderer(cellRenderer2);
 
-		fitTableColumns(jTable1);
+		_editor = new DefaultCellEditor(new JTextField());
+		_editor.addCellEditorListener(new TableCellEditorListener());
+		fitTableColumns(jTable1, _editor);
 	}
 
-	private void fitTableColumns(JTable myTable) {
+	private void fitTableColumns(JTable myTable, DefaultCellEditor cellEditor) {
 		JTableHeader header = myTable.getTableHeader();
 		int rowCount = myTable.getRowCount();
 
@@ -173,7 +190,81 @@ public class Fav02Dialog extends javax.swing.JDialog {
 				width = Math.max(width, preferedWidth);
 			}
 			header.setResizingColumn(column); // 此行很重要
-			column.setWidth(width + myTable.getIntercellSpacing().width + 10);
+			column.setWidth(width + 15);
+			column.setPreferredWidth(width + 15); // 此行很重要,如果不设置，那么CheckBox将异常，原因不明
+			if (col > 1) {
+				column.setCellEditor(cellEditor);
+			}
+		}
+	}
+
+	private class TableCellEditorListener implements CellEditorListener {
+
+		@Override
+		public void editingStopped(ChangeEvent e) {
+			DefaultCellEditor dce = (DefaultCellEditor) e.getSource();
+			Object obj = dce.getCellEditorValue();
+
+			int col = jTable1.getSelectedColumn();
+			int row = jTable1.getSelectedRow();
+			obj = jTable1.getValueAt(row, col);
+			FavrBean favBean = PropUtil.getFavrInfo(row);
+
+			switch (col) {
+			case 1:
+				// 若是点击了checkbox,那么值肯定是修改过的，必须保存
+				isUpdate = true;
+				favBean.useFlg = !favBean.useFlg;
+				break;
+
+			case 2:
+				// 若是其他项目被编辑，则必须判断改过的值是否与初始值一致
+				if (!Integer.toString(favBean.driverId).equals(obj)) {
+					isUpdate = true;
+					favBean.driverId = (Integer) obj;
+				}
+				break;
+			case 3:
+				if (!favBean.name.equals(obj)) {
+					isUpdate = true;
+					favBean.name = (String) obj;
+				}
+				break;
+			case 4:
+				if (!favBean.description.equals(obj)) {
+					isUpdate = true;
+					favBean.description = (String) obj;
+				}
+				break;
+			case 5:
+				if (!favBean.url.equals(obj)) {
+					isUpdate = true;
+					favBean.url = (String) obj;
+				}
+				break;
+			case 6:
+				if (!favBean.user.equals(obj)) {
+					isUpdate = true;
+					favBean.user = (String) obj;
+				}
+				break;
+			case 7:
+				if (!favBean.password.equals(obj)) {
+					isUpdate = true;
+					favBean.password = (String) obj;
+				}
+				break;
+			default : 
+				isUpdate = false;
+			}
+
+			if (isUpdate) {
+				PropUtil.setFavrInfo(favBean);
+			}
+		}
+
+		@Override
+		public void editingCanceled(ChangeEvent e) {
 		}
 	}
 
@@ -186,40 +277,53 @@ public class Fav02Dialog extends javax.swing.JDialog {
 			String command = e.getActionCommand();
 			if ("确定".equals(command)) {
 				// 保存修改的结果
+				if (_editor != null) {
+					_editor.stopCellEditing();
+				}
 
-			} else {
-				// 关闭对话框
-				setVisible(false);
+				if (isUpdate) {
+					AppPropUtil.saveFavrInfo();
+					// 修改菜单显示
+					JFrame jFrame = (JFrame) AppUIAdapter.getUIObj(AppUIAdapter.AppMainGUI);
+					JMenuBar menuBar = jFrame.getJMenuBar();
+					JMenu menu = menuBar.getMenu(2);
+					// 先删除旧的菜单
+					for (int i = menu.getMenuComponentCount() - 1; i > 2; i --) {
+						menu.remove(i);
+					}
+					// 重新设置
+					FavrMenuActionListener connAction = new FavrMenuActionListener();
+					// 显示最近使用数据库一览
+					// load favorite database
+					for (FavrBean fbInfo : PropUtil.getFavrInfo()) {
+						if (fbInfo == null || !fbInfo.useFlg) {
+							continue;
+						}
+						JMenuItem jMenuItem22 = new JMenuItem();
+						menu.add(jMenuItem22);
+						jMenuItem22.setName("favr:" + Integer.toString(fbInfo.favrId));
+						jMenuItem22.setText(fbInfo.name);
+						jMenuItem22.setToolTipText(StringUtil.printTipText(fbInfo.url, "user :=  " + StringUtil.NVL(fbInfo.user)));
+						jMenuItem22.addActionListener(connAction);
+					}
+				}
 			}
+			// 关闭对话框
+			setVisible(false);
 		}
 	}
 
-	// 下面是个Renderer类
-	public class MyCheckBoxRenderer extends JCheckBox implements TableCellRenderer {
+	private class JCheckBoxRenderer extends JCheckBox implements TableCellRenderer {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 7841871541650508488L;
 
-		public MyCheckBoxRenderer() {
-			addMouseListener(new MouseAdapter() {
-				@Override
-				public void mousePressed(MouseEvent e) {
-					if (e.getModifiers() == InputEvent.BUTTON1_MASK) {
-//						Object oc = e.getSource();
-
-					}
-				}
-			});
-		}
-
+		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 				boolean hasFocus, int row, int column) {
-			boolean curSelValue = false;
-			if (value != null && value instanceof Boolean) {
-				curSelValue = ((Boolean) value).booleanValue();
-			} else if (value != null && value instanceof String) {
-				curSelValue = "true".equals(value);
+			if (value != null) {
+			this.setSelected((Boolean) value);
 			}
-			setSelected(curSelValue);
+			setHorizontalAlignment(SwingConstants.CENTER);
 			return this;
 		}
 	}

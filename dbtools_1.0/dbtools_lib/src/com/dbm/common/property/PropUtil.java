@@ -25,7 +25,17 @@ public abstract class PropUtil {
 	protected static Properties appenv = new Properties();
 
 	/**
-	 * 取得制定常用数据库信息
+	 * 设置数据库快捷连接的信息
+	 *
+	 * @param favrInfo 数据库快捷连接信息
+	 */
+	public static void setFavrInfo(FavrBean favrInfo) {
+		int id = favrInfo.favrId;
+		favrList[id] = favrInfo;
+	}
+
+	/**
+	 * 取得指定常用数据库信息
 	 *
 	 * @param id 数据库类型Id
 	 *
@@ -42,6 +52,16 @@ public abstract class PropUtil {
 	 */
 	public static FavrBean[] getFavrInfo() {
 		return favrList;
+	}
+
+	/**
+	 * 设置数据库连接的信息
+	 *
+	 * @param connInfo 数据库连接信息
+	 */
+	public static void setConnInfo(ConnBean connInfo) {
+		int id = connInfo.driverid;
+		connList[id] = connInfo;
 	}
 
 	/**

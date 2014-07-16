@@ -57,7 +57,7 @@ public class Sec01Dialog extends javax.swing.JDialog {
 		jPanel1.setPreferredSize(new java.awt.Dimension(500, 200));
 
 		setSize(500, 200);
-		setModal(true);
+		//setModal(true);
 
 		// set location
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
