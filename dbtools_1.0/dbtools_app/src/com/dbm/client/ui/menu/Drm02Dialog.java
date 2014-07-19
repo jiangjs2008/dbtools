@@ -1,4 +1,4 @@
-package com.dbm.client.ui;
+package com.dbm.client.ui.menu;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

@@ -1,4 +1,4 @@
-package com.dbm.client.ui;
+package com.dbm.client.ui.menu;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -30,13 +30,13 @@ import com.dbm.common.util.SecuUtil;
 
 /**
  * [name]<br>
- * Fav01Dialog<br><br>
+ * Drm01Dialog<br><br>
  * [function]<br>
- * 把当前连接加入到快捷方式<br><br>
+ * 新建jdbc驱动信息<br><br>
  * [history]<br>
  * 2014/06/08 ver1.0 JiangJusheng<br>
  */
-public class Fav01Dialog extends javax.swing.JDialog {
+public class Drm01Dialog extends javax.swing.JDialog {
 
 	/**
 	 * serialVersionUID
@@ -52,9 +52,9 @@ public class Fav01Dialog extends javax.swing.JDialog {
 	/**
 	 * 构造函数
 	 */
-	public Fav01Dialog() {
+	public Drm01Dialog() {
 		super();
-		setTitle("添加当前数据库连接到快捷方式");
+		setTitle("添加新的数据库连接驱动设置");
 		rootPane.registerKeyboardAction(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -62,7 +62,7 @@ public class Fav01Dialog extends javax.swing.JDialog {
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-		this.setSize(590, 320);
+		setSize(590, 320);
 		setLocationRelativeTo(null);
 		setModal(true);
 
@@ -75,7 +75,7 @@ public class Fav01Dialog extends javax.swing.JDialog {
 		JButton jButton1 = new JButton();
 		jPanel1.add(jButton1);
 		jButton1.setText("取消");
-		jButton1.setBounds(120, 235, 85, 30);
+		jButton1.setBounds(90, 235, 85, 30);
 		jButton1.addActionListener(btnActListener);
 
 		JButton jBtnConnect = new JButton();
@@ -96,17 +96,17 @@ public class Fav01Dialog extends javax.swing.JDialog {
 
 		JLabel jLabel1 = new JLabel();
 		jPanel1.add(jLabel1);
-		jLabel1.setText("访问URL");
+		jLabel1.setText("执行类");
 		jLabel1.setBounds(20, 100, 50, 25);
 
 		JLabel jLabel2 = new JLabel();
 		jPanel1.add(jLabel2);
-		jLabel2.setText("用户名");
+		jLabel2.setText("驱动类");
 		jLabel2.setBounds(20, 140, 50, 25);
 
 		JLabel jLabel5 = new JLabel();
 		jPanel1.add(jLabel5);
-		jLabel5.setText("密码");
+		jLabel5.setText("示例URL");
 		jLabel5.setBounds(20, 180, 50, 25);
 
 		jTextField1 = new JTextField();
@@ -119,17 +119,16 @@ public class Fav01Dialog extends javax.swing.JDialog {
 
 		jTextField3 = new JTextField();
 		jPanel1.add(jTextField3);
-		jTextField3.setBounds(80, 100, 480, 25);
+		jTextField3.setBounds(80, 100, 400, 25);
 
 		jTextField4 = new JTextField();
 		jPanel1.add(jTextField4);
-		jTextField4.setBounds(80, 140, 200, 25);
+		jTextField4.setBounds(80, 140, 400, 25);
 
 		jTextField5 = new JTextField();
 		jPanel1.add(jTextField5);
-		jTextField5.setBounds(80, 180, 200, 25);
+		jTextField5.setBounds(80, 180, 480, 25);
 	}
-
 
 	/**
 	 * 按钮事件监听器
@@ -143,14 +142,14 @@ public class Fav01Dialog extends javax.swing.JDialog {
 				String name1 = jTextField3.getText();
 				if (name1 != null && name1.length() > 0) {
 					name1 = name1.trim();
-					String name2 = SecuUtil.encryptBASE64(name1);
+					String name2 = SecuUtil.decryptBASE64(name1);
 					jTextField1.setText(name2);
 				}
 
 				String passwd1 = jTextField4.getText();
 				if (passwd1 != null && passwd1.length() > 0) {
 					passwd1 = passwd1.trim();
-					String passwd2 = SecuUtil.encryptBASE64(passwd1);
+					String passwd2 = SecuUtil.decryptBASE64(passwd1);
 					jTextField2.setText(passwd2);
 				}
 

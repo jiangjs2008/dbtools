@@ -1,4 +1,4 @@
-package com.dbm.client.ui;
+package com.dbm.client.ui.menu;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -34,6 +34,7 @@ import javax.swing.table.TableColumn;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.menu.FavrMenuActionListener;
+import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.util.AppPropUtil;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
@@ -205,11 +206,13 @@ public class Fav02Dialog extends javax.swing.JDialog {
 			DefaultCellEditor dce = (DefaultCellEditor) e.getSource();
 			Object obj = dce.getCellEditorValue();
 
-			int col = jTable1.getSelectedColumn();
 			int row = jTable1.getSelectedRow();
-			obj = jTable1.getValueAt(row, col);
+			if (row == -1) {
+				return;
+			}
 			FavrBean favBean = PropUtil.getFavrInfo(row);
 
+			int col = jTable1.getSelectedColumn();
 			switch (col) {
 			case 1:
 				// 若是点击了checkbox,那么值肯定是修改过的，必须保存
@@ -221,7 +224,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 				// 若是其他项目被编辑，则必须判断改过的值是否与初始值一致
 				if (!Integer.toString(favBean.driverId).equals(obj)) {
 					isUpdate = true;
-					favBean.driverId = (Integer) obj;
+					favBean.driverId = StringUtil.parseInt((String) obj);
 				}
 				break;
 			case 3:

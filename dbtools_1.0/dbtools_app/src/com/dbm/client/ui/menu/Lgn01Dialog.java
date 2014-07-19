@@ -1,4 +1,4 @@
-package com.dbm.client.ui;
+package com.dbm.client.ui.menu;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -20,6 +20,8 @@ import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.dbm.client.action.AbstractActionListener;
+import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Session;
 import com.dbm.client.ui.tbllist.BaseNode;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTypesGroupNode;
