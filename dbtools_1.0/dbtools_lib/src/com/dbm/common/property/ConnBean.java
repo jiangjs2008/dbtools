@@ -1,5 +1,7 @@
 package com.dbm.common.property;
 
+import com.alibaba.fastjson.JSON;
+
 /**
  * [name]<br>
  * 数据库驱动信息类<br><br>
@@ -42,4 +44,7 @@ public class ConnBean {
 	 */
 	public String password = null;
 
+	public String toString() {
+		return JSON.toJSONString(this);
+	}
 }
