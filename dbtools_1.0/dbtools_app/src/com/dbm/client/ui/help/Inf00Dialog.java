@@ -1,4 +1,4 @@
-package com.dbm.client.ui;
+package com.dbm.client.ui.help;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
