@@ -73,7 +73,7 @@ public class DbClient4Db2Impl extends DbClient4DefaultImpl {
 			allRowSet = new CachedRowSetImpl();
 			allRowSet.setPageSize(500);
 
-			allRowSet.populate(rs, (pageNum - 1) * 500 + 1);
+			allRowSet.populate(rs, (pageNum - 1) * _pageSize + 1);
 			String tableName = null;
 			if (_tblName.indexOf(".") > 0) {
 				tableName = _tblName.substring(_tblName.indexOf(".") + 1);

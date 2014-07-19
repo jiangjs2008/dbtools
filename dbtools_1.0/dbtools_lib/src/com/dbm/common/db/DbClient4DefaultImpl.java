@@ -49,7 +49,10 @@ public class DbClient4DefaultImpl extends DbClient {
 		_dbArgs = args;
 		// connect to db 
 		try {
-	//		Class.forName(_dbArgs[0]);
+			// 注* 如果是app程序，注册jdbc驱动这一步骤可以省略
+			// 但如果是web应用，必须手动注册jdbc驱动(虽然jdbc4.0标准中说可以不用，具体原因不明)
+			Class.forName(_dbArgs[0]);
+
 			DriverManager.setLoginTimeout(10);
 			if (_dbArgs[2] == null || _dbArgs[2].isEmpty()) {
 				_dbConn = DriverManager.getConnection(_dbArgs[1]);
@@ -261,9 +264,9 @@ public class DbClient4DefaultImpl extends DbClient {
 			rs = stmt.executeQuery(action);
 
 			allRowSet = new CachedRowSetImpl();
-			allRowSet.setPageSize(500);
+			allRowSet.setPageSize(_pageSize);
 
-			allRowSet.populate(rs, (pageNum - 1) * 500);
+			allRowSet.populate(rs, (pageNum - 1) * _pageSize);
 			return allRowSet;
 
 		} catch (SQLException exp) {

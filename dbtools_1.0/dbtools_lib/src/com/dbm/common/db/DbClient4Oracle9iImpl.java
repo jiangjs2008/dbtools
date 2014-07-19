@@ -62,9 +62,9 @@ public class DbClient4Oracle9iImpl extends DbClient4DefaultImpl {
 			rs = stmt.executeQuery(action);
 
 			allRowSet = new OracleCachedRowSet();
-			allRowSet.setPageSize(500);
+			allRowSet.setPageSize(_pageSize);
 
-			allRowSet.populate(rs, (pageNum - 1) * 500 );
+			allRowSet.populate(rs, (pageNum - 1) * _pageSize);
 			allRowSet.setTableName(tblName);
 			return allRowSet;
 
