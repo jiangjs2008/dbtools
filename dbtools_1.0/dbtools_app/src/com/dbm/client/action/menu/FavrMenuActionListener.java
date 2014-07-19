@@ -3,8 +3,8 @@ package com.dbm.client.action.menu;
 import java.awt.event.ActionEvent;
 
 import com.dbm.client.action.AbstractActionListener;
-import com.dbm.client.ui.Msg01Dialog;
 import com.dbm.client.ui.Session;
+import com.dbm.client.ui.help.Msg01Dialog;
 import com.dbm.client.ui.menu.Lgn01Dialog;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;

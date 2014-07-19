@@ -9,8 +9,8 @@ import javax.swing.JTree;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.ui.AppUIAdapter;
-import com.dbm.client.ui.Msg01Dialog;
 import com.dbm.client.ui.Session;
+import com.dbm.client.ui.help.Msg01Dialog;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;

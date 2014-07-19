@@ -1,6 +1,6 @@
 package com.dbm.client.error.handler;
 
-import com.dbm.client.ui.Msg01Dialog;
+import com.dbm.client.ui.help.Msg01Dialog;
 import com.dbm.common.error.BaseException;
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
