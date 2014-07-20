@@ -106,10 +106,10 @@ public class Drm02Dialog extends javax.swing.JDialog {
 		jPanel1.add(jsp);
 		
 		ConnBean[] connList = PropUtil.getDbConnInfo();
-		int leng = connList.length;
+		int leng = connList.length - 1;
 		String[][] favData = new String[leng][8];
 		for (int i = 0; i < leng; i++) {
-			ConnBean connItem = connList[i];
+			ConnBean connItem = connList[i + 1];
 			if (connItem == null) {
 				continue;
 			}

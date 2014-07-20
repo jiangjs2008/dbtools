@@ -485,6 +485,9 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		// 显示所有被支持的数据库
 		// load database
 		for (ConnBean cbInfo : PropUtil.getDbConnInfo()) {
+			if (cbInfo == null) {
+				continue;
+			}
 			JMenuItem jMenuItem32 = new JMenuItem();
 			jMenu3.add(jMenuItem32);
 			jMenuItem32.setName("conn:" + Integer.toString(cbInfo.driverid));

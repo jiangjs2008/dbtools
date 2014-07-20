@@ -1,0 +1,41 @@
+
+
+
+一开始设计时，考虑把配置信息放在本地slqite中，后改成现在的属性文件方式。
+2. 数据库驱动信息表
+
+	Create TABLE driverinfo (
+		[driverid]    smallint PRIMARY KEY,
+		[drivertype]  text     UNIQUE NOT NULL,
+		[description] text,
+		[action]      text     NOT NULL,
+		[jarname]     text，
+		[driver]      text,
+		[sampleurl]   text
+	);
+
+3. 常用数据库信息表
+
+	Create TABLE favrinfo (
+		[id]          smallint PRIMARY KEY,
+		[driverid]    smallint NOT NULL,
+		[name]        text     UNIQUE NOT NULL,
+		[description] text,
+		[url]         text     NOT NULL,
+		[user]        text,
+		[password]    text,
+		[useflg]      tinyint  NOT NULL DEFAULT 1
+	);
+	
+	
+	加载指定的jar
+//    Connection conn = null;
+//    URL url = new URL("file:"+"/usr/db28/db2java8.zip");//要加载的JAR或ZIP包
+//     URLClassLoader urlCL =URLClassLoader.newInstance(new URL[] { url });
+//     Class c =urlCL.loadClass("COM.ibm.db2.jdbc.net.DB2Driver");//加载类
+//     Driver dd=   (Driver) c.newInstance();//类的实例化
+//     String  dbUrl  =  "jdbc:db2://1.2.3.4:6789/aaa";//数据库URL
+//     Properties info = new Properties();  
+//     info.setProperty("user", "db2inst1");  
+//     info.setProperty("password", "password"); 
+//     conn = dd.connect(dbUrl, info);//获得连接
