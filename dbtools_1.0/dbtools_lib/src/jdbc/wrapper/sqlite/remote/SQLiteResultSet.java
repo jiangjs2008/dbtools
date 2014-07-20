@@ -3,10 +3,7 @@ package jdbc.wrapper.sqlite.remote;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.RowId;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Map;
 
 import jdbc.wrapper.AbstractResultSet;
 

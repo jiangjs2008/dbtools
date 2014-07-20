@@ -35,8 +35,8 @@ public class DbClient4MysqlImpl extends DbClient4DefaultImpl {
 
 			allRowSet = new CachedRowSetImpl();
 			allRowSet.setPageSize(500);
-
-			allRowSet.populate(rs, (pageNum - 1) * 500 + 1);
+			// TODO-- 这里不需要再计算了
+			allRowSet.populate(rs, (pageNum - 1) * _pageSize + 1);
 			return allRowSet;
 
 		} catch (SQLException exp) {

@@ -60,7 +60,6 @@ public class SQLiteDatabaseMetaData extends AbstractDatabaseMetaData {
 		return sb.toString();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
 			throws SQLException {

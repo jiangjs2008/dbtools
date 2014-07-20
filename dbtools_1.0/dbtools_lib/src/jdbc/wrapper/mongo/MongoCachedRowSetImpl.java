@@ -4,7 +4,6 @@
 package jdbc.wrapper.mongo;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,8 +12,6 @@ import java.util.HashMap;
 import javax.sql.rowset.spi.SyncProviderException;
 
 import jdbc.wrapper.AbstractCachedRowSet;
-
-import org.bson.types.ObjectId;
 
 import com.dbm.common.log.LoggerWrapper;
 import com.mongodb.BasicDBObject;
@@ -68,6 +65,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		}
 	}
 
+	// TODO -- 必须删除此函数，并入构造函数
 	@Override
 	public void beforeFirst() throws SQLException {
 		// 复制数据(只复制当前页数据)
@@ -144,7 +142,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		if (curDataIdx == -1) {
 			throw new SQLException("have no data");
 		}
-		DBObject rowObj = dataList.get((int) curDataIdx);
+		DBObject rowObj = dataList.get(curDataIdx);
 		if (rowObj == null) {
 			return null;
 		} else {
@@ -298,15 +296,6 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	@Override
 	public int size() {
 		return dataCount;
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.sql.rowset.CachedRowSet#populate(java.sql.ResultSet, int)
-	 */
-	@Override
-	public void populate(ResultSet rs, int startRow) throws SQLException {
-//		_cur = _tblObj.find().skip(startRow).limit(dataLimit);
-//		setInitData();
 	}
 
 	/* (non-Javadoc)

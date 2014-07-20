@@ -260,7 +260,7 @@ public class DbClient4DefaultImpl extends DbClient {
 		try {
 			// 查询表数据
 			String action = getLimitString(_tblName, pageNum);
-			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			rs = stmt.executeQuery(action);
 
 			allRowSet = new CachedRowSetImpl();

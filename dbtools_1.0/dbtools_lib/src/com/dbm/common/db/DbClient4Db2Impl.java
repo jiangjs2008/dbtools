@@ -7,8 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.sql.rowset.CachedRowSet;
-
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.sun.rowset.CachedRowSetImpl;
 
@@ -88,13 +86,4 @@ public class DbClient4Db2Impl extends DbClient4DefaultImpl {
 		}
 	}
 
-	protected CachedRowSet getCachedRowSetImpl() {
-		try {
-			CachedRowSet allRowSet = new CachedRowSetImpl();
-			return allRowSet;
-		} catch (SQLException exp) {
-			logger.error(exp);
-			return null;
-		}
-	}
 }

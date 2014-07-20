@@ -3,7 +3,6 @@ package jdbc.wrapper.sqlite.remote;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.concurrent.Executor;
 
 import jdbc.wrapper.AbstractConnection;
 
