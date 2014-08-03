@@ -35,6 +35,15 @@ public abstract class PropUtil {
 	}
 
 	/**
+	 * 设置数据库快捷连接的信息
+	 *
+	 * @param fvList 数据库快捷连接信息
+	 */
+	public static void setFavrInfo(FavrBean[] fvList) {
+		favrList = fvList;
+	}
+
+	/**
 	 * 取得指定常用数据库信息
 	 *
 	 * @param id 数据库类型Id
@@ -62,6 +71,15 @@ public abstract class PropUtil {
 	public static void setConnInfo(ConnBean connInfo) {
 		int id = connInfo.driverid;
 		connList[id] = connInfo;
+	}
+
+	/**
+	 * 设置数据库连接的信息
+	 *
+	 * @param cnList 数据库连接信息
+	 */
+	public static void setConnInfo(ConnBean[] cnList) {
+		connList = cnList;
 	}
 
 	/**
