@@ -6,7 +6,11 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.Properties;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
@@ -32,6 +36,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import com.alibaba.fastjson.JSON;
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.menu.FavrMenuActionListener;
 import com.dbm.client.ui.AppUIAdapter;
@@ -72,9 +77,12 @@ public class Fav02Dialog extends javax.swing.JDialog {
 
 	private JTable jTable1;
 	private JButton jButton1;
+	private JButton jButton3;
 	private JButton jButton2;
 	private JLabel jLabel1;
 	private DefaultCellEditor _editor = null;
+
+	private FavrBean[] _favrList = null;
 
 	/**
 	 * 构造函数
@@ -102,7 +110,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 
 		jButton1 = new JButton();
 		jPanel1.add(jButton1);
-		jButton1.setBounds(280, 485, 90, 30);
+		jButton1.setBounds(111, 485, 90, 30);
 		jButton1.setText("取消");
 		jButton1.addActionListener(btnActListener);
 
@@ -111,6 +119,12 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		jButton2.setBounds(550, 485, 90, 30);
 		jButton2.setText("确定");
 		jButton2.addActionListener(btnActListener);
+
+		jButton3 = new JButton();
+		jPanel1.add(jButton3);
+		jButton3.setText("另存为");
+		jButton3.setBounds(320, 485, 90, 30);
+		jButton3.addActionListener(btnActListener);
 
 		jLabel1 = new JLabel();
 		jPanel1.add(jLabel1);
@@ -127,6 +141,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		dtm.setColumnIdentifiers(tableHeads);
 
 		FavrBean[] favList = PropUtil.getFavrInfo();
+		_favrList = favList.clone();
 		int leng = favList.length;
 
 		for (int i = 0; i < leng; i++) {
@@ -173,6 +188,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		fitTableColumns(jTable1, _editor);
 	}
 
+	// 调整表格每列宽度(自适应列宽)
 	private void fitTableColumns(JTable myTable, DefaultCellEditor cellEditor) {
 		JTableHeader header = myTable.getTableHeader();
 		int rowCount = myTable.getRowCount();
@@ -199,6 +215,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 		}
 	}
 
+	// 编辑/修改连接信息
 	private class TableCellEditorListener implements CellEditorListener {
 
 		@Override
@@ -262,12 +279,18 @@ public class Fav02Dialog extends javax.swing.JDialog {
 			}
 
 			if (isUpdate) {
-				PropUtil.setFavrInfo(favBean);
+				saveFavrInfo(favBean);
 			}
 		}
 
 		@Override
 		public void editingCanceled(ChangeEvent e) {
+		}
+	}
+
+	private void saveFavrInfo(FavrBean favBean) {
+		if (_favrList != null) {
+			_favrList[favBean.favrId] = favBean;
 		}
 	}
 
@@ -285,6 +308,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 				}
 
 				if (isUpdate) {
+					PropUtil.setFavrInfo(_favrList);
 					AppPropUtil.saveFavrInfo();
 					// 修改菜单显示
 					JFrame jFrame = (JFrame) AppUIAdapter.getUIObj(AppUIAdapter.AppMainGUI);
@@ -310,9 +334,45 @@ public class Fav02Dialog extends javax.swing.JDialog {
 						jMenuItem22.addActionListener(connAction);
 					}
 				}
+				// 关闭对话框
+				setVisible(false);
+			} else if ("另存为".equals(command)) {
+				// 保存修改的结果
+				if (_editor != null) {
+					_editor.stopCellEditing();
+				}
+
+				if (isUpdate) {
+					OutputStream out = null;
+					try {
+						Properties p = new Properties();
+						for (FavrBean favrBean : _favrList) {
+							String json = JSON.toJSONString(favrBean);
+							p.put(Integer.toString(favrBean.favrId), json);
+						}
+
+						out = new FileOutputStream(System.getProperty("user.dir") + "/conf/__favrinfo-2.properties");
+						p.store(out, "");
+
+					} catch (Exception exp) {
+						logger.error(exp);
+					} finally {
+						if (out != null) {
+							try {
+								out.close();
+							} catch (IOException ioex) {
+								logger.error(ioex);
+							}
+						}
+					}
+				}
+				
+				
+			} else {
+				// 关闭对话框
+				setVisible(false);
 			}
-			// 关闭对话框
-			setVisible(false);
+
 		}
 	}
 
