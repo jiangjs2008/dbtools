@@ -16,7 +16,7 @@
 	w = "${w}";
 
 	$(document).ready(function() {
-		setTimeout("location.href='${w}/index.do'", 5000);
+		setTimeout("location.href='${w}/index.html'", 5000);
 	});
 </script>
 </head>

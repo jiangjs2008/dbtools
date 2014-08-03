@@ -1,43 +1,43 @@
 <%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>选择数据库</title>
-<script type="text/javascript" src="/dbm/js/jquery-1.6.4.min.js"></script>
-<script type="text/javascript" src="/dbm/js/om-ui.js"></script>
+<script type="text/javascript" src="/dbm/js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="/dbm/js/base64.js"></script>
-<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
+<link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
 <link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
 <script type="text/javascript">
+
 $(document).ready(function() {
-
-	$('#combo1').omCombo({});
-	showerror();
-
-	$.getJSON("/dbm/ajax/getdblist.do", function(data) {
-		$('#combo1').omCombo({
-			dataSource : data,
-			editable : false,
-			valueField : 'favrid', 
-			optionField : function(data, index) {
-				return '<div style="float:left">' + data.name + '</div><div style="float:right">' + data.description + '</div>';
-			},
-			inputField : function(data, index) {
-				return data.name;
-			},
-			onValueChange:function(target, newValue, oldValue, event) { 
-				$.getJSON("/dbm/ajax/getdblogininfo.do?favrid=" + newValue, function(data) {
-					if (data.status == 'ok') {
-						$("#account").val(data.account);
-						$("#password").val(data.password);
-					}
-				});
-			}
-		});
+	$("#favrid").combobox({
+		url: '/dbm/ajax/getdblist.do',
+		method: 'get',
+		valueField: 'favrid',
+		textField: 'name',
+		panelWidth: 450,
+		panelHeight: 'auto',
+		formatter: formatItem,
+		onSelect: function(param){
+			$.getJSON("/dbm/ajax/getdblogininfo.do?favrid=" + param.favrid, function(data) {
+				if (data.status == 'ok') {
+					$("#account").val(data.account);
+					$("#password").val(data.password);
+				}
+			});
+		}
 	});
-	$('#aButton').omButton({});
-	$('#aButton').click(function () {
+});
+
+   function formatItem(row) {
+       var s = '<div style="font-size:17px;height:22px;line-height:22px"><div style="float:left">' + row.name + '</div><div style="float:right;color:#888;margin-right:2px">' + row.description + '</div></div>';
+       return s;
+   }
+
+
+	function submitForm() {
 		var checkInput = $("#account").val();
 		if (checkInput) {
 			$("#account").val(base64encode(checkInput));
@@ -46,10 +46,9 @@ $(document).ready(function() {
 		if (checkInput) {
 			$("#password").val(base64encode(checkInput));
 		}
-		$('#favrid').val($('#combo1').omCombo('value'));
 		document.forms[0].submit();
-	});
-});
+	}
+
 
 function showerror() {
 	// 显示错误信息
@@ -69,28 +68,26 @@ function showerror() {
 	}
 }
 </script>
-<!-- view_source_end -->
 </head>
 
 <body>
-<div style="padding-top:150px">
+<div style="padding-top:150px"> 
 <form method="post" id="man001form" action="/dbm/login.do">
-<input type="hidden" id="favrid" name="favrid"/>
 <table cellspacing="0" cellpadding="0" border="0" style="height:200px" align="center">
 	<tr>
 		<td>请选择数据库：</td>
-		<td align="left"><input id="combo1" style="width:250px;"/></td>
+		<td align="left"><input class="easyui-combobox" style="width:250px;height:25px;line-height:25px" id="favrid" name="favrid" ></td>
 	</tr>
 	<tr>
 		<td>用户：</td>
-		<td align="left"><input type="text" id="account" name="user"  style="width:150px;line-height:20px;height:20px"/></td>
+		<td align="left"><input type="text" id="account" name="user" style="width:150px;line-height:20px;height:20px"/></td>
 	</tr>
 	<tr>
 		<td>密码：</td>
-		<td align="left"><input type="password" id="password" name="pwd"  style="width:150px;line-height:20px;height:20px"/></td>
+		<td align="left"><input type="password" id="password" name="pwd" style="width:150px;line-height:20px;height:20px"/></td>
 	</tr>
 	<tr>
-		<td align="center" colspan="2"><input type="button" id="aButton" value="确定" style="width:60px;"/></td>
+		<td align="center" colspan="2"><a href="javascript:void(0)" class="easyui-linkbutton" style="width:60px;" onclick="submitForm()">确定</a></td>
 	</tr>
 </table>
 </form>

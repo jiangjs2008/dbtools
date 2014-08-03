@@ -13,7 +13,7 @@
 $(document).ready(function() {
 	var element = $("body").omBorderLayout({
 		spacing : 3,
-		panels:[{id:"north-panel", header:false, region:"north", height:140},
+		panels:[{id:"north-panel", header:false, region:"north", height:180},
 				{id:"center-panel", header:false, region:"center"},
 				{id:"west-panel", resizable:true, collapsible:true, title:"数据库表一览", region:"west", width:250, expandToTop:true}]
 	});
@@ -42,7 +42,7 @@ $(document).ready(function() {
 					$("#tblname").text(nodeData.text),
 					$("#grid").omGrid({
 						limit: 100,
-						height: 'fit',
+						height: 600,
 						width : 'fit',
 						editMode:"insert",
 						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
