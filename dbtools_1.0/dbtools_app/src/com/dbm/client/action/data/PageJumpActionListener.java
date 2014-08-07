@@ -36,7 +36,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 	// 当前页数
 	private int currPage = 0;
 	// 总页数
-	private int pageCnt = 0;
+	private int _pageCnt = 0;
 	// 每页表示件数
 	private int dataLimit = Session.PageDataLimit;
 	// 总件数
@@ -55,51 +55,56 @@ public class PageJumpActionListener extends AbstractActionListener {
 	/**
 	 * 在画面上显示查询结果(第一页数据)
 	 *
-	 * @param rs
-	 * @param hasRowId
+	 * @param rowSet 查询结果集对象
+	 * @param currPage 当前页数
 	 */
-	public void displayTableData(ResultSet rowSet, int dataCnt) {
+	public void displayTableData(ResultSet rowSet, int currPage) {
 		dbClient = DbClientFactory.getDbClient();
 		this._rowSet = rowSet;
-		this._dataCnt = dataCnt;
+		this._dataCnt = dbClient.size();
 
 		// 当前页表示件数
 		int itemSize = 0;
-		pageCnt = 0;
-		currPage = 1;
-		if (dataCnt > dataLimit) {
-			if (dataCnt % dataLimit == 0) {
-				pageCnt = dataCnt / dataLimit;
+		if (currPage == 1) {
+			// 第一次显示数据时计算总页数
+			if (_dataCnt > dataLimit) {
+				if (_dataCnt % dataLimit == 0) {
+					_pageCnt = _dataCnt / dataLimit;
+				} else {
+					_pageCnt = _dataCnt / dataLimit + 1;
+				}
 			} else {
-				pageCnt = dataCnt / dataLimit + 1;
+				_pageCnt = 1;
 			}
-		} else {
-			pageCnt = 1;
 		}
 
-		if (pageCnt > 1) {
-			// 分页处理
-			itemSize = dataLimit;
-			// 显示分页相关组件
+		if (_pageCnt > 1) {
+			// 分页处理，显示分页相关组件
 			pagejumpPanel.setVisible(true);
+			if (currPage == _pageCnt) {
+				// 显示最后一页
+				itemSize = _dataCnt - dataLimit * (_pageCnt - 1);
+			} else {
+				itemSize = dataLimit;
+			}
 			// 设置页数
-			pageInfoTxtField.setText(1 + "/" + pageCnt);
+			pageInfoTxtField.setText(currPage + "/" + _pageCnt);
 
 		} else {
 			// 小于一页时，若分页相关组件已在显示则要关闭
-			itemSize = dataCnt;
+			itemSize = _dataCnt;
 			pagejumpPanel.setVisible(false);
 		}
 
-		setTableData(1, itemSize);
+		setTableData(itemSize);
 	}
 
 	/**
 	 * 在画面上显示数据
 	 *
-	 * @param rs
+	 * @param length 数据条数
 	 */
-	private void setTableData(int offSite, int length) {
+	private void setTableData(int length) {
 
 		Vector<Vector<String>> allData = null;
 		try {
@@ -175,8 +180,8 @@ public class PageJumpActionListener extends AbstractActionListener {
 	@Override
 	protected void doActionPerformed(ActionEvent e) {
 		String actionName = e.getActionCommand();
-		int currRowIdx = 0;
-		int length = 0;
+		String inputText = null;
+
 		if ("first".equals(actionName)) {
 			// 第一页
 			if (currPage == 1) {
@@ -184,8 +189,6 @@ public class PageJumpActionListener extends AbstractActionListener {
 			}
 
 			currPage = 1;
-			currRowIdx = (currPage - 1) * dataLimit + 1;
-			length = dataLimit;
 			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else if ("backward".equals(actionName)) {
@@ -195,29 +198,24 @@ public class PageJumpActionListener extends AbstractActionListener {
 			}
 
 			currPage --;
-			currRowIdx = (currPage - 1) * dataLimit + 1;
-			length = dataLimit;
 			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else if ("forward".equals(actionName)) {
 			// 下一页
-			if (currPage == pageCnt) {
+			if (currPage == _pageCnt) {
 				return;
 			}
+
 			currPage ++;
-			currRowIdx = (currPage - 1) * dataLimit + 1;
-			length = dataLimit;
 			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else if ("last".equals(actionName)) {
 			// 最后一页
-			if (currPage == pageCnt) {
+			if (currPage == _pageCnt) {
 				return;
 			}
 
-			currPage = pageCnt;
-			currRowIdx = (currPage - 1) * dataLimit + 1;
-			length = _dataCnt - (currPage - 1) * dataLimit;
+			currPage = _pageCnt;
 			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else if ("go".equals(actionName)) {
@@ -226,27 +224,24 @@ public class PageJumpActionListener extends AbstractActionListener {
 				return;
 			}
 			// 指定页数
-			int inputPage = StringUtil.parseInt(inputPageTxtField.getText());
-			if (inputPage == 0) {
+			inputText = inputPageTxtField.getText();
+			int inputPage = StringUtil.parseInt(inputText);
+			if (inputPage == 0 || inputPage == currPage || _pageCnt < inputPage) {
+				inputPageTxtField.setText("");
 				return;
 			}
-			if (currPage == inputPage) {
-				return;
-			}
+
 			currPage = inputPage;
-			currRowIdx = (currPage - 1) * dataLimit + 1;
-			length = dataLimit;
-			if (currPage == pageCnt) {
-				length = _dataCnt - (currPage - 1) * dataLimit;
-			}
 			_rowSet = dbClient.defaultQuery(currPage);
 
 		} else {
 			throw new BaseException(40002, actionName);
 		}
 
-		pageInfoTxtField.setText(currPage + "/" + pageCnt);
-		setTableData(currRowIdx, length);
+		displayTableData(_rowSet, currPage);
+		if (inputText != null) {
+			inputPageTxtField.setText("");
+		}
 	}
 
 }

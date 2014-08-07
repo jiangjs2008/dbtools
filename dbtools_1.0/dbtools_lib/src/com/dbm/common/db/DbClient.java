@@ -103,7 +103,7 @@ public abstract class DbClient {
 	}
 
 	/**
-	 * 取得指定表(当前查询)的数据件数
+	 * 取得指定表(当前查询)的数据件数(总件数)
 	 *
 	 * @return int 查询结果件数
 	 */

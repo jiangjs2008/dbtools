@@ -212,10 +212,9 @@ public class UpdActionListener extends AbstractActionListener {
 
 		// 更新后再刷新画面
 		ResultSet rowSet = dbClient.defaultQuery(1);
-		int dataCnt = dbClient.size();
 
 		PageJumpActionListener pageAction = (PageJumpActionListener) AppUIAdapter.getUIObj(AppUIAdapter.PageAction);
-		pageAction.displayTableData(rowSet, dataCnt);
+		pageAction.displayTableData(rowSet, 1);
 		logger.debug("update data success");
 	}
 
