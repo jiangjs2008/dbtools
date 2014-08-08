@@ -21,7 +21,7 @@ import com.dbm.common.db.DbClientFactory;
  * 2014/05/05 ver1.00 JiangJusheng<br>
  */
 @Controller
-public class Man003 extends DefaultController {
+public class Man0021 extends DefaultController {
 
 
 	@RequestMapping("/ajax/sqlscript.do")

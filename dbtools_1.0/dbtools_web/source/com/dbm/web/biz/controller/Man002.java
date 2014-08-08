@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +36,34 @@ import com.dbm.common.util.StringUtil;
  */
 @Controller
 public class Man002 extends DefaultController {
+
+
+	@RequestMapping("/ajax/gettbllist.do")
+	@ResponseBody
+	public String getTblList(@RequestParam Map<String,String> requestParam) {
+		String tblName = requestParam.get("catalog");
+
+		DbClient dbClient = DbClientFactory.getDbClient();
+		String schema = null;
+		try {
+			if (dbClient.hasSchema()) {
+				schema = dbClient.getConnection().getMetaData().getUserName();
+			}
+		} catch (SQLException ex) {
+			logger.error(ex);
+		}
+		List<String> tblList = dbClient.getDbObjList(null, schema, "%", new String[] { tblName });
+
+		// 显示数据库内容：表、视图等等
+		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(tblList.size());
+		for (String item : tblList) {
+			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
+			objMap.put("text", item);
+			dbInfo.add(objMap);
+		}
+
+		return JSON.toJSONString(dbInfo);
+	}
 
 	private String getRealTblName(DbClient dbClient, String tblName) {
 		if (dbClient.hasSchema()) {
