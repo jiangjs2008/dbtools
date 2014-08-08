@@ -4,12 +4,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>查看表</title>
-<script type="text/javascript" src="/dbm/js/jquery-1.6.4.min.js"></script>
-<script type="text/javascript" src="/dbm/js/om-ui.js"></script>
-<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
+<link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
 <link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
+<script type="text/javascript" src="/dbm/js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript">
-
+var nowDate = new Date();
 $(document).ready(function() {
 	var element = $("body").omBorderLayout({
 		spacing : 3,
@@ -26,7 +26,7 @@ $(document).ready(function() {
 				if (!nodeData.isQuery) {
 					// 未查询过
 					$.ajax({
-						url: '/dbm/ajax/gettbllist.do?catalog=' + nodeData.text + '&t=' + parseInt(Math.random()*100000),
+						url: '/dbm/ajax/gettbllist.do?catalog=' + nodeData.text + '&t=' + nowDate.getTime(),
 						dataType: 'json',
 						success: function(data){
 							nodeData.isQuery = true;
@@ -38,14 +38,14 @@ $(document).ready(function() {
 				// 查询指定表的数据
 				var tblName = encodeURIComponent(nodeData.text);
 				//首先从服务器端获取表头数据，再初始化数据表
-				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(data) {
+				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + nowDate.getTime(), function(data) {
 					$("#tblname").text(nodeData.text),
 					$("#grid").omGrid({
 						limit: 100,
 						height: 600,
 						width : 'fit',
 						editMode:"insert",
-						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + nowDate.getTime(),
 						colModel : data
 					});
 				});
@@ -56,13 +56,13 @@ $(document).ready(function() {
 				// 查询指定表的数据
 				var tblName = encodeURIComponent(nodeData.text);
 				//首先从服务器端获取表头数据，再初始化数据表
-				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(data) {
+				$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + nowDate.getTime(), function(data) {
 					$("#tblname").text(nodeData.text),
 					$("#grid").omGrid({
 						limit: 100,
 						height: 'fit',
 						width : 'fit',
-						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + nowDate.getTime(),
 						colModel : data,
 						onAfterEdit:function(rowIndex , rowData){
 					         alert("您刚刚编辑的记录索引为:" + rowIndex);
@@ -94,7 +94,7 @@ $(document).ready(function() {
         	
         	$("#menu").omMenu("hide");
         	if (item.id == "001") {
-        		window.showModalDialog("/dbm/biz/inf001.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000), null, 'dialogWidth:850px;dialogHeight:450px;center:yes;toolbar:no; menubar:no; scrollbars:no;scroll:no');
+        		window.showModalDialog("/dbm/biz/inf001.do?tblname=" + tblName + "&t=" + nowDate.getTime(), null, 'dialogWidth:850px;dialogHeight:450px;center:yes;toolbar:no; menubar:no; scrollbars:no;scroll:no');
 
         	} else if (item.id  == "002") {
       
@@ -124,7 +124,7 @@ $(document).ready(function() {
 			}
 			$("#tblname").text(''),
 
-			$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) {
+			$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + nowDate.getTime(), function(data) {
 				if (data.ecd == '1') {
 				   $.omMessageBox.waiting({
 			           content: 'SQL语句执行成功！'

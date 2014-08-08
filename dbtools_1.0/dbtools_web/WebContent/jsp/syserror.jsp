@@ -7,28 +7,27 @@
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">
 <title>系统异常</title>
-<link rel="stylesheet" type="text/css" href="${w}/css/operamasks-ui.min.css">
-<script type="text/javascript" src="${w}/js/jquery.min.js"></script>
-<script type="text/javascript" src="${w}/js/operamasks-ui.min.js"></script>
-<script type="text/javascript" src="${w}/js/sem.js"></script>
+<link rel="stylesheet" type="text/css" href="/dbm/css/operamasks-ui.min.css">
+<script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
+<script type="text/javascript" src="/dbm/js/operamasks-ui.min.js"></script>
+<script type="text/javascript" src="/dbm/js/sem.js"></script>
 <script type="text/javascript">
-	// web context path
-	w = "${w}";
+	function goLogin() {
+		location.href = '/dbm/index.html';
+	}
 </script>
 </head>
 
 <body style="background-color: #E6E6E6;padding-top:120px;text-align:center">
-<form method="post" id="loginForm" action="${w}/index.do">
-	<table border="0" align="center">
-	<tbody>
-		<tr>
-			<td>系统异常，请联系客服。</td>
-		</tr>
-		<tr style="height:100px;">
-			<td><input type="submit" id="login" value="回到登陆画面" /></td>
-		</tr>
-	</tbody>
-	</table>
-</form>
+<table border="0" align="center">
+<tbody>
+	<tr>
+		<td>系统异常，请联系客服。</td>
+	</tr>
+	<tr style="height:100px;">
+		<td><input type="button" id="login" value="回到登陆画面" onclick="javascript:goLogin();"/></td>
+	</tr>
+</tbody>
+</table>
 </body>
 </html>

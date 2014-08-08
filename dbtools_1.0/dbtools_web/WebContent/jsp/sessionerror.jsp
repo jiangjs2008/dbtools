@@ -7,21 +7,18 @@
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">
 <title>提示</title>
-<link rel="stylesheet" type="text/css" href="${w}/css/operamasks-ui.min.css">
-<script type="text/javascript" src="${w}/js/jquery.min.js"></script>
-<script type="text/javascript" src="${w}/js/operamasks-ui.min.js"></script>
-<script type="text/javascript" src="${w}/js/sem.js"></script>
+<link rel="stylesheet" type="text/css" href="/dbm/css/operamasks-ui.min.css">
+<script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
+<script type="text/javascript" src="/dbm/js/operamasks-ui.min.js"></script>
+<script type="text/javascript" src="/dbm/js/sem.js"></script>
 <script type="text/javascript">
-	// web context path
-	w = "${w}";
-
 	$(document).ready(function() {
-		setTimeout("location.href='${w}/index.html'", 5000);
+		setTimeout("location.href='/dbm/index.html'", 2000);
 	});
 </script>
 </head>
 
 <body style="background-color: #E6E6E6;padding-top:150px;text-align:center">
-您还未登陆到本系统，5秒钟后将自动切换至登陆画面 .........
+您还未登陆到本系统，2秒钟后将自动切换至登陆画面 .........
 </body>
 </html>

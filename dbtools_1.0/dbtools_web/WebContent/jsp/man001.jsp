@@ -4,16 +4,16 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>选择数据库</title>
+<link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
 <script type="text/javascript" src="/dbm/js/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="/dbm/js/base64.js"></script>
-<link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
-<link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
 <script type="text/javascript">
-
+var nowDate = new Date();
 $(document).ready(function() {
 	$("#favrid").combobox({
-		url: '/dbm/ajax/getdblist.do',
+		url: '/dbm/ajax/getdblist.do?t=' + nowDate.getTime(),
 		method: 'get',
 		valueField: 'favrid',
 		textField: 'name',
@@ -21,7 +21,7 @@ $(document).ready(function() {
 		panelHeight: 'auto',
 		formatter: formatItem,
 		onSelect: function(param){
-			$.getJSON("/dbm/ajax/getdblogininfo.do?favrid=" + param.favrid, function(data) {
+			$.getJSON("/dbm/ajax/getdblogininfo.do?favrid=" + param.favrid + '&t=' + nowDate.getTime(), function(data) {
 				if (data.status == 'ok') {
 					$("#account").val(data.account);
 					$("#password").val(data.password);
@@ -31,39 +31,44 @@ $(document).ready(function() {
 	});
 });
 
-   function formatItem(row) {
-       var s = '<div style="font-size:17px;height:22px;line-height:22px"><div style="float:left">' + row.name + '</div><div style="float:right;color:#888;margin-right:2px">' + row.description + '</div></div>';
-       return s;
-   }
+function formatItem(row) {
+	var s = '<div style="font-size:17px;height:22px;line-height:22px"><div style="float:left">' + row.name + '</div><div style="float:right;color:#888;margin-right:2px">' + row.description + '</div></div>';
+	return s;
+}
 
-
-	function submitForm() {
-		var checkInput = $("#account").val();
-		if (checkInput) {
-			$("#account").val(base64encode(checkInput));
-		}
-		var checkInput = $("#password").val();
-		if (checkInput) {
-			$("#password").val(base64encode(checkInput));
-		}
-		document.forms[0].submit();
+function submitForm() {
+	var account = $("#account").val();
+	if (account) {
+		account = base64encode(account);
 	}
+	var password = $("#password").val();
+	if (password) {
+		password = base64encode(checkInput);
+	}
+	var aurl = "/dbm/login.do?favrid=" + $("#favrid").val();
+	aurl += "&user=" + account + "&pwd=" + password + '&t=' + nowDate.getTime();
+	$.getJSON(aurl, function(data) {
+		if (data.status == 'ok') {
+			location.href = '/dbm/jsp/man002.jsp';
+		} else {
+			showerror(data.errcode);
+		}
+	});
+}
 
-
-function showerror() {
+function showerror(errcode) {
 	// 显示错误信息
-	var value = "${errcode}";
-	if ("1" == value) {
+	if ("1" == errcode) {
 		 $.omMessageBox.alert({content:'用户名或者密码错误'});
-	} else if("2" == value) {
+	} else if("2" == errcode) {
 		alert("登录超时，请重新登录！");
-	} else if("3" == value) {
+	} else if("3" == errcode) {
 		alert("您的账号在别处登录。如非本人操作，请注意账号安全。");
-	} else if("4" == value) {
+	} else if("4" == errcode) {
 		alert("您的账号存在登录异常，请重新登录。");
-	} else if("5" == value) {
+	} else if("5" == errcode) {
 		alert("请选择数据库...");
-	} else if("999" == value) {
+	} else if("999" == errcode) {
 		alert("连接访问错误，请重新登录。");
 	}
 }
@@ -71,8 +76,8 @@ function showerror() {
 </head>
 
 <body>
-<div style="padding-top:150px"> 
-<form method="post" id="man001form" action="/dbm/login.do">
+<div style="padding-top:150px">
+<form method="post" id="man001form" action="">
 <table cellspacing="0" cellpadding="0" border="0" style="height:200px" align="center">
 	<tr>
 		<td>请选择数据库：</td>
