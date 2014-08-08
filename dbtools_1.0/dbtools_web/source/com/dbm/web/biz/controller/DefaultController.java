@@ -32,7 +32,7 @@ public abstract class DefaultController {
 	 * @return ModelAndView 迁移到系统异常画面
 	 */
 	@ExceptionHandler(Exception.class)
-	public ModelAndView processException(Exception exp, HttpServletRequest request) {
+	public final ModelAndView processException(Exception exp, HttpServletRequest request) {
 		logger.error(request.getServletPath(), exp);
 		return new ModelAndView("syserror");
 	}

@@ -43,12 +43,12 @@ function submitForm() {
 	}
 	var password = $("#password").val();
 	if (password) {
-		password = base64encode(checkInput);
+		password = base64encode(password);
 	}
-	var aurl = "/dbm/login.do?favrid=" + $("#favrid").val();
+	var aurl = "/dbm/login.do?favrid=" + $("#favrid").combobox('getValue');
 	aurl += "&user=" + account + "&pwd=" + password + '&t=' + nowDate.getTime();
 	$.getJSON(aurl, function(data) {
-		if (data.status == 'ok') {
+		if (data.errcode == 'ok') {
 			location.href = '/dbm/jsp/man002.jsp';
 		} else {
 			showerror(data.errcode);

@@ -1,8 +1,6 @@
 package com.dbm.web.biz.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.math.NumberUtils;
@@ -85,17 +83,21 @@ public class Man001 extends DefaultController {
 	}
 
 	@RequestMapping("/login.do")
-	public ModelAndView login(@RequestParam Map<String,String> requestParam) {
+	@ResponseBody
+	public String login(@RequestParam Map<String,String> requestParam) {
+		JSONObject rslt = new JSONObject();
 		int favrId = NumberUtils.toInt(requestParam.get("favrid"), -1);
 		if (favrId < 0) {
-			return new ModelAndView("man001").addObject("errcode", 5);
+			rslt.put("errcode", 5);
+			return rslt.toJSONString();
 		}
 		String userId = requestParam.get("user");
 		String passwd = requestParam.get("pwd");
 
 		FavrBean favr = PropUtil.getFavrInfo(favrId);
 		if (!userId.equals(favr.user) || !passwd.equals(favr.password)) {
-			return new ModelAndView("man001").addObject("errcode", 1);
+			rslt.put("errcode", 1);
+			return rslt.toJSONString();
 		}
 
 		// 连接信息
@@ -109,19 +111,8 @@ public class Man001 extends DefaultController {
 		dbClient.setPageSize(StringUtil.parseInt(PropUtil.getAppConfig("page.data.count")));
 		dbClient.start(new String[] { connInfo.driver, favr.url, userId, passwd });
 
-		// 显示数据库内容：表、视图等等
-		List<String> objList = dbClient.getDbMetaData();
-		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(objList.size());
-		for (String item : objList) {
-			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
-			objMap.put("text", item);
-			objMap.put("hasChildren", true);
-			objMap.put("isCatalog", true);
-			objMap.put("isQuery", false);
-			dbInfo.add(objMap);
-		}
-		
-		return new ModelAndView("man002").addObject("dbInfo", JSON.toJSONString(dbInfo));
+		rslt.put("errcode", "ok");
+		return rslt.toJSONString();
 	}
 
 	@RequestMapping("/logout.do")

@@ -37,6 +37,24 @@ import com.dbm.common.util.StringUtil;
 @Controller
 public class Man002 extends DefaultController {
 
+	@RequestMapping("/ajax/getcatalog.do")
+	public ModelAndView login() {
+		DbClient dbClient = DbClientFactory.getDbClient();
+
+		// 显示数据库内容：表、视图等等
+		List<String> objList = dbClient.getDbMetaData();
+		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(objList.size());
+		for (String item : objList) {
+			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
+			objMap.put("text", item);
+			objMap.put("hasChildren", true);
+			objMap.put("isCatalog", true);
+			objMap.put("isQuery", false);
+			dbInfo.add(objMap);
+		}
+
+		return new ModelAndView("man002").addObject("dbInfo", JSON.toJSONString(dbInfo));
+	}
 
 	@RequestMapping("/ajax/gettbllist.do")
 	@ResponseBody
