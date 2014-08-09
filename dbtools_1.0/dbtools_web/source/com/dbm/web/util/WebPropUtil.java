@@ -50,12 +50,12 @@ public class WebPropUtil extends PropUtil {
 				FavrBean favrBean = new FavrBean();
 				favrBean.favrId = StringUtil.parseInt((String) m.getKey());
 				favrBean.name = json.getString("name");
-				favrBean.driverId = json.getIntValue("driverid");
+				favrBean.driverId = json.getIntValue("driverId");
 				favrBean.description = json.getString("description");
 				favrBean.url = json.getString("url");
 				favrBean.user = json.getString("user");
 				favrBean.password = json.getString("password");
-				favrBean.useFlg = StringUtil.parseInt(json.getString("useflg"), 0) == 1;
+				favrBean.useFlg = StringUtil.parseInt(json.getString("useFlg"), 0) == 1;
 
 				favrList[favrBean.favrId] = favrBean;
 			}
@@ -69,10 +69,15 @@ public class WebPropUtil extends PropUtil {
 			is.close();
 
 			connList = new ConnBean[p.size()];
+			int driverId = 0;
 			for (Map.Entry<Object, Object> m : p.entrySet()) {
+				driverId = StringUtil.parseInt((String) m.getKey());
+				if (driverId == 0) {
+					continue;
+				}
 
 				ConnBean connBean = new ConnBean();
-				connBean.driverid = StringUtil.parseInt((String) m.getKey());
+				connBean.driverid = driverId;
 
 				JSONObject json = JSON.parseObject((String) m.getValue());
 				connBean.name = json.getString("name");

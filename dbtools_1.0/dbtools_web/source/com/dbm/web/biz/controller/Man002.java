@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
@@ -39,7 +41,8 @@ public class Man002 extends DefaultController {
 
 	@RequestMapping("/ajax/getcatalog.do")
 	@ResponseBody
-	public String login() {
+	public String getCatalog(HttpServletRequest request) {
+		System.out.println(request.getServletPath());
 		DbClient dbClient = DbClientFactory.getDbClient();
 
 		// 显示数据库内容：表、视图等等
@@ -47,10 +50,11 @@ public class Man002 extends DefaultController {
 		JSONArray dbInfo = new JSONArray(objList.size());
 		for (String item : objList) {
 			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
+			objMap.put("hassub", true);
+			objMap.put("hasdata", false);
+			objMap.put("id", item);
 			objMap.put("text", item);
-			objMap.put("hasChildren", true);
-			objMap.put("isCatalog", true);
-			objMap.put("isQuery", false);
+			objMap.put("state", "closed");
 			dbInfo.add(objMap);
 		}
 
@@ -78,6 +82,7 @@ public class Man002 extends DefaultController {
 		for (String item : tblList) {
 			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
 			objMap.put("text", item);
+			objMap.put("hassub", false);
 			dbInfo.add(objMap);
 		}
 

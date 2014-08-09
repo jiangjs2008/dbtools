@@ -109,7 +109,10 @@ public class Man001 extends DefaultController {
 		DbClientFactory.createDbClient(connInfo.action);
 		DbClient dbClient = DbClientFactory.getDbClient();
 		dbClient.setPageSize(StringUtil.parseInt(PropUtil.getAppConfig("page.data.count")));
-		dbClient.start(new String[] { connInfo.driver, favr.url, userId, passwd });
+		if (!dbClient.start(new String[] { connInfo.driver, favr.url, userId, passwd })) {
+			rslt.put("errcode", "6");
+			return rslt.toJSONString();
+		}
 
 		rslt.put("errcode", "ok");
 		return rslt.toJSONString();
