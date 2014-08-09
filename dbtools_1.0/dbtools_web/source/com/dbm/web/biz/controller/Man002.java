@@ -38,12 +38,13 @@ import com.dbm.common.util.StringUtil;
 public class Man002 extends DefaultController {
 
 	@RequestMapping("/ajax/getcatalog.do")
-	public ModelAndView login() {
+	@ResponseBody
+	public String login() {
 		DbClient dbClient = DbClientFactory.getDbClient();
 
 		// 显示数据库内容：表、视图等等
 		List<String> objList = dbClient.getDbMetaData();
-		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(objList.size());
+		JSONArray dbInfo = new JSONArray(objList.size());
 		for (String item : objList) {
 			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
 			objMap.put("text", item);
@@ -53,7 +54,7 @@ public class Man002 extends DefaultController {
 			dbInfo.add(objMap);
 		}
 
-		return new ModelAndView("man002").addObject("dbInfo", JSON.toJSONString(dbInfo));
+		return dbInfo.toJSONString();
 	}
 
 	@RequestMapping("/ajax/gettbllist.do")
