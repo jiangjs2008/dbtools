@@ -78,7 +78,10 @@ public abstract class DbClient {
 
 	public abstract int getCurrPageNum();
 
-	protected boolean _hasSchema = false;
+	/**
+	 * 该DB是否应用schema，默认是true
+	 */
+	protected boolean _hasSchema = true;
 
 	public final boolean hasSchema() {
 		return _hasSchema;
@@ -207,7 +210,7 @@ public abstract class DbClient {
 	 *				[2]: user name
 	 *				[3]: password
 	 */
-	public abstract void start(String[] args);
+	public abstract boolean start(String[] args);
 
 	/**
 	 * 关闭数据库连接

@@ -34,18 +34,20 @@ public class DbClient4MongoImpl extends DbClient {
 	protected ResultSet rs = null;
 
 	@Override
-	public void start(String[] args) {
+	public boolean start(String[] args) {
 		_dbArgs = args;
 		String dbUrl = _dbArgs[1];
 
 		try {
 			Class.forName(_dbArgs[0]);
 			_dbConn = DriverManager.getConnection(dbUrl, _dbArgs[2], _dbArgs[3]);
+			dbObj = ((MongoConnection) _dbConn).getMongoDb();
 			_isConnected = true;
+			return true;
 		} catch (Exception exp) {
-			throw new BaseExceptionWrapper(exp);
+			logger.error(exp);
+			return false;
 		}
-		dbObj = ((MongoConnection) _dbConn).getMongoDb();
 	}
 
 	@Override

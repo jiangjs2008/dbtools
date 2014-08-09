@@ -32,7 +32,7 @@ $(document).ready(function() {
 });
 
 function formatItem(row) {
-	var s = '<div style="font-size:17px;height:22px;line-height:22px"><div style="float:left">' + row.name + '</div><div style="float:right;color:#888;margin-right:2px">' + row.description + '</div></div>';
+	var s = '<div style="font-size:16px;height:20px;line-height:20px"><div style="float:left">' + row.name + '</div><div style="float:right;color:#888;margin-right:2px">' + row.description + '</div></div>';
 	return s;
 }
 
@@ -46,8 +46,8 @@ function submitForm() {
 		password = base64encode(password);
 	}
 	var aurl = "/dbm/login.do?favrid=" + $("#favrid").combobox('getValue');
-	aurl += "&user=" + account + "&pwd=" + password + '&t=' + nowDate.getTime();
-	$.getJSON(aurl, function(data) {
+	aurl += "&user=" + account + "&pwd=" + password;
+	$.getJSON(aurl + '&t=' + nowDate.getTime(), function(data) {
 		if (data.errcode == 'ok') {
 			location.href = '/dbm/jsp/man002.jsp';
 		} else {
@@ -59,7 +59,7 @@ function submitForm() {
 function showerror(errcode) {
 	// 显示错误信息
 	if ("1" == errcode) {
-		 $.omMessageBox.alert({content:'用户名或者密码错误'});
+		 $.messager.alert('用户名或者密码错误');
 	} else if("2" == errcode) {
 		alert("登录超时，请重新登录！");
 	} else if("3" == errcode) {
@@ -68,6 +68,8 @@ function showerror(errcode) {
 		alert("您的账号存在登录异常，请重新登录。");
 	} else if("5" == errcode) {
 		alert("请选择数据库...");
+	} else if("6" == errcode) {
+		alert("连接数据库时发生错误，请查看日志文件，或联系数据库管理员。");
 	} else if("999" == errcode) {
 		alert("连接访问错误，请重新登录。");
 	}

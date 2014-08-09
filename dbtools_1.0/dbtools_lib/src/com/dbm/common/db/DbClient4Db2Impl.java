@@ -18,9 +18,9 @@ import com.sun.rowset.CachedRowSetImpl;
 public class DbClient4Db2Impl extends DbClient4DefaultImpl {
 
 	@Override
-	public void start(String[] args) {
-		super.start(args);
+	public boolean start(String[] args) {
 		_hasSchema = false;
+		return super.start(args);
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public class DbClient4DefaultImpl extends DbClient {
 	}
 
 	@Override
-	public void start(String[] args) {
+	public boolean start(String[] args) {
 		_dbArgs = args;
 		// connect to db 
 		try {
@@ -60,7 +60,6 @@ public class DbClient4DefaultImpl extends DbClient {
 				_dbConn = DriverManager.getConnection(_dbArgs[1], _dbArgs[2], _dbArgs[3]);
 			}
 			_isConnected = true;
-			_hasSchema = true;
 
 		     DatabaseMetaData dbMeta = _dbConn.getMetaData();
 		     logger.info(dbMeta.getDriverName() + " ## " + dbMeta.getDriverVersion());
@@ -101,9 +100,11 @@ public class DbClient4DefaultImpl extends DbClient {
 		    	 // 在事务commit 或rollback 后，ResultSet 被关闭
 		    	 logger.debug("ResultSet.CLOSE_CURSORS_AT_COMMIT");
 		     }
+		     return true;
 
 		} catch (Exception exp) {
-			throw new BaseExceptionWrapper(exp);
+			logger.error(exp);
+			return false;
 		}
 	}
 
