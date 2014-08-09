@@ -22,6 +22,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.ui.Session;
+import com.dbm.client.ui.help.Msg01Dialog;
 import com.dbm.client.ui.tbllist.BaseNode;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTypesGroupNode;
@@ -211,7 +212,11 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 //				AppUIAdapter.setUIObj(AppUIAdapter.DbUrlTxtField, jTextField2);
 //			}
 
-			dbClient.start(new String[] { connInfo.driver, item2, item3, item4 });
+			if (!dbClient.start(new String[] { connInfo.driver, item2, item3, item4 })) {
+				Msg01Dialog.showMsgDialog(40005);
+				return;
+			}
+
 			dbClient.setPageSize(Session.PageDataLimit);
 
 			// 显示数据库内容：表、视图等等
