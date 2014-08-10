@@ -119,7 +119,7 @@ public class Man002 extends DefaultController {
 			// 取得指定表的所有列的信息
 			ResultSet columnRs = dmd.getColumns(null, null, realName, "%");
 			if (columnRs == null) {
-				return new JSONArray().toJSONString();
+				return "[[]]";
 			}
 
 			String colName = null;
@@ -128,15 +128,19 @@ public class Man002 extends DefaultController {
 				// 列名
 				colName = columnRs.getString(4);
 				JSONObject params = new JSONObject();
-				params.put("header", colName);
-				params.put("name", colName);
+				params.put("field", colName);
+				params.put("title", colName);
+				//params.put("width", "80");
 				columnInfo.add(params);
 			}
-			return JSON.toJSONString(columnInfo);
+
+			JSONArray rslt = new JSONArray();
+			rslt.add(columnInfo);
+			return rslt.toJSONString();
 
 		} catch (Exception exp) {
 			logger.error("", exp);
-			return "";
+			return "[[]]";
 		}
 	}
 
@@ -167,7 +171,7 @@ public class Man002 extends DefaultController {
 				return params.toJSONString();
 			}
 
-			ArrayList<JSONObject> columnInfo = new ArrayList<JSONObject>();
+			JSONArray columnInfo = new JSONArray();
 			while (rs.next()) {
 				JSONObject params = new JSONObject();
 				for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
