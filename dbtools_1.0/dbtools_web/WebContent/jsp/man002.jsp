@@ -11,6 +11,72 @@
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript">
 
+$(document).ready(function() {
+	$("#pmask").hide();
+	var nowDate = new Date();
+
+	$.getJSON("/dbm/ajax/getcatalog.do", function(subdata) {
+		$('#mytree2').tree({
+			data: subdata,
+			onBeforeLoad:function(row,param){
+				if (row) {
+					$(this).tree('options').url = '....../?parentId=row.id'; // TODO-- 此处用法不明，没有这种处理的话会重复加载父节点
+				}
+			},
+			onDblClick: function(node) {
+				if (node.hassub) {
+					// 点击的是父节点 
+					$(this).tree('toggle', node.target);
+				} else {
+					// 点击的是表，显示该表数据
+					$.messager.progress({ 
+				        title: 'Please waiting', 
+				        msg: 'Loading data...', 
+				        text: 'PROCESSING.......' 
+				    });
+					var tblName = encodeURIComponent(node.text);
+					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(coldata) {
+						$("#tblname").panel('setTitle', tblName);
+						$('#grid').datagrid({
+							url: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+							 columns: coldata,
+							 loadMsg: null,
+							 width:function(){return document.body.clientWidth*0.9},
+							 pageSize:50,rownumbers:true,fitColumns:true,singleSelect:true,
+							 onLoadSuccess: function() { hideMask(); },
+							 onLoadError: function() { hideMask(); }
+						});
+					});
+				}
+			},
+			onExpand: function(node) {
+				if (!node.hasdata) {
+					// 如果没有加载子节点，则加载
+					$.messager.progress({ 
+				        title: 'Please waiting', 
+				        msg: 'Loading data...', 
+				        text: 'PROCESSING.......' 
+				    });
+					// append some nodes to the selected node
+					//var selected = $('#mytree2').tree('getSelected');
+					$.getJSON("/dbm/ajax/gettbllist.do?catalog=" + node.text + '&t=' + nowDate.getTime(), function(subdata2) {
+						$('#mytree2').tree('append', {
+							parent: node.target,
+							data: subdata2
+						});
+						hideMask();
+					});
+					node.hasdata = true;
+				}
+			}
+		});
+	});
+
+	$('#tblname').panel({
+		onBeforeClose:logout
+	});
+});
+
 function logout() {
 	var rslt = false;
 	$.messager.confirm('消息框', '确定要退出?', function(r) {
@@ -47,57 +113,5 @@ function logout() {
 	</div>
 </div>
 <form method="post" id="man002form" action="/dbm/logout.do"></form>
-<script type="text/javascript">
-
-var nowDate = new Date();
-
-	$.getJSON("/dbm/ajax/getcatalog.do", function(subdata) {
-		$('#mytree2').tree({
-			data: subdata,
-			onBeforeLoad:function(row,param){
-				if (row) {
-					$(this).tree('options').url = '....../?parentId=row.id'; // TODO-- 此处用法不明，没有这种处理的话会重复加载父节点
-				}
-			},
-			onDblClick: function(node) {
-				if (node.hassub) {
-					// 点击的是父节点 
-					$(this).tree('toggle', node.target);
-				} else {
-					// 点击的是表，显示该表数据
-					var tblName = encodeURIComponent(node.text);
-					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(coldata) {
-						$("#tblname").panel('setTitle', tblName);
-						$('#grid').datagrid({
-							url: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
-							 columns: coldata,
-							 width:function(){return document.body.clientWidth*0.9},
-							 pageSize:50,rownumbers:true,fitColumns:true,singleSelect:true
-						});
-					});
-				}
-			},
-			onExpand: function(node) {
-				if (!node.hasdata) {
-					// 如果没有加载子节点，则加载
-					// append some nodes to the selected node
-					//var selected = $('#mytree2').tree('getSelected');
-					$.getJSON("/dbm/ajax/gettbllist.do?catalog=" + node.text + '&t=' + nowDate.getTime(), function(subdata2) {
-						$('#mytree2').tree('append', {
-							parent: node.target,
-							data: subdata2
-						});
-					});
-					node.hasdata = true;
-				}
-			}
-		});
-	});
-
-	$('#tblname').panel({
-		onBeforeClose:logout
-	});
-
-</script>
 </body>
 </html>
