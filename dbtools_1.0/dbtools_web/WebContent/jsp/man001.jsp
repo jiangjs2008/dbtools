@@ -99,5 +99,13 @@ function showerror(errcode) {
 </table>
 </form>
 </div>
+<script type="text/javascript">
+var browser=navigator.appName
+var b_version=navigator.appVersion
+var version=parseFloat(b_version)
+document.write("浏览器名称："+ browser)
+document.write("<br />")
+document.write("浏览器版本："+ version)
+</script>
 </body>
 </html>
