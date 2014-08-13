@@ -212,6 +212,9 @@ public class DbClient4DefaultImpl extends DbClient {
 
 	@Override
 	public String procCellData(Object obj) {
+		if (obj == null) {
+			return null;
+		}
 		return obj.toString();
 	}
 

@@ -98,14 +98,13 @@ function showerror(errcode) {
 	</tr>
 </table>
 </form>
-</div>
+</div><br/><br/>
+<div id="pmsg" style="text-align:center;font-size:12px"></div>
 <script type="text/javascript">
-var browser=navigator.appName
-var b_version=navigator.appVersion
-var version=parseFloat(b_version)
-document.write("浏览器名称："+ browser)
-document.write("<br />")
-document.write("浏览器版本："+ version)
+var userAgent = navigator.userAgent;
+if (userAgent.indexOf("MSIE") > 0) {
+	$("#pmsg").html("你正在使用的是IE系列的浏览器，不推荐使用此浏览器，可能会导致性能问题。</br>推荐使用Google Chrome, Mozilla FireFox等浏览器。");
+}
 </script>
 </body>
 </html>

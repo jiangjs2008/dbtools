@@ -11,6 +11,10 @@
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript">
 
+function hideMask() {
+	$.messager.progress('close');
+}
+
 $(document).ready(function() {
 	$("#pmask").hide();
 	var nowDate = new Date();
@@ -31,21 +35,29 @@ $(document).ready(function() {
 					// 点击的是表，显示该表数据
 					$.messager.progress({ 
 				        title: 'Please waiting', 
-				        msg: 'Loading data...', 
-				        text: 'PROCESSING.......' 
+				        text: '正在努力获取数据中......' 
 				    });
 					var tblName = encodeURIComponent(node.text);
 					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(coldata) {
 						$("#tblname").panel('setTitle', tblName);
 						$('#grid').datagrid({
-							url: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+							url: "/dbm/ajax/griddata.do?page=1&tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
 							 columns: coldata,
 							 loadMsg: null,
-							 width:function(){return document.body.clientWidth*0.9},
-							 pageSize:50,rownumbers:true,fitColumns:true,singleSelect:true,
+							 pagination: true,
+							 pageList: [100],
+							 pageSize:100,rownumbers:true,fitColumns:true,
 							 onLoadSuccess: function() { hideMask(); },
-							 onLoadError: function() { hideMask(); }
+							 onLoadError: function() { hideMask(); },
+							 onClickCell: onClickCell,
+							 loadFilter: function(data) {
+								if (data.emsg){
+									$('div.pagination-info').text(data.emsg);
+								}
+								return data;
+							}
 						});
+						$('select.pagination-page-list').hide();
 					});
 				}
 			},
@@ -54,11 +66,9 @@ $(document).ready(function() {
 					// 如果没有加载子节点，则加载
 					$.messager.progress({ 
 				        title: 'Please waiting', 
-				        msg: 'Loading data...', 
-				        text: 'PROCESSING.......' 
+				        text: '正在努力获取数据中......' 
 				    });
 					// append some nodes to the selected node
-					//var selected = $('#mytree2').tree('getSelected');
 					$.getJSON("/dbm/ajax/gettbllist.do?catalog=" + node.text + '&t=' + nowDate.getTime(), function(subdata2) {
 						$('#mytree2').tree('append', {
 							parent: node.target,
@@ -90,6 +100,9 @@ function logout() {
 	return rslt;
 }
 
+function onClickCell(rowIndex, field, value){
+	$('#grid').datagrid('beginEdit', rowIndex);
+}
 </script>
 </head>
 
@@ -99,7 +112,7 @@ function logout() {
 		<ul id="mytree2" class="easyui-tree" data-options="lines:true"></ul>
 	</div>
 	<div data-options="region:'center'" style="overflow-y:hidden">
-	    <div data-options="region:'north',border:false" style="height:182px;border-bottom:2px solid #E6EEF8;">
+	    <div data-options="region:'north',border:false" style="height:183px;border-bottom:2px solid #E6EEF8;">
 	        <div id="tblname" class="easyui-layout easyui-panel" title="My Panel" data-options="iconCls:'icon-save',closable:true,fit:true,border:false">
 	            <div data-options="region:'west',border:false" style="width:88%;overflow:hidden"><textarea id="sqlscript" name="sqlscript" style="width:98%;height:150px"></textarea></div>
 	            <div data-options="region:'center',border:false" style="width:12%;margin-left:8px;overflow:hidden"><br/><br/>
@@ -108,7 +121,7 @@ function logout() {
 	        </div>
 	    </div>
 	    <div data-options="region:'center',border:false">
-	    	<table id="grid" class="easyui-datagrid" style="width:800px;height:400px;"></table>
+	    	<table id="grid" class="easyui-datagrid" style="width:900px;height:573px;"></table>
 		</div>
 	</div>
 </div>

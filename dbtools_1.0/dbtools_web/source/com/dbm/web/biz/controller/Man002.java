@@ -42,7 +42,7 @@ public class Man002 extends DefaultController {
 	@RequestMapping("/ajax/getcatalog.do")
 	@ResponseBody
 	public String getCatalog(HttpServletRequest request) {
-		System.out.println(request.getServletPath());
+
 		DbClient dbClient = DbClientFactory.getDbClient();
 
 		// 显示数据库内容：表、视图等等
@@ -130,7 +130,7 @@ public class Man002 extends DefaultController {
 				JSONObject params = new JSONObject();
 				params.put("field", colName);
 				params.put("title", colName);
-				//params.put("width", "80");
+				params.put("editor", "text");
 				columnInfo.add(params);
 			}
 
@@ -149,13 +149,17 @@ public class Man002 extends DefaultController {
 	public String mpc0120dispinfo(@RequestParam Map<String,String> requestParam) {
 		logger.debug("/ajax/sale/mpc0120dispinfo.do =>mpc0120dispinfo()");
 		String _tblName = requestParam.get("tblname");
-		int start = NumberUtils.toInt(requestParam.get("start"), -1);
-		int pageNum = 0;
-		if (start == -1) {
-			pageNum = 1;
-		} else {
-			pageNum = start / 100 + 1;
+		int pageNum = NumberUtils.toInt(requestParam.get("page"));
+
+		JSONObject rsltJObj = new JSONObject();
+		rsltJObj.put("total", 0);
+		rsltJObj.put("rows", new ArrayList<JSONObject>());
+
+		if (_tblName == null || _tblName.length() == 0 || pageNum == 0) {
+			rsltJObj.put("emsg", "查询参数不正确.");
+			return rsltJObj.toJSONString();
 		}
+
 		try {
 
 			DbClient dbClient = DbClientFactory.getDbClient();
@@ -165,10 +169,8 @@ public class Man002 extends DefaultController {
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();
 			if (rsm == null) {
-				JSONObject params = new JSONObject();
-				params.put("total", 0);
-				params.put("rows", new ArrayList<JSONObject>());
-				return params.toJSONString();
+				rsltJObj.put("emsg", "查询结果不正确.");
+				return rsltJObj.toJSONString();
 			}
 
 			JSONArray columnInfo = new JSONArray();
@@ -191,7 +193,7 @@ public class Man002 extends DefaultController {
 			JSONObject params = new JSONObject();
 			params.put("total", 0);
 			params.put("rows", new ArrayList<JSONObject>());
-			params.put("errorMsg ", exp.toString());
+			params.put("emsg", "查询时发生错误.");
 			return params.toJSONString();
 		}
 	}
