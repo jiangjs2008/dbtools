@@ -37,6 +37,7 @@ public class DbClient4MysqlImpl extends DbClient4DefaultImpl {
 			allRowSet.setPageSize(500);
 
 			allRowSet.populate(rs);
+			allRowSet.setTableName(tblName);
 			return allRowSet;
 
 		} catch (SQLException exp) {

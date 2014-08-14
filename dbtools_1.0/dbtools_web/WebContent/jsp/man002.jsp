@@ -59,7 +59,7 @@ $(document).ready(function() {
 					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(coldata) {
 						$("#tblname").text(node.text);
 						$('#grid').datagrid({
-							url: "/dbm/ajax/griddata.do?page=1&tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+							url: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
 							columns: coldata,
 						});
 						$('select.pagination-page-list').hide();
@@ -179,22 +179,22 @@ function execSQL() {
 </head>
 
 <body>
-<div class="easyui-layout" style="width:100%;height:100%;">
-	<div data-options="region:'west',split:true" title="Database" style="width:250px;">
+<div class="easyui-layout" style="width:100%;height:100%">
+	<div data-options="region:'west',split:true" title="Database" style="width:250px">
 		<ul id="mytree2" class="easyui-tree" data-options="lines:true"></ul>
 	</div>
-	<div data-options="region:'center'" style="overflow-y:hidden">
-	    <div data-options="region:'north',border:false" style="height:153px;border-bottom:2px solid #E6EEF8;">
+	<div data-options="region:'center'" style="width:99.5%">
+	    <div data-options="region:'north',border:false" style="height:153px;border-bottom:2px solid #E6EEF8">
 	        <textarea id="sqlscript" name="sqlscript" style="width:99.5%;height:150px;color:#999" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
 	    </div>
 	    <div data-options="region:'center',border:false">
-	    	<table id="grid" class="easyui-datagrid" style="width:100%;height:606px;"></table>
+	    	<table id="grid" class="easyui-datagrid" style="width:100%;height:606px"></table>
 		</div>
 	</div>
 </div>
 <form method="post" id="man002form" action="/dbm/logout.do"></form>
 <div id="ptb" style="height:31px;">
-	<div id="ptbdiv" style="float:left"><img src="/dbm/css/icons/shapes.png" style="margin-left:10px;margin-right:10px;margin-top:4px"/><span id="tblname" style="position:relative;font-size:14px;top:-5px;"></span>
+	<div id="ptbdiv" style="float:left"><img src="/dbm/css/icons/shapes.png" style="margin-left:10px;margin-right:10px;margin-top:4px"/><span id="tblname" style="position:relative;font-size:14px;top:-5px"></span>
 	<a href="#" class="easyui-linkbutton" style="margin-left:50px;margin-top:-12px" data-options="iconCls:'icon-add'">添加记录</a>
 	<a href="#" class="easyui-linkbutton" style="margin-left:30px;margin-top:-12px" data-options="iconCls:'icon-remove'">删除记录</a>
 	<a href="#" class="easyui-linkbutton" style="margin-left:30px;margin-top:-12px" data-options="iconCls:'icon-save'">保存修改</a></div>

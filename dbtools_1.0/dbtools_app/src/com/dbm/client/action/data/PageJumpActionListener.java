@@ -132,7 +132,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 				}
 
 				Vector<String> colValue = new Vector<String>(colCount);
-				colValue.add(Integer.toString(i + (currPage - 1) * dataLimit));
+				colValue.add(Integer.toString(i + currPage * dataLimit));
 
 				for (int k = 1; k < colCount; k ++) {
 					Object obj = _rowSet.getObject(k);
