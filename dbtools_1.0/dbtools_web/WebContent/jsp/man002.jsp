@@ -17,6 +17,23 @@ function hideMask() {
 
 $(document).ready(function() {
 	$("#pmask").hide();
+	$('#grid').datagrid({
+		toolbar: '#ptb',
+		pagination: true,
+		pageList: [100],
+		pageSize:100,rownumbers:true,fitColumns:true,
+		onLoadSuccess: function() { hideMask(); },
+		onLoadError: function() { hideMask(); },
+		onClickCell: onClickCell,
+		loadFilter: function(data) {
+			if (data.emsg){
+				$('div.pagination-info').text(data.emsg);
+			}
+			return data;
+		}
+	});
+	$('select.pagination-page-list').hide();
+
 	var nowDate = new Date();
 
 	$.getJSON("/dbm/ajax/getcatalog.do", function(subdata) {
@@ -37,25 +54,13 @@ $(document).ready(function() {
 				        title: 'Please waiting', 
 				        text: '正在努力获取数据中......' 
 				    });
+				    $("#ptbdiv").show();
 					var tblName = encodeURIComponent(node.text);
 					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(coldata) {
-						$("#tblname").panel('setTitle', tblName);
+						$("#tblname").text(node.text);
 						$('#grid').datagrid({
 							url: "/dbm/ajax/griddata.do?page=1&tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
-							 columns: coldata,
-							 loadMsg: null,
-							 pagination: true,
-							 pageList: [100],
-							 pageSize:100,rownumbers:true,fitColumns:true,
-							 onLoadSuccess: function() { hideMask(); },
-							 onLoadError: function() { hideMask(); },
-							 onClickCell: onClickCell,
-							 loadFilter: function(data) {
-								if (data.emsg){
-									$('div.pagination-info').text(data.emsg);
-								}
-								return data;
-							}
+							columns: coldata,
 						});
 						$('select.pagination-page-list').hide();
 					});
@@ -82,9 +87,6 @@ $(document).ready(function() {
 		});
 	});
 
-	$('#tblname').panel({
-		onBeforeClose:logout
-	});
 	
     $.extend($.fn.datagrid.methods, {
         editCell: function(jq,param){
@@ -140,28 +142,65 @@ function onClickCell(index, field){
         editIndex = index;
     }
 }
+
+function execSQL() {
+	var sqlScript = $("#sqlscript").val();
+	if (sqlScript == '请在此输入SQL执行脚本：') {
+		return;
+	}
+	sqlScript = encodeURIComponent(sqlScript);
+
+	if (sqlScript.length > 0) {
+		$("#ptbdiv").hide();
+
+		$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) {
+			if (data.ecd == '1') {
+			  // $.omMessageBox.waiting({
+		     //      content: 'SQL语句执行成功！'
+		     //  });
+		     //  setTimeout("$.omMessageBox.waiting('close');", 1000);
+
+			} else if (data.ecd == '2') {
+		     //  $.omMessageBox.alert({
+		     //      content: 'SQL语句执行失败，请再次确认你的SQL语句'
+		     //  });
+
+			} else if (data.ecd == '3') {
+		     //  $.omMessageBox.alert({
+		     //      content: '执行SQL语句时发生错误，请再次确认你的SQL语句，并可查看LOG文件<br>' + data.msg
+		     //  });
+
+			}
+		});
+	}
+}
+
 </script>
 </head>
 
 <body>
 <div class="easyui-layout" style="width:100%;height:100%;">
-	<div data-options="region:'west',split:true" title="Database" style="width:200px;">
+	<div data-options="region:'west',split:true" title="Database" style="width:250px;">
 		<ul id="mytree2" class="easyui-tree" data-options="lines:true"></ul>
 	</div>
 	<div data-options="region:'center'" style="overflow-y:hidden">
-	    <div data-options="region:'north',border:false" style="height:183px;border-bottom:2px solid #E6EEF8;">
-	        <div id="tblname" class="easyui-layout easyui-panel" title="My Panel" data-options="iconCls:'icon-save',closable:true,fit:true,border:false">
-	            <div data-options="region:'west',border:false" style="width:88%;overflow:hidden"><textarea id="sqlscript" name="sqlscript" style="width:98%;height:150px"></textarea></div>
-	            <div data-options="region:'center',border:false" style="width:12%;margin-left:8px;overflow:hidden"><br/><br/>
-					<input type="button" id="bButton" value="执行SQL" style="width:80px;"/><br/><br/><br/>
-					<input type="button" id="cButton" value="历史纪录" style="width:80px;"/></div>
-	        </div>
+	    <div data-options="region:'north',border:false" style="height:153px;border-bottom:2px solid #E6EEF8;">
+	        <textarea id="sqlscript" name="sqlscript" style="width:99.5%;height:150px;color:#999" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
 	    </div>
 	    <div data-options="region:'center',border:false">
-	    	<table id="grid" class="easyui-datagrid" style="width:900px;height:573px;"></table>
+	    	<table id="grid" class="easyui-datagrid" style="width:100%;height:606px;"></table>
 		</div>
 	</div>
 </div>
 <form method="post" id="man002form" action="/dbm/logout.do"></form>
+<div id="ptb" style="height:31px;">
+	<div id="ptbdiv" style="float:left"><img src="/dbm/css/icons/shapes.png" style="margin-left:10px;margin-right:10px;margin-top:4px"/><span id="tblname" style="position:relative;font-size:14px;top:-5px;"></span>
+	<a href="#" class="easyui-linkbutton" style="margin-left:50px;margin-top:-12px" data-options="iconCls:'icon-add'">添加记录</a>
+	<a href="#" class="easyui-linkbutton" style="margin-left:30px;margin-top:-12px" data-options="iconCls:'icon-remove'">删除记录</a>
+	<a href="#" class="easyui-linkbutton" style="margin-left:30px;margin-top:-12px" data-options="iconCls:'icon-save'">保存修改</a></div>
+	<div style="float:right"><a href="#" onclick="javascript:execSQL()" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px">执行SQL</a>
+	<a href="#" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px">历史纪录</a>
+	<a href="#" onclick="javascript:logout()" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px" data-options="iconCls:'icon-closed'">退出</a></div>
+</div>
 </body>
 </html>

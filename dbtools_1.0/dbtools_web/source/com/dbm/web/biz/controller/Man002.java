@@ -113,7 +113,12 @@ public class Man002 extends DefaultController {
 			Connection _dbConn = dbClient.getConnection();
 			DatabaseMetaData dmd = _dbConn.getMetaData();
 
-			String realName = getRealTblName(dbClient, requestParam.get("tblname"));
+			// TODO
+			String realName = requestParam.get("tblname");
+			if (realName.indexOf('.') > 0) {
+				String[] arr = StringUtils.split(realName, '.');
+				realName = arr[1];
+			}
 			logger.debug(realName);
 
 			// 取得指定表的所有列的信息
@@ -161,7 +166,6 @@ public class Man002 extends DefaultController {
 		}
 
 		try {
-
 			DbClient dbClient = DbClientFactory.getDbClient();
 			dbClient.setTableName(_tblName);
 			ResultSet rs = dbClient.defaultQuery(pageNum);

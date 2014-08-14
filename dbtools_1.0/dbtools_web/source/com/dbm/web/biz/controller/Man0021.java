@@ -1,6 +1,7 @@
 package com.dbm.web.biz.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.sql.ResultSet;
 import java.util.Map;
 
 import org.springframework.stereotype.Controller;
@@ -42,10 +43,24 @@ public class Man0021 extends DefaultController {
 
 		try {
 			DbClient dbClient = DbClientFactory.getDbClient();
-			if (dbClient.directExec(sqlScript)) {
-				params.put("ecd", "1");
+
+			if (dbClient.getExecScriptType(sqlScript) == 1) {
+				// 数据检索
+				ResultSet rs = dbClient.directQuery(sqlScript, 1);
+				if (rs == null) {
+					params.put("ecd", "0");
+					return params.toJSONString();
+				}
+				
+
+
 			} else {
-				params.put("ecd", "2");
+				// 更新数据
+				if (dbClient.directExec(sqlScript)) {
+					params.put("ecd", "1");
+				} else {
+					params.put("ecd", "2");
+				}
 			}
 
 			return params.toJSONString();
