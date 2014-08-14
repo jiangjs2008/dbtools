@@ -64,7 +64,12 @@
 .icon-lock{
 	background:url('icons/lock.png') no-repeat center center;
 }
-
+.icon-shapes{
+	background:url('icons/shapes.png') no-repeat center center;
+}
+.icon-closed{
+	background:url('icons/closed.png') no-repeat center center;
+}
 
 .icon-mini-add{
 	background:url('icons/mini_add.png') no-repeat center center;
