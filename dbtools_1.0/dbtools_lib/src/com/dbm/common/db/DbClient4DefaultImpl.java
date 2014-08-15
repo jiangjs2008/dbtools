@@ -140,7 +140,7 @@ public class DbClient4DefaultImpl extends DbClient {
 			ResultSet irs = null;
 			try {
 				istmt = _dbConn.createStatement();
-				irs = istmt.executeQuery("select count(1) from ( " + sqlStr + " ) ");
+				irs = istmt.executeQuery("select count(1) as c1 from ( " + sqlStr + " ) as t1 ");
 				if (irs.next()) {
 					_size = irs.getInt(1);
 					logger.debug("该查询的数据总件数: size= " + _size);

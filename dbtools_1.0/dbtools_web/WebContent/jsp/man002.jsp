@@ -21,7 +21,7 @@ $(document).ready(function() {
 		toolbar: '#ptb',
 		pagination: true,
 		pageList: [100],
-		pageSize:100,rownumbers:true,fitColumns:true,
+		rownumbers:true,fitColumns:true,
 		onLoadSuccess: function() { hideMask(); },
 		onLoadError: function() { hideMask(); },
 		onClickCell: onClickCell,
@@ -58,9 +58,12 @@ $(document).ready(function() {
 					var tblName = encodeURIComponent(node.text);
 					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(coldata) {
 						$("#tblname").text(node.text);
+						// 打开新的表时必须刷新pageNumber，重置为1
 						$('#grid').datagrid({
+							pageNumber: 1,
+							pageSize: 100,
 							url: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
-							columns: coldata,
+							columns: coldata
 						});
 						$('select.pagination-page-list').hide();
 					});
@@ -151,7 +154,12 @@ function execSQL() {
 	sqlScript = encodeURIComponent(sqlScript);
 
 	if (sqlScript.length > 0) {
+		$.messager.progress({ 
+	        title: 'Please waiting', 
+	        text: '正在执行SQL脚本......' 
+	    });
 		$("#ptbdiv").hide();
+		//$('#grid').datagrid({ data: [{}] });
 
 		$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) {
 			if (data.ecd == '1') {
@@ -159,6 +167,16 @@ function execSQL() {
 		     //      content: 'SQL语句执行成功！'
 		     //  });
 		     //  setTimeout("$.omMessageBox.waiting('close');", 1000);
+				if (data.gridata) {
+					//var dispData = JSON.parse(data.gridata);
+	     			$('#grid').datagrid({
+						pageNumber: 1,
+						pageSize: 100,
+						columns: data.coldata
+						//data: data.gridata.rows
+					});
+					$('#grid').datagrid('loadData', data.gridata);
+				}
 
 			} else if (data.ecd == '2') {
 		     //  $.omMessageBox.alert({
@@ -171,6 +189,7 @@ function execSQL() {
 		     //  });
 
 			}
+			hideMask();
 		});
 	}
 }
@@ -188,7 +207,7 @@ function execSQL() {
 	        <textarea id="sqlscript" name="sqlscript" style="width:99.5%;height:150px;color:#999" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
 	    </div>
 	    <div data-options="region:'center',border:false">
-	    	<table id="grid" class="easyui-datagrid" style="width:100%;height:606px"></table>
+	    	<table id="grid" class="easyui-datagrid" style="width:100%;height:607px"></table>
 		</div>
 	</div>
 </div>

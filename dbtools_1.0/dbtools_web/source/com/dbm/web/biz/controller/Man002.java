@@ -106,15 +106,15 @@ public class Man002 extends DefaultController {
 	@RequestMapping("/ajax/gridcol.do")
 	@ResponseBody
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
-		logger.debug("/ajax/sale/mpc0110query.do =>mpc0110query()");
+		logger.debug("/ajax/gridcol.do =>mpc0110query()");
 		DbClient dbClient = DbClientFactory.getDbClient();
-
+		String realName = null;
 		try {
 			Connection _dbConn = dbClient.getConnection();
 			DatabaseMetaData dmd = _dbConn.getMetaData();
 
 			// TODO
-			String realName = requestParam.get("tblname");
+			realName = requestParam.get("tblname");
 			if (realName.indexOf('.') > 0) {
 				String[] arr = StringUtils.split(realName, '.');
 				realName = arr[1];
@@ -124,6 +124,7 @@ public class Man002 extends DefaultController {
 			// 取得指定表的所有列的信息
 			ResultSet columnRs = dmd.getColumns(null, null, realName, "%");
 			if (columnRs == null) {
+				logger.warn("无列信息 表：" + realName);
 				return "[[]]";
 			}
 
@@ -144,7 +145,7 @@ public class Man002 extends DefaultController {
 			return rslt.toJSONString();
 
 		} catch (Exception exp) {
-			logger.error("", exp);
+			logger.error("取得列信息时发生错误 表：" + realName, exp);
 			return "[[]]";
 		}
 	}
@@ -161,6 +162,7 @@ public class Man002 extends DefaultController {
 		rsltJObj.put("rows", new ArrayList<JSONObject>());
 
 		if (_tblName == null || _tblName.length() == 0 || pageNum == 0) {
+			logger.warn("查询参数不正确 表：" + _tblName);
 			rsltJObj.put("emsg", "查询参数不正确.");
 			return rsltJObj.toJSONString();
 		}
@@ -173,6 +175,7 @@ public class Man002 extends DefaultController {
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();
 			if (rsm == null) {
+				logger.warn("查询结果不正确 表：" + _tblName);
 				rsltJObj.put("emsg", "查询结果不正确.");
 				return rsltJObj.toJSONString();
 			}
@@ -193,12 +196,82 @@ public class Man002 extends DefaultController {
 			return params.toJSONString();
 
 		} catch (Exception exp) {
-			logger.error("", exp);
+			logger.error("查询时发生错误表：" + _tblName, exp);
 			JSONObject params = new JSONObject();
 			params.put("total", 0);
 			params.put("rows", new ArrayList<JSONObject>());
 			params.put("emsg", "查询时发生错误.");
 			return params.toJSONString();
+		}
+	}
+
+
+	@RequestMapping("/ajax/getallgriddata.do")
+	@ResponseBody
+	public String getAllGridData(@RequestParam Map<String,String> requestParam) {
+		logger.debug("/ajax/getallgriddata.do =>getAllGridData()");
+		String _tblName = requestParam.get("tblname");
+		int pageNum = NumberUtils.toInt(requestParam.get("page"));
+
+		JSONObject rsltJObj = new JSONObject();
+		rsltJObj.put("coldata", "[[]]");
+		rsltJObj.put("gridata", "{}");
+
+		if (_tblName == null || _tblName.length() == 0 || pageNum == 0) {
+			rsltJObj.put("emsg", "查询参数不正确.");
+			return rsltJObj.toJSONString();
+		}
+
+		try {
+			DbClient dbClient = DbClientFactory.getDbClient();
+			dbClient.setTableName(_tblName);
+			ResultSet rs = dbClient.defaultQuery(pageNum);
+
+			ResultSetMetaData rsm = rs.getMetaData();
+			if (rsm == null) {
+				rsltJObj.put("emsg", "查询结果不正确.");
+				return rsltJObj.toJSONString();
+			}
+
+			// 设置列名信息
+			String colName = null;
+			ArrayList<JSONObject> columnInfo = new ArrayList<JSONObject>();
+			for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
+				colName = rsm.getColumnName(i);
+				JSONObject params = new JSONObject();
+				params.put("field", colName);
+				params.put("title", colName);
+				params.put("editor", "text");
+				columnInfo.add(params);
+			}
+
+			JSONArray rslt = new JSONArray();
+			rslt.add(columnInfo);
+
+			// 设置grid数据
+			JSONArray dataInfo = new JSONArray();
+			while (rs.next()) {
+				JSONObject params = new JSONObject();
+				for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
+					colName = rsm.getColumnName(i);
+					params.put(colName, dbClient.procCellData(rs.getObject(i)));
+					
+				}
+				dataInfo.add(params);
+			}
+
+			JSONObject params = new JSONObject();
+			params.put("total", dbClient.size());
+			params.put("rows", dataInfo);
+
+			rsltJObj.put("coldata", rslt);
+			rsltJObj.put("gridata", params);
+			return rsltJObj.toJSONString();
+
+		} catch (Exception exp) {
+			logger.error("", exp);
+			rsltJObj.put("emsg", "查询时发生错误.");
+			return rsltJObj.toJSONString();
 		}
 	}
 
