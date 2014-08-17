@@ -146,7 +146,8 @@ public class DbClient4DefaultImpl extends DbClient {
 					logger.debug("该查询的数据总件数: size= " + _size);
 				}
 			} catch (SQLException exp) {
-				//throw new BaseExceptionWrapper(exp);
+				logger.error(exp);
+				return null;
 			} finally {
 				try {
 					if (irs != null) {

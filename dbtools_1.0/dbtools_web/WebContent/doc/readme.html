@@ -12,6 +12,16 @@ EL Spec			2.2
 Tomcat version	7.0.47
 Java Version	1.6
 
+设置项目的启动类（Main Class），
+Resin2.x为com.caucho.server.http.HttpServer，
+Resin3.x为com.caucho.server.http.ResinServer，
+Resin4.x为com.caucho.server.resin.Resin。
+
+配置Arguments，在Program arguments中填写-conf"${project_loc}\resin.conf"，
+
+在VM arguments中为空
+（如果是Resin3.x则填写-Djava.util.logging.manager=com.caucho.log.LogManagerImpl）
+(如果配置Resin4.x则填入-Dresin.home="D:\resin\resin-4.0.4"-Djava.util.logging.manager=com.caucho.log.LogManagerImpl-server -Xmx256m -Xms80m -XX:PermSize=128m -XX:MaxPermSize=128m)
 
 </pre></body>
 </html>

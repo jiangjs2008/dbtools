@@ -32,13 +32,15 @@ public class Man0021 extends DefaultController {
 	@ResponseBody
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
 		String sqlScript = requestParam.get("sqlscript");
+		JSONObject rsltJObj = new JSONObject();
 		try {
 			sqlScript = new String(sqlScript.getBytes("ISO-8859-1"), "utf-8");
 		} catch (UnsupportedEncodingException eop) {
-			logger.error("", eop);
+			logger.error(sqlScript, eop);
+			rsltJObj.put("ecd", "0");
+			return rsltJObj.toJSONString();
 		}
 
-		JSONObject rsltJObj = new JSONObject();
 		if (sqlScript == null || sqlScript.length() == 0) {
 			rsltJObj.put("ecd", "0");
 			return rsltJObj.toJSONString();
@@ -51,14 +53,16 @@ public class Man0021 extends DefaultController {
 				// 数据检索
 				ResultSet rs = dbClient.directQuery(sqlScript, 1);
 				if (rs == null) {
-					rsltJObj.put("ecd", "0");
+					logger.error("执行时错误 " + sqlScript);
+					rsltJObj.put("ecd", "3");
 					return rsltJObj.toJSONString();
 				}
 				rsltJObj.put("ecd", "1");
 
 				ResultSetMetaData rsm = rs.getMetaData();
 				if (rsm == null) {
-					rsltJObj.put("emsg", "查询结果不正确.");
+					logger.error("无元数据信息 " + sqlScript);
+					rsltJObj.put("ecd", "3");
 					return rsltJObj.toJSONString();
 				}
 
@@ -109,9 +113,8 @@ public class Man0021 extends DefaultController {
 			return rsltJObj.toJSONString();
 
 		} catch (Exception exp) {
-			logger.error("", exp);
+			logger.error(sqlScript, exp);
 			rsltJObj.put("ecd", "3");
-			rsltJObj.put("msg", exp.toString());
 			return rsltJObj.toJSONString();
 		}
 	}

@@ -9,6 +9,7 @@
 <script type="text/javascript" src="/dbm/js/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="/dbm/js/base64.js"></script>
+	<script type="text/javascript" src="/dbm/js/jquery.datagrid.js"></script>
 <script type="text/javascript">
 var nowDate = new Date();
 $(document).ready(function() {

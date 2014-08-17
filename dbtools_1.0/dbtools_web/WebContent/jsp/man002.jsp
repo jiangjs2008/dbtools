@@ -21,16 +21,17 @@ $(document).ready(function() {
 		toolbar: '#ptb',
 		pagination: true,
 		pageList: [100],
+		 fitColumns: false,
 		rownumbers:true,fitColumns:true,
-		onLoadSuccess: function() { hideMask(); },
+		onLoadSuccess: function() { recolsize(); hideMask(); },
 		onLoadError: function() { hideMask(); },
 		onClickCell: onClickCell,
-		loadFilter: function(data) {
-			if (data.emsg){
-				$('div.pagination-info').text(data.emsg);
-			}
-			return data;
-		}
+									loadFilter: function(data) {
+								if (data.emsg){
+									$('div.pagination-info').text(data.emsg);
+								}
+								return data;
+							}
 	});
 	$('select.pagination-page-list').hide();
 
@@ -62,8 +63,15 @@ $(document).ready(function() {
 						$('#grid').datagrid({
 							pageNumber: 1,
 							pageSize: 100,
+							 fitColumns: false,
 							url: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
-							columns: coldata
+							columns: coldata,
+							loadFilter: function(data) {
+								if (data.emsg){
+									$('div.pagination-info').text(data.emsg);
+								}
+								return data;
+							}
 						});
 						$('select.pagination-page-list').hide();
 					});
@@ -159,39 +167,79 @@ function execSQL() {
 	        text: '正在执行SQL脚本......' 
 	    });
 		$("#ptbdiv").hide();
-		//$('#grid').datagrid({ data: [{}] });
+
+		$('#grid').datagrid('loadData', {total:0, rows:[]});
+		$('#grid').datagrid({
+			columns: [[]],
+			loadFilter: function(data) {
+				return data;
+			}
+		});
 
 		$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) {
-			if (data.ecd == '1') {
-			  // $.omMessageBox.waiting({
-		     //      content: 'SQL语句执行成功！'
-		     //  });
-		     //  setTimeout("$.omMessageBox.waiting('close');", 1000);
+			 if (data.ecd == '1') {
 				if (data.gridata) {
-					//var dispData = JSON.parse(data.gridata);
 	     			$('#grid').datagrid({
 						pageNumber: 1,
 						pageSize: 100,
+						url: null,
 						columns: data.coldata
-						//data: data.gridata.rows
 					});
 					$('#grid').datagrid('loadData', data.gridata);
 				}
+				hideMask();
+				$.messager.show({
+					title: '好消息',
+					msg: 'SQL语句执行成功.',
+					timeout: 5000,
+					showType: 'slide'
+				});
 
-			} else if (data.ecd == '2') {
-		     //  $.omMessageBox.alert({
-		     //      content: 'SQL语句执行失败，请再次确认你的SQL语句'
-		     //  });
-
-			} else if (data.ecd == '3') {
-		     //  $.omMessageBox.alert({
-		     //      content: '执行SQL语句时发生错误，请再次确认你的SQL语句，并可查看LOG文件<br>' + data.msg
-		     //  });
-
+			} else {
+				hideMask();
+				if (data.ecd == '0') {
+					$.messager.alert('注意', 'SQL语句不正确', 'warning');
+				} else if (data.ecd == '2') {
+					$.messager.alert('注意', '执行SQL语句时发生错误，没有更新成功', 'warning');
+				} else if (data.ecd == '3') {
+					$.messager.alert('注意', '执行SQL语句时发生错误，请确认你的SQL语句，并查看LOG文件', 'warning');
+				}
 			}
-			hideMask();
 		});
 	}
+}
+
+function recolsize() {
+	//datagrid头部 table 的第一个tr 的td们，即columns的集合
+	var headerTds = $(".datagrid-view2 .datagrid-header .datagrid-header-inner table tr:first-child").children();
+	//datagrid主体 table 的第一个tr 的td们，即第一个数据行
+	var bodyTds = $(".datagrid-view2 .datagrid-body table tr:first-child").children();
+	var totalWidth = 0;
+	//循环设置宽度
+	bodyTds.each(function (i, obj) {
+	  var headerTd = $(headerTds.get(i));
+	  var bodyTd = $(bodyTds.get(i));
+	  var headerTdWidth = headerTd.width();
+	  var bodyTdWidth = bodyTd.width();
+
+	  //如果头部列名宽度比主体数据宽度宽，则它们的宽度都设为头部的宽度。反之亦然
+	  if (headerTdWidth > bodyTdWidth) {
+	      headerTdWidth = headerTdWidth + 15;
+	      bodyTd.width(headerTdWidth);
+	      headerTd.width(headerTdWidth);
+	  } else {
+	      headerTdWidth = bodyTdWidth + 15;
+	      headerTd.width(headerTdWidth);
+	      bodyTd.width(headerTdWidth);
+	  }
+	  totalWidth += headerTdWidth;
+	});
+	var headerTable = $(".datagrid-view2 .datagrid-header .datagrid-header-inner table:first-child");
+	var bodyTable = $(".datagrid-view2 .datagrid-body table:first-child");
+	//循环完毕即能得到总得宽度设置到头部table和数据主体table中
+	headerTable.width(totalWidth);
+	bodyTable.width(totalWidth);
+
 }
 
 </script>
@@ -204,10 +252,10 @@ function execSQL() {
 	</div>
 	<div data-options="region:'center'" style="width:99.5%">
 	    <div data-options="region:'north',border:false" style="height:153px;border-bottom:2px solid #E6EEF8">
-	        <textarea id="sqlscript" name="sqlscript" style="width:99.5%;height:150px;color:#999" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
+	        <textarea id="sqlscript" name="sqlscript" style="width:99.5%;height:150px;color:#999" onselect="showMsg()" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
 	    </div>
 	    <div data-options="region:'center',border:false">
-	    	<table id="grid" class="easyui-datagrid" style="width:100%;height:607px"></table>
+	    	<table id="grid" class="easyui-datagrid" style="width:100%;height:556px"></table>
 		</div>
 	</div>
 </div>
