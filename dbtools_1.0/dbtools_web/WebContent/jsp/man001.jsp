@@ -4,12 +4,17 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>选择数据库</title>
+<script type="text/javascript">
+var userAgent = navigator.userAgent;
+if (userAgent.indexOf("MSIE") > 0) {
+	location.href = '/dbm/notsupport.html';
+}
+</script>
 <link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
 <link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
-<script type="text/javascript" src="/dbm/js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="/dbm/js/base64.js"></script>
-	<script type="text/javascript" src="/dbm/js/jquery.datagrid.js"></script>
 <script type="text/javascript">
 var nowDate = new Date();
 $(document).ready(function() {
@@ -30,6 +35,7 @@ $(document).ready(function() {
 			});
 		}
 	});
+	$("#favrid").combobox("setValue", "请选择数据库：");
 });
 
 function formatItem(row) {
@@ -101,11 +107,5 @@ function showerror(errcode) {
 </form>
 </div><br/><br/>
 <div id="pmsg" style="text-align:center;font-size:12px"></div>
-<script type="text/javascript">
-var userAgent = navigator.userAgent;
-if (userAgent.indexOf("MSIE") > 0) {
-	$("#pmsg").html("你正在使用的是IE系列的浏览器，不推荐使用此浏览器，可能会导致性能问题。</br>推荐使用Google Chrome, Mozilla FireFox等浏览器。");
-}
-</script>
 </body>
 </html>

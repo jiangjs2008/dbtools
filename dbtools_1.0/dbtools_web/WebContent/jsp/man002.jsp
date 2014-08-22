@@ -7,7 +7,7 @@
 <link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
 <link rel="stylesheet" type="text/css" href="/dbm/css/icon.css">
 <link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
-<script type="text/javascript" src="/dbm/js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript">
 
@@ -17,27 +17,44 @@ function hideMask() {
 
 $(document).ready(function() {
 	$("#pmask").hide();
+	$(window).resize(function() {
+		$('#l1').layout('resize', {
+			height: function() {return document.body.clientHeight;}
+		});
+		$('#r1').layout('resize', {
+			width: function() {return document.body.clientWidth;}
+		});
+	});
+
 	$('#grid').datagrid({
 		toolbar: '#ptb',
+		method: 'get',
 		pagination: true,
+		pageNumber: 1,
+		pageSize: 100,
 		pageList: [100],
 		 fitColumns: false,
+		 fit:true,
 		rownumbers:true,fitColumns:true,
 		onLoadSuccess: function() { recolsize(); hideMask(); },
 		onLoadError: function() { hideMask(); },
 		onClickCell: onClickCell,
-									loadFilter: function(data) {
-								if (data.emsg){
-									$('div.pagination-info').text(data.emsg);
-								}
-								return data;
-							}
+		loadFilter: function(data) {
+			if (data.emsg){
+				$('div.pagination-info').text(data.emsg);
+			}
+			return data;
+		}
 	});
 	$('select.pagination-page-list').hide();
 
 	var nowDate = new Date();
 
 	$.getJSON("/dbm/ajax/getcatalog.do", function(subdata) {
+		if (subdata.ecd) {
+			location.href = '/dbm/index.html';
+			return;
+		}
 		$('#mytree2').tree({
 			data: subdata,
 			onBeforeLoad:function(row,param){
@@ -56,15 +73,19 @@ $(document).ready(function() {
 				        text: '正在努力获取数据中......' 
 				    });
 				    $("#ptbdiv").show();
-					var tblName = encodeURIComponent(node.text);
-					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName + '&t=' + parseInt(Math.random()*100000), function(coldata) {
+					var tblName1 = encodeURIComponent(node.text);
+					var tblName2 = encodeURIComponent(tblName1);
+					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName2 + '&t=' + parseInt(Math.random()*100000), function(coldata) {
 						$("#tblname").text(node.text);
 						// 打开新的表时必须刷新pageNumber，重置为1
 						$('#grid').datagrid({
+							pagination: true,
+							pageList: [100],
 							pageNumber: 1,
 							pageSize: 100,
 							 fitColumns: false,
-							url: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+							url: "/dbm/ajax/griddata.do?t=" + parseInt(Math.random()*100000),
+							queryParams: { tblname: tblName1 },
 							columns: coldata,
 							loadFilter: function(data) {
 								if (data.emsg){
@@ -86,11 +107,16 @@ $(document).ready(function() {
 				    });
 					// append some nodes to the selected node
 					$.getJSON("/dbm/ajax/gettbllist.do?catalog=" + node.text + '&t=' + nowDate.getTime(), function(subdata2) {
-						$('#mytree2').tree('append', {
-							parent: node.target,
-							data: subdata2
-						});
-						hideMask();
+						if (subdata2.ecd) {
+							hideMask();
+							$.messager.alert('注意', '操作过程中发生错误', 'warning');
+						} else {
+							$('#mytree2').tree('append', {
+								parent: node.target,
+								data: subdata2
+							});
+							hideMask();
+						}
 					});
 					node.hasdata = true;
 				}
@@ -168,6 +194,7 @@ function execSQL() {
 	    });
 		$("#ptbdiv").hide();
 
+	    $('#grid').datagrid({ url: null });
 		$('#grid').datagrid('loadData', {total:0, rows:[]});
 		$('#grid').datagrid({
 			columns: [[]],
@@ -175,6 +202,7 @@ function execSQL() {
 				return data;
 			}
 		});
+		$('select.pagination-page-list').hide();
 
 		$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) {
 			 if (data.ecd == '1') {
@@ -185,7 +213,9 @@ function execSQL() {
 						url: null,
 						columns: data.coldata
 					});
+
 					$('#grid').datagrid('loadData', data.gridata);
+					$('select.pagination-page-list').hide();
 				}
 				hideMask();
 				$.messager.show({
@@ -225,13 +255,14 @@ function recolsize() {
 	  //如果头部列名宽度比主体数据宽度宽，则它们的宽度都设为头部的宽度。反之亦然
 	  if (headerTdWidth > bodyTdWidth) {
 	      headerTdWidth = headerTdWidth + 15;
-	      bodyTd.width(headerTdWidth);
-	      headerTd.width(headerTdWidth);
 	  } else {
 	      headerTdWidth = bodyTdWidth + 15;
-	      headerTd.width(headerTdWidth);
-	      bodyTd.width(headerTdWidth);
 	  }
+	  if (headerTdWidth > 800) { // TODO-- 此行代码不起作用，待调查
+	  	headerTdWidth = 800;
+	  }
+	  bodyTd.width(headerTdWidth);
+	  headerTd.width(headerTdWidth);
 	  totalWidth += headerTdWidth;
 	});
 	var headerTable = $(".datagrid-view2 .datagrid-header .datagrid-header-inner table:first-child");
@@ -239,23 +270,24 @@ function recolsize() {
 	//循环完毕即能得到总得宽度设置到头部table和数据主体table中
 	headerTable.width(totalWidth);
 	bodyTable.width(totalWidth);
-
 }
 
 </script>
 </head>
 
 <body>
-<div class="easyui-layout" style="width:100%;height:100%">
-	<div data-options="region:'west',split:true" title="Database" style="width:250px">
+<div class="easyui-layout" data-options="fit:true">
+	<div id="l1" data-options="region:'west',split:true" title="Database" style="width:250px">
 		<ul id="mytree2" class="easyui-tree" data-options="lines:true"></ul>
 	</div>
-	<div data-options="region:'center'" style="width:99.5%">
-	    <div data-options="region:'north',border:false" style="height:153px;border-bottom:2px solid #E6EEF8">
-	        <textarea id="sqlscript" name="sqlscript" style="width:99.5%;height:150px;color:#999" onselect="showMsg()" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
-	    </div>
-	    <div data-options="region:'center',border:false">
-	    	<table id="grid" class="easyui-datagrid" style="width:100%;height:556px"></table>
+	<div id="r1" data-options="region:'center'">
+		<div class="easyui-layout" data-options="fit:true">
+		    <div data-options="region:'north',border:false" style="height:155px;border-bottom:2px solid #E6EEF8">
+		        <textarea id="sqlscript" name="sqlscript" style="width:99%;height:96%;color:#999" onselect="showMsg()" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
+		    </div>
+		    <div data-options="region:'center',border:false" >
+		    	<table id="grid" class="easyui-datagrid" border="0" ></table>
+			</div>
 		</div>
 	</div>
 </div>
