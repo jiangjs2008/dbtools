@@ -1,10 +1,10 @@
 package com.dbm.web.biz.controller;
 
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,23 +42,29 @@ public class Man002 extends DefaultController {
 	@RequestMapping("/ajax/getcatalog.do")
 	@ResponseBody
 	public String getCatalog(HttpServletRequest request) {
+		try {
+			DbClient dbClient = DbClientFactory.getDbClient();
 
-		DbClient dbClient = DbClientFactory.getDbClient();
+			// 显示数据库内容：表、视图等等
+			List<String> objList = dbClient.getDbMetaData();
+			JSONArray dbInfo = new JSONArray(objList.size());
+			for (String item : objList) {
+				HashMap<String, Object> objMap = new HashMap<String, Object>(2);
+				objMap.put("hassub", true);
+				objMap.put("hasdata", false);
+				objMap.put("id", item);
+				objMap.put("text", item);
+				objMap.put("state", "closed");
+				dbInfo.add(objMap);
+			}
 
-		// 显示数据库内容：表、视图等等
-		List<String> objList = dbClient.getDbMetaData();
-		JSONArray dbInfo = new JSONArray(objList.size());
-		for (String item : objList) {
-			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
-			objMap.put("hassub", true);
-			objMap.put("hasdata", false);
-			objMap.put("id", item);
-			objMap.put("text", item);
-			objMap.put("state", "closed");
-			dbInfo.add(objMap);
+			return dbInfo.toJSONString();
+		} catch (Exception exp) {
+			logger.error("查询catalog时发生错误", exp);
+			JSONObject params = new JSONObject();
+			params.put("ecd", 0);
+			return params.toJSONString();
 		}
-
-		return dbInfo.toJSONString();
 	}
 
 	@RequestMapping("/ajax/gettbllist.do")
@@ -68,14 +74,21 @@ public class Man002 extends DefaultController {
 
 		DbClient dbClient = DbClientFactory.getDbClient();
 		String schema = null;
+		List<String> tblList = null;
 		try {
 			if (dbClient.hasSchema()) {
 				schema = dbClient.getConnection().getMetaData().getUserName();
 			}
-		} catch (SQLException ex) {
+			tblList = dbClient.getDbObjList(null, schema, "%", new String[] { tblName });
+		} catch (Exception ex) {
 			logger.error(ex);
 		}
-		List<String> tblList = dbClient.getDbObjList(null, schema, "%", new String[] { tblName });
+
+		if (tblList == null) {
+			JSONObject params = new JSONObject();
+			params.put("ecd", "1");
+			return params.toJSONString();
+		}
 
 		// 显示数据库内容：表、视图等等
 		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(tblList.size());
@@ -113,11 +126,15 @@ public class Man002 extends DefaultController {
 			Connection _dbConn = dbClient.getConnection();
 			DatabaseMetaData dmd = _dbConn.getMetaData();
 
-			// TODO
-			realName = requestParam.get("tblname");
+			realName = URLDecoder.decode(requestParam.get("tblname"), "UTF-8");
 			if (realName.indexOf('.') > 0) {
-				String[] arr = StringUtils.split(realName, '.');
-				realName = arr[1];
+				if ("fs.files".equals(realName)) {
+					// 如果是查询 mongo的GridFs文件数据(fs.files), 则不转换
+					// TODO-- 暂时这样做，没什么更好的办法
+				} else {
+					String[] arr = StringUtils.split(realName, '.');
+					realName = arr[1];
+				}
 			}
 			logger.debug(realName);
 
@@ -153,8 +170,13 @@ public class Man002 extends DefaultController {
 	@RequestMapping("/ajax/griddata.do")
 	@ResponseBody
 	public String mpc0120dispinfo(@RequestParam Map<String,String> requestParam) {
-		logger.debug("/ajax/sale/mpc0120dispinfo.do =>mpc0120dispinfo()");
-		String _tblName = requestParam.get("tblname");
+		logger.debug("/ajax/griddata.do =>mpc0120dispinfo()");
+		String _tblName = null;
+		try {
+			_tblName = URLDecoder.decode(requestParam.get("tblname"), "UTF-8");
+		} catch (Exception exp) {
+			logger.error("", exp);
+		}
 		int pageNum = NumberUtils.toInt(requestParam.get("page"));
 
 		JSONObject rsltJObj = new JSONObject();
@@ -169,6 +191,12 @@ public class Man002 extends DefaultController {
 
 		try {
 			DbClient dbClient = DbClientFactory.getDbClient();
+			if (dbClient == null) {
+				logger.warn("数据库联接不正常 表：" + _tblName);
+				rsltJObj.put("emsg", "数据库联接不正常.");
+				return rsltJObj.toJSONString();
+			}
+
 			dbClient.setTableName(_tblName);
 			ResultSet rs = dbClient.defaultQuery(pageNum);
 
@@ -193,6 +221,7 @@ public class Man002 extends DefaultController {
 			JSONObject params = new JSONObject();
 			params.put("total", dbClient.size());
 			params.put("rows", columnInfo);
+			logger.debug("/ajax/griddata.do =>mpc0120dispinfo() 结束");
 			return params.toJSONString();
 
 		} catch (Exception exp) {
@@ -343,7 +372,7 @@ public class Man002 extends DefaultController {
 			params.put("rows", allData);
 			return params.toJSONString();
 
-		} catch (SQLException exp) {
+		} catch (Exception exp) {
 			throw new BaseExceptionWrapper(exp);
 		}
 
