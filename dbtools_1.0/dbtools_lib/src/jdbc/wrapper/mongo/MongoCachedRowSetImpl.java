@@ -306,5 +306,4 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		return pageSize;
 	}
 
-
 }
