@@ -62,6 +62,7 @@ public class DbClient4DefaultImpl extends DbClient {
 			_isConnected = true;
 
 		     DatabaseMetaData dbMeta = _dbConn.getMetaData();
+		     logger.info(dbMeta.getDatabaseProductName() + " ## " + dbMeta.getDatabaseProductVersion());
 		     logger.info(dbMeta.getDriverName() + " ## " + dbMeta.getDriverVersion());
 		     if (dbMeta.supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY)) {
 		    	 // 默认的cursor 类型，仅仅支持结果集forward ，不支持backforward ，random ，last ，first 等操作。
@@ -74,7 +75,7 @@ public class DbClient4DefaultImpl extends DbClient {
 		    	 // 即其他session 修改了数据库中的数据，会反应到本结果集中。
 		    	 logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE");
 		     }
-		     
+
 		     if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 		    	 logger.debug("ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY");
 		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
@@ -140,7 +141,7 @@ public class DbClient4DefaultImpl extends DbClient {
 			ResultSet irs = null;
 			try {
 				istmt = _dbConn.createStatement();
-				irs = istmt.executeQuery("select count(1) as c1 from ( " + sqlStr + " ) as t1 ");
+				irs = istmt.executeQuery("select count(1) as c1 from ( " + sqlStr + " )  t1 ");
 				if (irs.next()) {
 					_size = irs.getInt(1);
 					logger.debug("该查询的数据总件数: size= " + _size);
@@ -159,19 +160,29 @@ public class DbClient4DefaultImpl extends DbClient {
 				} catch (SQLException exp) {
 					logger.error(exp);
 				}
-			}	
+			}
 		}
 
 		// 查询数据，此处只需考虑分页，不需考虑更新
-		//String action = getLimitString(sqlStr, pageNum);
+		return doDirectQueryImpl(sqlStr, pageNum);
+	}
+
+	protected CachedRowSet doDirectQueryImpl(String sqlStr, int pageNum) {
 		try {
+			// 查询表数据
+			String action = getLimitString(sqlStr, pageNum);
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			rs = stmt.executeQuery(sqlStr);
-			return rs;
+			rs = stmt.executeQuery(action);
+
+			allRowSet = new CachedRowSetImpl();
+			allRowSet.setPageSize(_pageSize);
+
+			allRowSet.populate(rs, (pageNum - 1) * _pageSize);
+			return allRowSet;
+
 		} catch (SQLException exp) {
-			logger.error(exp);
+			throw new BaseExceptionWrapper(exp);
 		}
-		return null;
 	}
 
 	@Override
@@ -258,10 +269,10 @@ public class DbClient4DefaultImpl extends DbClient {
 			}
 		}
 
-		return getCachedRowSetImpl(_tblName, pageNum);
+		return doDefaultQueryImpl(_tblName, pageNum);
 	}
 
-	protected CachedRowSet getCachedRowSetImpl(String tblName, int pageNum) {
+	protected CachedRowSet doDefaultQueryImpl(String tblName, int pageNum) {
 		try {
 			// 查询表数据
 			String action = getLimitString(_tblName, pageNum);
@@ -348,7 +359,7 @@ public class DbClient4DefaultImpl extends DbClient {
 				// value in the SyncResolver object
 				Object resolverValue = null;
 				// value to be persistent
-				Object resolvedValue = null;
+				//Object resolvedValue = null;
 
 				while (resolver.nextConflict()) {
 					int status = resolver.getStatus();

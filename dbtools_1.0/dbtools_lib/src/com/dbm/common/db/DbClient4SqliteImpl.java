@@ -25,7 +25,8 @@ public class DbClient4SqliteImpl extends DbClient4DefaultImpl {
 		return sql + " tbl limit " + _pageSize + " offset " + ( pageNum - 1) * _pageSize;
 	}
 
-	protected CachedRowSet getCachedRowSetImpl(String tblName, int pageNum) {
+	@Override
+	protected CachedRowSet doDefaultQueryImpl(String tblName, int pageNum) {
 		try {
 			// 查询表数据
 			String action = getLimitString(_tblName, pageNum);

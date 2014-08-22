@@ -26,7 +26,26 @@ public class DbClient4MysqlImpl extends DbClient4DefaultImpl {
 	}
 
 	@Override
-	protected CachedRowSet getCachedRowSetImpl(String tblName, int pageNum) {
+	protected CachedRowSet doDirectQueryImpl(String sqlStr, int pageNum) {
+		try {
+			// 查询表数据
+			String action = getLimitString(_tblName, pageNum);
+			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			rs = stmt.executeQuery(action);
+
+			allRowSet = new CachedRowSetImpl();
+			allRowSet.setPageSize(_pageSize);
+
+			allRowSet.populate(rs);
+			return allRowSet;
+
+		} catch (SQLException exp) {
+			throw new BaseExceptionWrapper(exp);
+		}
+	}
+
+	@Override
+	protected CachedRowSet doDefaultQueryImpl(String tblName, int pageNum) {
 		try {
 			// 查询表数据
 			String action = getLimitString(_tblName, pageNum);
@@ -34,7 +53,7 @@ public class DbClient4MysqlImpl extends DbClient4DefaultImpl {
 			rs = stmt.executeQuery(action);
 
 			allRowSet = new CachedRowSetImpl();
-			allRowSet.setPageSize(500);
+			allRowSet.setPageSize(_pageSize);
 
 			allRowSet.populate(rs);
 			allRowSet.setTableName(tblName);

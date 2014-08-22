@@ -43,16 +43,16 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 			ArrayList<String> list = new ArrayList<String>();
 			for (String tblName : colls) {
 				if ("fs.chunks".equals(tblName) || "fs.files".equals(tblName)
-						|| "system.indexes".equals(tblName) ||"system.users".equals(tblName)) {
+						|| "system.indexes".equals(tblName) || "system.users".equals(tblName)) {
 					continue;
 				} else {
 					list.add(tblName);
 				}
 			}
-			
+
 			rslt = new String[list.size()][3];
 			int i = 0;
-			for (String tbl: list) {
+			for (String tbl : list) {
 				rslt[i][2] = tbl;
 				i ++;
 			}

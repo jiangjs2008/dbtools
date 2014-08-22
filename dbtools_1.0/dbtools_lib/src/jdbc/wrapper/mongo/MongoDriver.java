@@ -4,20 +4,20 @@
 package jdbc.wrapper.mongo;
 
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import com.dbm.common.util.StringUtil;
+import jdbc.wrapper.AbstractDriver;
+
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 
 /**
  * @author jiangjs
  *
  */
-public class MongoDriver implements Driver {
+public class MongoDriver extends AbstractDriver {
 
 	static {
 		try {
@@ -35,21 +35,28 @@ public class MongoDriver implements Driver {
 
 	/* (non-Javadoc)
 	 * @see java.sql.Driver#connect(java.lang.String, java.util.Properties)
+	 * @see com.mongodb.MongoClientURI 使用"mongodb://user:passwd@172.60.100.114:27017/dntsp"形式
 	 */
 	@Override
 	public Connection connect(String url, Properties info) throws SQLException {
-		if (url.indexOf("mongo") < 0) {
+		if (url.indexOf("mongodb") < 0) {
 			return null;
 		}
 		String[] dbType = url.split("//");
-		String dbArr[] = dbType[1].split("/");
-		String urlArr[] = dbArr[0].split(":");
+		String[] dbArr = dbType[1].split("/");
+
+		String userName = info.getProperty("user");
+		String passwd = info.getProperty("password");
+		String dbUrl = "mongodb://" + userName + ":" + passwd + "@" + dbType[1];
 		DB dbObj = null;
 		try {
-			MongoClient mongoClient = new MongoClient(urlArr[0], StringUtil.parseInt(urlArr[1]));
-			mongoClient.getMongoOptions().connectTimeout = 10;
-			
+
+			MongoClient mongoClient = new MongoClient(new MongoClientURI(dbUrl));
 			dbObj = mongoClient.getDB(dbArr[1]);
+
+			//MongoClient mongoClient = new MongoClient(urlArr[0], StringUtil.parseInt(urlArr[1]));
+			//mongoClient.getMongoClientOptions().getConnectTimeout()connectTimeout = 10;
+
 		} catch (Exception exp) {
 			throw new SQLException("create MongoClient " + url + " error: " + exp.toString());
 		}
@@ -57,54 +64,7 @@ public class MongoDriver implements Driver {
 			throw new SQLException("create MongoClient error: no db =>" + url);
 		}
 
-		String user = info.getProperty("user");
-		String password = info.getProperty("password");
-		if (user != null && password != null) {
-			if (!dbObj.authenticate(user, password.toCharArray())) {
-				throw new SQLException("no authenticate: " + url + " <= " + user + " : " + password);
-			}
-		}
 		return new MongoConnection(dbObj);
-	}
-
-	/* (non-Javadoc)
-	 * @see java.sql.Driver#acceptsURL(java.lang.String)
-	 */
-	@Override
-	public boolean acceptsURL(String url) throws SQLException {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.sql.Driver#getPropertyInfo(java.lang.String, java.util.Properties)
-	 */
-	@Override
-	public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.sql.Driver#getMajorVersion()
-	 */
-	@Override
-	public int getMajorVersion() {
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.sql.Driver#getMinorVersion()
-	 */
-	@Override
-	public int getMinorVersion() {
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.sql.Driver#jdbcCompliant()
-	 */
-	@Override
-	public boolean jdbcCompliant() {
-		return false;
 	}
 
 }

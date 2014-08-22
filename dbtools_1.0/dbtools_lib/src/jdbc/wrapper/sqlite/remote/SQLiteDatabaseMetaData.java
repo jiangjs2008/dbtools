@@ -10,9 +10,6 @@ import java.util.TreeMap;
 
 import jdbc.wrapper.AbstractDatabaseMetaData;
 
-import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
-
 public class SQLiteDatabaseMetaData extends AbstractDatabaseMetaData {
 
 
@@ -87,7 +84,7 @@ public class SQLiteDatabaseMetaData extends AbstractDatabaseMetaData {
 		}
 		sb.append(" order by tbl_name ");
 
-		DbClient dbClient = DbClientFactory.getDbClient();
+		//DbClient dbClient = DbClientFactory.getDbClient();
 		// // TODO -- 此处需修改，直接使用SQL文查询 query
 		ArrayList<TreeMap<Integer, String>> rslt = new ArrayList<TreeMap<Integer, String>>();
 		//	(ArrayList<TreeMap<Integer, String>>) dbClient.execute(8, sb.toString());
