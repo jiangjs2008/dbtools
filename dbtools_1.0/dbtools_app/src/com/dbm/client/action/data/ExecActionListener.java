@@ -61,6 +61,7 @@ public class ExecActionListener extends AbstractActionListener {
 			// 数据检索
 			ResultSet rs = dbClient.directQuery(action, 1);
 			if (rs == null) {
+				Msg01Dialog.showMsgDialog(40003);
 				return;
 			}
 			
