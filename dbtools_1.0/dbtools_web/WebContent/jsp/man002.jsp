@@ -17,14 +17,6 @@ function hideMask() {
 
 $(document).ready(function() {
 	$("#pmask").hide();
-	$(window).resize(function() {
-		$('#l1').layout('resize', {
-			height: function() {return document.body.clientHeight;}
-		});
-		$('#r1').layout('resize', {
-			width: function() {return document.body.clientWidth;}
-		});
-	});
 
 	$('#grid').datagrid({
 		toolbar: '#ptb',
@@ -33,9 +25,8 @@ $(document).ready(function() {
 		pageNumber: 1,
 		pageSize: 100,
 		pageList: [100],
-		 fitColumns: false,
-		 fit:true,
-		rownumbers:true,fitColumns:true,
+		fit:true,
+		rownumbers:true,
 		onLoadSuccess: function() { recolsize(); hideMask(); },
 		onLoadError: function() { hideMask(); },
 		onClickCell: onClickCell,
@@ -50,7 +41,7 @@ $(document).ready(function() {
 
 	var nowDate = new Date();
 
-	$.getJSON("/dbm/ajax/getcatalog.do", function(subdata) {
+	$.getJSON("/dbm/ajax/getcatalog.do?t=" + nowDate.getTime(), function(subdata) {
 		if (subdata.ecd) {
 			location.href = '/dbm/index.html';
 			return;

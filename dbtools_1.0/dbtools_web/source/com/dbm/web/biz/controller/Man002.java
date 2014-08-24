@@ -153,6 +153,7 @@ public class Man002 extends DefaultController {
 				JSONObject params = new JSONObject();
 				params.put("field", colName);
 				params.put("title", colName);
+				params.put("type", columnRs.getString(5));
 				params.put("editor", "text");
 				columnInfo.add(params);
 			}
