@@ -229,7 +229,7 @@ public abstract class DbClient {
 
 			rs = dm.getTableTypes();
 			while (rs.next()) {
-				rslt.add(rs.getString(1));
+				rslt.add(rs.getString("TABLE_TYPE"));
 			}
 
 		} catch (SQLException ex) {

@@ -20,18 +20,12 @@ import com.sun.rowset.CachedRowSetImpl;
 public class DbClient4MysqlImpl extends DbClient4DefaultImpl {
 
 	@Override
-	protected String getLimitString(String tblName, int pageNum) {
-		String sql = "select tbl.* from " + tblName;
-		return sql + " tbl limit " + _pageSize + " offset " + ( pageNum - 1) * _pageSize;
-	}
-
-	@Override
 	protected CachedRowSet doDirectQueryImpl(String sqlStr, int pageNum) {
+		String sql = "select tbl.* from ( " + sqlStr + " ) tbl limit " + _pageSize + " offset " + ( pageNum - 1) * _pageSize;
 		try {
 			// 查询表数据
-			String action = getLimitString(_tblName, pageNum);
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			rs = stmt.executeQuery(action);
+			rs = stmt.executeQuery(sql);
 
 			allRowSet = new CachedRowSetImpl();
 			allRowSet.setPageSize(_pageSize);
@@ -46,11 +40,11 @@ public class DbClient4MysqlImpl extends DbClient4DefaultImpl {
 
 	@Override
 	protected CachedRowSet doDefaultQueryImpl(String tblName, int pageNum) {
+		String sql = "select tbl.* from " + tblName + " tbl limit " + _pageSize + " offset " + ( pageNum - 1) * _pageSize;
 		try {
 			// 查询表数据
-			String action = getLimitString(_tblName, pageNum);
 			stmt = _dbConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			rs = stmt.executeQuery(action);
+			rs = stmt.executeQuery(sql);
 
 			allRowSet = new CachedRowSetImpl();
 			allRowSet.setPageSize(_pageSize);
