@@ -116,58 +116,6 @@ public class Man002 extends DefaultController {
 		}
 	}
 
-	@RequestMapping("/ajax/gridcol.do")
-	@ResponseBody
-	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
-		logger.debug("/ajax/gridcol.do =>mpc0110query()");
-		DbClient dbClient = DbClientFactory.getDbClient();
-		String realName = null;
-		try {
-			Connection _dbConn = dbClient.getConnection();
-			DatabaseMetaData dmd = _dbConn.getMetaData();
-
-			realName = URLDecoder.decode(requestParam.get("tblname"), "UTF-8");
-			if (realName.indexOf('.') > 0) {
-				if ("fs.files".equals(realName)) {
-					// 如果是查询 mongo的GridFs文件数据(fs.files), 则不转换
-					// TODO-- 暂时这样做，没什么更好的办法
-				} else {
-					String[] arr = StringUtils.split(realName, '.');
-					realName = arr[1];
-				}
-			}
-			logger.debug(realName);
-
-			// 取得指定表的所有列的信息
-			ResultSet columnRs = dmd.getColumns(null, null, realName, "%");
-			if (columnRs == null) {
-				logger.warn("无列信息 表：" + realName);
-				return "[[]]";
-			}
-
-			String colName = null;
-			ArrayList<JSONObject> columnInfo = new ArrayList<JSONObject>();
-			while (columnRs.next()) {
-				// 列名
-				colName = columnRs.getString(4);
-				JSONObject params = new JSONObject();
-				params.put("field", colName);
-				params.put("title", colName);
-				params.put("type", columnRs.getString(5));
-				params.put("editor", "text");
-				columnInfo.add(params);
-			}
-
-			JSONArray rslt = new JSONArray();
-			rslt.add(columnInfo);
-			return rslt.toJSONString();
-
-		} catch (Exception exp) {
-			logger.error("取得列信息时发生错误 表：" + realName, exp);
-			return "[[]]";
-		}
-	}
-
 	@RequestMapping("/ajax/griddata.do")
 	@ResponseBody
 	public String mpc0120dispinfo(@RequestParam Map<String,String> requestParam) {
@@ -209,68 +157,16 @@ public class Man002 extends DefaultController {
 				return rsltJObj.toJSONString();
 			}
 
-			JSONArray columnInfo = new JSONArray();
-			while (rs.next()) {
-				JSONObject params = new JSONObject();
-				for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
-					colName = rsm.getColumnName(i);
-					params.put(colName, dbClient.procCellData(rs.getObject(i)));
-				}
-				columnInfo.add(params);
-			}
-
-			JSONObject params = new JSONObject();
-			params.put("total", dbClient.size());
-			params.put("rows", columnInfo);
-			logger.debug("/ajax/griddata.do =>mpc0120dispinfo() 结束");
-			return params.toJSONString();
-
-		} catch (Exception exp) {
-			logger.error("查询时发生错误表：" + _tblName, exp);
-			JSONObject params = new JSONObject();
-			params.put("total", 0);
-			params.put("rows", new ArrayList<JSONObject>());
-			params.put("emsg", "查询时发生错误.");
-			return params.toJSONString();
-		}
-	}
-
-
-	@RequestMapping("/ajax/getallgriddata.do")
-	@ResponseBody
-	public String getAllGridData(@RequestParam Map<String,String> requestParam) {
-		logger.debug("/ajax/getallgriddata.do =>getAllGridData()");
-		String _tblName = requestParam.get("tblname");
-		int pageNum = NumberUtils.toInt(requestParam.get("page"));
-
-		JSONObject rsltJObj = new JSONObject();
-		rsltJObj.put("coldata", "[[]]");
-		rsltJObj.put("gridata", "{}");
-
-		if (_tblName == null || _tblName.length() == 0 || pageNum == 0) {
-			rsltJObj.put("emsg", "查询参数不正确.");
-			return rsltJObj.toJSONString();
-		}
-
-		try {
-			DbClient dbClient = DbClientFactory.getDbClient();
-			dbClient.setTableName(_tblName);
-			ResultSet rs = dbClient.defaultQuery(pageNum);
-
-			ResultSetMetaData rsm = rs.getMetaData();
-			if (rsm == null) {
-				rsltJObj.put("emsg", "查询结果不正确.");
-				return rsltJObj.toJSONString();
-			}
-
-			// 设置列名信息
-			String colName = null;
+			// 设置header部信息
 			ArrayList<JSONObject> columnInfo = new ArrayList<JSONObject>();
-			for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
+			int colCnt = rsm.getColumnCount() + 1;
+			for (int i = 1; i < colCnt; i ++) {
+				// 列名
 				colName = rsm.getColumnName(i);
 				JSONObject params = new JSONObject();
 				params.put("field", colName);
 				params.put("title", colName);
+				params.put("type", rsm.getColumnTypeName(i));
 				params.put("editor", "text");
 				columnInfo.add(params);
 			}
@@ -278,14 +174,13 @@ public class Man002 extends DefaultController {
 			JSONArray rslt = new JSONArray();
 			rslt.add(columnInfo);
 
-			// 设置grid数据
+			// 设置body部信息
 			JSONArray dataInfo = new JSONArray();
 			while (rs.next()) {
 				JSONObject params = new JSONObject();
-				for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
+				for (int i = 1; i < colCnt; i ++) {
 					colName = rsm.getColumnName(i);
 					params.put(colName, dbClient.procCellData(rs.getObject(i)));
-					
 				}
 				dataInfo.add(params);
 			}
@@ -293,13 +188,13 @@ public class Man002 extends DefaultController {
 			JSONObject params = new JSONObject();
 			params.put("total", dbClient.size());
 			params.put("rows", dataInfo);
-
-			rsltJObj.put("coldata", rslt);
-			rsltJObj.put("gridata", params);
-			return rsltJObj.toJSONString();
+			params.put("columns", rslt);
+			params.put("page", pageNum);
+			logger.debug("/ajax/griddata.do =>mpc0120dispinfo() 结束");
+			return params.toJSONString();
 
 		} catch (Exception exp) {
-			logger.error("", exp);
+			logger.error("查询时发生错误表：" + _tblName, exp);
 			rsltJObj.put("emsg", "查询时发生错误.");
 			return rsltJObj.toJSONString();
 		}

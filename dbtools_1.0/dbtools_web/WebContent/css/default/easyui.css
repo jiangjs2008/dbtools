@@ -1260,6 +1260,7 @@
 .datagrid-ftable {
   color: #000000;
   border-collapse: separate;
+  table-layout:fixed;
 }
 .datagrid-row-alt {
   background: #fafafa;

@@ -6,6 +6,7 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,16 +34,23 @@ public class Man0021 extends DefaultController {
 	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
 		String sqlScript = requestParam.get("sqlscript");
 		JSONObject rsltJObj = new JSONObject();
-		try {
-			sqlScript = new String(sqlScript.getBytes("ISO-8859-1"), "utf-8");
-		} catch (UnsupportedEncodingException eop) {
-			logger.error(sqlScript, eop);
-			rsltJObj.put("ecd", "0");
-			return rsltJObj.toJSONString();
-		}
+		rsltJObj.put("total", 0);
+		rsltJObj.put("rows", new ArrayList<JSONObject>());
+		rsltJObj.put("columns", "[[]]");
+		rsltJObj.put("page", 0);
 
-		if (sqlScript == null || sqlScript.length() == 0) {
-			rsltJObj.put("ecd", "0");
+//		try {
+//			sqlScript = new String(sqlScript.getBytes("ISO-8859-1"), "utf-8");
+//		} catch (UnsupportedEncodingException eop) {
+//			logger.error(sqlScript, eop);
+//			rsltJObj.put("ecd", "0");
+//			return rsltJObj.toJSONString();
+//		}
+
+		int pageNum = NumberUtils.toInt(requestParam.get("page"));
+		if (sqlScript == null || sqlScript.length() == 0 || pageNum == 0) {
+			logger.error("执行时错误 参数不对");
+			rsltJObj.put("ecd", "4");
 			return rsltJObj.toJSONString();
 		}
 
@@ -51,10 +59,10 @@ public class Man0021 extends DefaultController {
 
 			if (dbClient.getExecScriptType(sqlScript) == 1) {
 				// 数据检索
-				ResultSet rs = dbClient.directQuery(sqlScript, 1);
+				ResultSet rs = dbClient.directQuery(sqlScript, pageNum);
 				if (rs == null) {
 					logger.error("执行时错误 " + sqlScript);
-					rsltJObj.put("ecd", "3");
+					rsltJObj.put("ecd", "4");
 					return rsltJObj.toJSONString();
 				}
 				rsltJObj.put("ecd", "1");
@@ -62,7 +70,7 @@ public class Man0021 extends DefaultController {
 				ResultSetMetaData rsm = rs.getMetaData();
 				if (rsm == null) {
 					logger.error("无元数据信息 " + sqlScript);
-					rsltJObj.put("ecd", "3");
+					rsltJObj.put("ecd", "4");
 					return rsltJObj.toJSONString();
 				}
 
@@ -96,10 +104,9 @@ public class Man0021 extends DefaultController {
 				JSONObject params = new JSONObject();
 				params.put("total", dbClient.size());
 				params.put("rows", dataInfo);
-
-				rsltJObj.put("coldata", rslt);
-				rsltJObj.put("gridata", params);
-				return rsltJObj.toJSONString();
+				params.put("columns", rslt);
+				params.put("page", pageNum);
+				return params.toJSONString();
 
 			} else {
 				// 更新数据
@@ -114,7 +121,8 @@ public class Man0021 extends DefaultController {
 
 		} catch (Exception exp) {
 			logger.error(sqlScript, exp);
-			rsltJObj.put("ecd", "3");
+			rsltJObj.put("ecd", "4");
+			rsltJObj.put("emsg", exp.toString());
 			return rsltJObj.toJSONString();
 		}
 	}

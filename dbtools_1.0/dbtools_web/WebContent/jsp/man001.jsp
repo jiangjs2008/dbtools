@@ -15,6 +15,7 @@ if (userAgent.indexOf("MSIE") > 0) {
 <script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="/dbm/js/base64.js"></script>
+<script type="text/javascript" src="/dbm/js/main.js"></script>
 <script type="text/javascript">
 var nowDate = new Date();
 $(document).ready(function() {
@@ -52,35 +53,17 @@ function submitForm() {
 	if (password) {
 		password = base64encode(password);
 	}
-	var aurl = "/dbm/login.do?favrid=" + $("#favrid").combobox('getValue');
+	var aurl = "/dbm/ajax/login.do?favrid=" + $("#favrid").combobox('getValue');
 	aurl += "&user=" + account + "&pwd=" + password;
 	$.getJSON(aurl + '&t=' + nowDate.getTime(), function(data) {
-		if (data.errcode == 'ok') {
+		if (data.ecd == 'ok') {
 			location.href = '/dbm/jsp/man002.jsp';
 		} else {
-			showerror(data.errcode);
+			showerror(data.ecd);
 		}
 	});
 }
 
-function showerror(errcode) {
-	// 显示错误信息
-	if ("1" == errcode) {
-		 $.messager.alert('用户名或者密码错误');
-	} else if("2" == errcode) {
-		alert("登录超时，请重新登录！");
-	} else if("3" == errcode) {
-		alert("您的账号在别处登录。如非本人操作，请注意账号安全。");
-	} else if("4" == errcode) {
-		alert("您的账号存在登录异常，请重新登录。");
-	} else if("5" == errcode) {
-		alert("请选择数据库...");
-	} else if("6" == errcode) {
-		alert("连接数据库时发生错误，请查看日志文件，或联系数据库管理员。");
-	} else if("999" == errcode) {
-		alert("连接访问错误，请重新登录。");
-	}
-}
 </script>
 </head>
 

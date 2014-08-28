@@ -9,6 +9,7 @@
 <link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
 <script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="/dbm/js/main.js"></script>
 <script type="text/javascript">
 
 function hideMask() {
@@ -17,28 +18,7 @@ function hideMask() {
 
 $(document).ready(function() {
 	$("#pmask").hide();
-
-	$('#grid').datagrid({
-		toolbar: '#ptb',
-		method: 'get',
-		pagination: true,
-		pageNumber: 1,
-		pageSize: 100,
-		pageList: [100],
-		fit:true,
-		rownumbers:true,
-		onLoadSuccess: function() { recolsize(); hideMask(); },
-		onLoadError: function() { hideMask(); },
-		onClickCell: onClickCell,
-		loadFilter: function(data) {
-			if (data.emsg){
-				$('div.pagination-info').text(data.emsg);
-			}
-			return data;
-		}
-	});
-	$('select.pagination-page-list').hide();
-
+	$("#ptbdiv").hide();
 	var nowDate = new Date();
 
 	$.getJSON("/dbm/ajax/getcatalog.do?t=" + nowDate.getTime(), function(subdata) {
@@ -65,27 +45,29 @@ $(document).ready(function() {
 				    });
 				    $("#ptbdiv").show();
 					var tblName1 = encodeURIComponent(node.text);
-					var tblName2 = encodeURIComponent(tblName1);
-					$.getJSON("/dbm/ajax/gridcol.do?tblname=" + tblName2 + '&t=' + parseInt(Math.random()*100000), function(coldata) {
-						$("#tblname").text(node.text);
-						// 打开新的表时必须刷新pageNumber，重置为1
-						$('#grid').datagrid({
-							pagination: true,
-							pageList: [100],
-							pageNumber: 1,
-							pageSize: 100,
-							 fitColumns: false,
-							url: "/dbm/ajax/griddata.do?t=" + parseInt(Math.random()*100000),
-							queryParams: { tblname: tblName1 },
-							columns: coldata,
-							loadFilter: function(data) {
-								if (data.emsg){
-									$('div.pagination-info').text(data.emsg);
-								}
-								return data;
+
+					$("#tblname").text(node.text);
+					// 打开新的表时必须刷新pageNumber，重置为1
+					$('#grid').datagrid({
+						toolbar: '#ptb',
+						method: 'get',
+						pagination: true,
+						pageSize: 100,
+						pageList: [100],
+						fit:true, fitColumns: false,
+						rownumbers:true,
+						onLoadError: function() { $('select.pagination-page-list').hide(); hideMask(); },
+						onClickCell: onClickCell,
+						pageNumber: 1,
+						url: "/dbm/ajax/griddata.do?t=" + parseInt(Math.random()*100000),
+						queryParams: { tblname: tblName1 },
+						onLoadSuccess: function(_5a8, data) {
+							$('select.pagination-page-list').hide();
+							hideMask();
+							if (_5a8.ecd != undefined) {
+								showerror(_5a8.ecd);
 							}
-						});
-						$('select.pagination-page-list').hide();
+						}
 					});
 				}
 			},
@@ -115,7 +97,7 @@ $(document).ready(function() {
 		});
 	});
 
-	
+	// 设置单元格为可编辑
     $.extend($.fn.datagrid.methods, {
         editCell: function(jq,param){
             return jq.each(function(){
@@ -138,19 +120,6 @@ $(document).ready(function() {
     });
 });
 
-function logout() {
-	var rslt = false;
-	$.messager.confirm('消息框', '确定要退出?', function(r) {
-		if (r) {
-			document.forms[0].submit();
-			rslt = true;
-		} else {
-			rslt = false;
-		}
-	});
-	return rslt;
-}
-
 var editIndex = undefined;
 function endEditing(){
     if (editIndex == undefined){return true}
@@ -171,98 +140,6 @@ function onClickCell(index, field){
     }
 }
 
-function execSQL() {
-	var sqlScript = $("#sqlscript").val();
-	if (sqlScript == '请在此输入SQL执行脚本：') {
-		return;
-	}
-	sqlScript = encodeURIComponent(sqlScript);
-
-	if (sqlScript.length > 0) {
-		$.messager.progress({ 
-	        title: 'Please waiting', 
-	        text: '正在执行SQL脚本......' 
-	    });
-		$("#ptbdiv").hide();
-
-	    $('#grid').datagrid({ url: null });
-		$('#grid').datagrid('loadData', {total:0, rows:[]});
-		$('#grid').datagrid({
-			columns: [[]],
-			loadFilter: function(data) {
-				return data;
-			}
-		});
-		$('select.pagination-page-list').hide();
-
-		$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) {
-			 if (data.ecd == '1') {
-				if (data.gridata) {
-	     			$('#grid').datagrid({
-						pageNumber: 1,
-						pageSize: 100,
-						url: null,
-						columns: data.coldata
-					});
-
-					$('#grid').datagrid('loadData', data.gridata);
-					$('select.pagination-page-list').hide();
-				}
-				hideMask();
-				$.messager.show({
-					title: '好消息',
-					msg: 'SQL语句执行成功.',
-					timeout: 5000,
-					showType: 'slide'
-				});
-
-			} else {
-				hideMask();
-				if (data.ecd == '0') {
-					$.messager.alert('注意', 'SQL语句不正确', 'warning');
-				} else if (data.ecd == '2') {
-					$.messager.alert('注意', '执行SQL语句时发生错误，没有更新成功', 'warning');
-				} else if (data.ecd == '3') {
-					$.messager.alert('注意', '执行SQL语句时发生错误，请确认你的SQL语句，并查看LOG文件', 'warning');
-				}
-			}
-		});
-	}
-}
-
-function recolsize() {
-	//datagrid头部 table 的第一个tr 的td们，即columns的集合
-	var headerTds = $(".datagrid-view2 .datagrid-header .datagrid-header-inner table tr:first-child").children();
-	//datagrid主体 table 的第一个tr 的td们，即第一个数据行
-	var bodyTds = $(".datagrid-view2 .datagrid-body table tr:first-child").children();
-	var totalWidth = 0;
-	//循环设置宽度
-	bodyTds.each(function (i, obj) {
-	  var headerTd = $(headerTds.get(i));
-	  var bodyTd = $(bodyTds.get(i));
-	  var headerTdWidth = headerTd.width();
-	  var bodyTdWidth = bodyTd.width();
-
-	  //如果头部列名宽度比主体数据宽度宽，则它们的宽度都设为头部的宽度。反之亦然
-	  if (headerTdWidth > bodyTdWidth) {
-	      headerTdWidth = headerTdWidth + 15;
-	  } else {
-	      headerTdWidth = bodyTdWidth + 15;
-	  }
-	  if (headerTdWidth > 800) { // TODO-- 此行代码不起作用，待调查
-	  	headerTdWidth = 800;
-	  }
-	  bodyTd.width(headerTdWidth);
-	  headerTd.width(headerTdWidth);
-	  totalWidth += headerTdWidth;
-	});
-	var headerTable = $(".datagrid-view2 .datagrid-header .datagrid-header-inner table:first-child");
-	var bodyTable = $(".datagrid-view2 .datagrid-body table:first-child");
-	//循环完毕即能得到总得宽度设置到头部table和数据主体table中
-	headerTable.width(totalWidth);
-	bodyTable.width(totalWidth);
-}
-
 </script>
 </head>
 
@@ -277,12 +154,6 @@ function recolsize() {
 		        <textarea id="sqlscript" name="sqlscript" style="width:99%;height:96%;color:#999" onselect="showMsg()" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
 		    </div>
 		    <div data-options="region:'center',border:false" >
-		    	<table id="grid" class="easyui-datagrid" border="0" ></table>
-			</div>
-		</div>
-	</div>
-</div>
-<form method="post" id="man002form" action="/dbm/logout.do"></form>
 <div id="ptb" style="height:31px;">
 	<div id="ptbdiv" style="float:left"><img src="/dbm/css/icons/shapes.png" style="margin-left:10px;margin-right:10px;margin-top:4px"/><span id="tblname" style="position:relative;font-size:14px;top:-5px"></span>
 	<a href="#" class="easyui-linkbutton" style="margin-left:50px;margin-top:-12px" data-options="iconCls:'icon-add'">添加记录</a>
@@ -292,5 +163,11 @@ function recolsize() {
 	<a href="#" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px">历史纪录</a>
 	<a href="#" onclick="javascript:logout()" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px" data-options="iconCls:'icon-closed'">退出</a></div>
 </div>
+		    	<table id="grid" class="easyui-datagrid" border="0" ></table>
+			</div>
+		</div>
+	</div>
+</div>
+<form method="post" id="man002form" action="/dbm/logout.do"></form>
 </body>
 </html>

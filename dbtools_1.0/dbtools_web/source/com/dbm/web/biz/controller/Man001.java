@@ -3,6 +3,9 @@ package com.dbm.web.biz.controller;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,13 +85,13 @@ public class Man001 extends DefaultController {
 		return item.toJSONString();
 	}
 
-	@RequestMapping("/login.do")
+	@RequestMapping("/ajax/login.do")
 	@ResponseBody
-	public String login(@RequestParam Map<String,String> requestParam) {
+	public String login(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
 		JSONObject rslt = new JSONObject();
 		int favrId = NumberUtils.toInt(requestParam.get("favrid"), -1);
 		if (favrId < 0) {
-			rslt.put("errcode", 5);
+			rslt.put("ecd", 5);
 			return rslt.toJSONString();
 		}
 		String userId = requestParam.get("user");
@@ -96,7 +99,7 @@ public class Man001 extends DefaultController {
 
 		FavrBean favr = PropUtil.getFavrInfo(favrId);
 		if (!userId.equals(favr.user) || !passwd.equals(favr.password)) {
-			rslt.put("errcode", 1);
+			rslt.put("ecd", 1);
 			return rslt.toJSONString();
 		}
 
@@ -106,15 +109,24 @@ public class Man001 extends DefaultController {
 		ConnBean connInfo = PropUtil.getDbConnInfo(favr.driverId);
 
 		// 登陆到数据库
-		DbClientFactory.createDbClient(connInfo.action);
-		DbClient dbClient = DbClientFactory.getDbClient();
-		dbClient.setPageSize(StringUtil.parseInt(PropUtil.getAppConfig("page.data.count")));
-		if (!dbClient.start(new String[] { connInfo.driver, favr.url, userId, passwd })) {
-			rslt.put("errcode", "6");
+		try {
+			DbClientFactory.createDbClient(connInfo.action);
+			DbClient dbClient = DbClientFactory.getDbClient();
+			dbClient.setPageSize(StringUtil.parseInt(PropUtil.getAppConfig("page.data.count")));
+			if (!dbClient.start(new String[] { connInfo.driver, favr.url, userId, passwd })) {
+				rslt.put("ecd", "6");
+				return rslt.toJSONString();
+			}
+		} catch (Exception exp) {
+			logger.error("登陆到数据库时发生错误", exp);
+			rslt.put("ecd", "6");
 			return rslt.toJSONString();
 		}
 
-		rslt.put("errcode", "ok");
+		HttpSession session = request.getSession(true);
+		session.setAttribute("_userid", session.getId());
+
+		rslt.put("ecd", "ok");
 		return rslt.toJSONString();
 	}
 

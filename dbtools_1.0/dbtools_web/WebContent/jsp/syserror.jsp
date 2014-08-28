@@ -7,14 +7,10 @@
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">
 <title>系统异常</title>
-<link rel="stylesheet" type="text/css" href="/dbm/css/operamasks-ui.min.css">
-<script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
-<script type="text/javascript" src="/dbm/js/operamasks-ui.min.js"></script>
-<script type="text/javascript" src="/dbm/js/sem.js"></script>
 <script type="text/javascript">
-	function goLogin() {
-		location.href = '/dbm/index.html';
-	}
+function goLogin() {
+	location.href = '/dbm/index.html';
+}
 </script>
 </head>
 
