@@ -18,6 +18,18 @@
 	</listener>
 
 	<filter>
+		<filter-name>LoginFilter</filter-name>
+		<filter-class>com.dbm.web.LoginFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>LoginFilter</filter-name>
+		<url-pattern>*.do</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>LoginFilter</filter-name>
+		<url-pattern>*.jsp</url-pattern>
+	</filter-mapping>
+	<filter>
 		<filter-name>Set Character Encoding</filter-name>
 		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
 		<init-param>
@@ -29,6 +41,10 @@
 		<filter-name>Set Character Encoding</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+
+	<listener>
+		<listener-class>com.dbm.web.LoginListener</listener-class>
+	</listener>
 
 	<servlet>
 		<servlet-name>tspweb</servlet-name>
@@ -50,14 +66,5 @@
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>
-
-	<error-page>
-		<error-code>404</error-code>
-		<location>/error_404.html</location>
-	</error-page>
-	<error-page>
-		<error-code>500</error-code>
-		<location>/error_500.html</location>
-	</error-page>
 
 </web-app>
