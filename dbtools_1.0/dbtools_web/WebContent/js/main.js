@@ -92,12 +92,13 @@ function innerExecSQL(sqlScript, sqlType) {
 			fit:true, fitColumns: false,
 			rownumbers:true,
 			onLoadError: function() { $('select.pagination-page-list').hide(); hideMask(); },
+			onClickCell: null,
 			pageNumber: 1,
 			url: "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000),
 			onLoadSuccess: function(_5a8, data) {
 				$('select.pagination-page-list').hide();
 				hideMask();
-				$('div.datagrid-view').hide();
+				//$('div.datagrid-view').hide();
 				if (_5a8.ecd != undefined) {
 					showerror(_5a8.ecd);
 				}
@@ -134,5 +135,39 @@ function innerExecSQL(sqlScript, sqlType) {
 
 
 function showMsg() {
+
+}
+
+// 重新加载表一览
+function reloadInfo() {
+
+}
+
+// 显示表定义信息
+function getTblInfo() {
+	var node = $('#mytree2').tree('getSelected');
+	if (node == null) {
+		return;
+	}
+	if (node.text) {
+		$.getJSON("/dbm/biz/inf001.do?tblname=" + node.text + '&t=' + parseInt(Math.random()*100000), function(data) {
+			 if (data.ecd == 0) {
+			 	$('#tblgrid').html('');
+			 	$('#tblinfo').window('open');
+			 	var rowData = '';
+			 	var allrow = data.rows;
+		     	for (var i = 0; i < allrow.length; i++) {
+					var row = allrow[i];
+		     		rowData = rowData + "<tr><td align='center'>" + (i + 1) + "</td><td>" + row.colname + "</td><td>" + row.type + "</td><td>" + row.size 
+		     			+ "</td><td align='center'>" + row.pk + "</td><td align='center'>" + row.nullable + "</td><td>" + row.remark + "</td></tr>";
+		     	}
+		     	$('#tblgrid').html(rowData);
+			}
+		});
+	}
+}
+
+// 显示表的索引定义信息
+function getIdxInfo() {
 
 }

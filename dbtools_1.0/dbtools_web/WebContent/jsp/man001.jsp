@@ -25,7 +25,7 @@ $(document).ready(function() {
 		valueField: 'favrid',
 		textField: 'name',
 		panelWidth: 450,
-		panelHeight: 'auto',
+		panelHeight: '200',
 		formatter: formatItem,
 		onSelect: function(param){
 			$.getJSON("/dbm/ajax/getdblogininfo.do?favrid=" + param.favrid + '&t=' + nowDate.getTime(), function(data) {
@@ -40,7 +40,7 @@ $(document).ready(function() {
 });
 
 function formatItem(row) {
-	var s = '<div style="font-size:16px;height:20px;line-height:20px"><div style="float:left">' + row.name + '</div><div style="float:right;color:#888;margin-right:2px">' + row.description + '</div></div>';
+	var s = '<div style="font-size:16px;height:20px;line-height:20px;margin-right:3px"><div style="float:left">' + row.name + '</div><div style="float:right;color:#888">' + row.description + '</div></div>';
 	return s;
 }
 

@@ -93,6 +93,23 @@ $(document).ready(function() {
 					});
 					node.hasdata = true;
 				}
+			},
+			onContextMenu: function(e, node){
+				e.preventDefault();
+				// select the node
+				$('#mytree2').tree('select', node.target);
+				// display context menu
+				if (!!node.hassub) {
+					$('#mm1').menu('show', {
+						left: e.pageX,
+						top: e.pageY
+					});
+				} else {
+					$('#mm2').menu('show', {
+						left: e.pageX,
+						top: e.pageY
+					});
+				}
 			}
 		});
 	});
@@ -135,7 +152,7 @@ function endEditing(){
 function onClickCell(index, field){
     if (endEditing()){
         $('#grid').datagrid('selectRow', index)
-                .datagrid('editCell', {index:index,field:field});
+                  .datagrid('editCell', {index:index, field:field});
         editIndex = index;
     }
 }
@@ -167,6 +184,32 @@ function onClickCell(index, field){
 			</div>
 		</div>
 	</div>
+</div>
+<div id="mm1" class="easyui-menu" style="width:120px;">
+	<div onclick="javascript:reloadInfo()" data-options="iconCls:'icon-reload'">刷新</div>
+</div>
+<div id="mm2" class="easyui-menu" style="width:120px;">
+	<div onclick="javascript:getTblInfo()" data-options="iconCls:'icon-tbl'">表定义</div>
+	<div onclick="javascript:getIdxInfo()" data-options="iconCls:'icon-idx'">索引定义</div>
+</div>
+<div id="tblinfo" class="easyui-window" style="width:750px;height:400px" title="表定义" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <table id="tt" class="gridtable">
+        <thead>
+	        <tr>
+	            <th width="20" align="center"></th>
+	            <th width="200" align="center">列名</th>
+	            <th width="80" align="center">类型名</th>
+	            <th width="70" align="center">大小</th>
+	            <th width="30" align="center">主键</th>
+	            <th width="30" align="center">为空</th>
+	            <th width="200" align="center">注释</th>
+	        </tr>
+	    </thead>
+	    <tbody id="tblgrid"></tbody>
+    </table>
+</div>
+<div id="idxinfo" class="easyui-window" style="width:600px;height:400px" title="索引定义" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <table id="idxgrid" class="easyui-datagrid" border="0" ></table>
 </div>
 <form method="post" id="man002form" action="/dbm/logout.do"></form>
 </body>

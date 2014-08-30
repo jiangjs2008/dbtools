@@ -1,6 +1,5 @@
 package com.dbm.web.biz.controller;
 
-import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;

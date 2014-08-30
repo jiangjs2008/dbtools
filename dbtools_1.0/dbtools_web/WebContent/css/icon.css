@@ -70,6 +70,12 @@
 .icon-closed{
 	background:url('icons/closed.png') no-repeat center center;
 }
+.icon-tbl{
+	background:url('icons/t1.png') no-repeat center center;
+}
+.icon-idx{
+	background:url('icons/t2.png') no-repeat center center;
+}
 
 .icon-mini-add{
 	background:url('icons/mini_add.png') no-repeat center center;
