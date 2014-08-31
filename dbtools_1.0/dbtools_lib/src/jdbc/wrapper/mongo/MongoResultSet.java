@@ -3,6 +3,8 @@ package jdbc.wrapper.mongo;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import jdbc.wrapper.AbstractResultSet;
 
 public class MongoResultSet extends AbstractResultSet {
@@ -41,6 +43,10 @@ public class MongoResultSet extends AbstractResultSet {
 		}
 	}
 
+	@Override
+	public int findColumn(String columnLabel) throws SQLException {
+		return ArrayUtils.indexOf(header, columnLabel) + 1;
+	}
 
 	public String getString(int columnIndex) throws SQLException {
 		return datas[rowIdx][columnIndex - 1];

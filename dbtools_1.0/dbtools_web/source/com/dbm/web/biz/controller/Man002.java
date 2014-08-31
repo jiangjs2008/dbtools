@@ -75,7 +75,7 @@ public class Man002 extends DefaultController {
 			}
 			tblList = dbClient.getDbObjList(null, schema, "%", new String[] { tblName });
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("取得表一览时发生错误", ex);
 		}
 
 		if (tblList == null) {

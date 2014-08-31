@@ -28,7 +28,7 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 		rslt[1][0] = "Stored JavaScript";
 		rslt[2][0] = "GridFs";
 
-		return new MongoResultSet(null, rslt);
+		return new MongoResultSet(new String[] {"TABLE_TYPE"}, rslt);
 	}
 
 	@Override

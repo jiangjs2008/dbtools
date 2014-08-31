@@ -150,6 +150,18 @@ function getTblInfo() {
 		return;
 	}
 	if (node.text) {
+		window.open("/dbm/biz/inf001.do?tblname=" + node.text + "&t=" + parseInt(Math.random()*100000), null, 'top=200,left=300,width=770,height=300');
+	} //window.showModalDialog
+}
+
+// 显示表的索引定义信息
+function getIdxInfo() {
+	var node = $('#mytree2').tree('getSelected');
+	if (node == null) {
+		return;
+	}
+
+		if (node.text) {
 		$.getJSON("/dbm/biz/inf001.do?tblname=" + node.text + '&t=' + parseInt(Math.random()*100000), function(data) {
 			 if (data.ecd == 0) {
 			 	$('#tblgrid').html('');
@@ -165,9 +177,4 @@ function getTblInfo() {
 			}
 		});
 	}
-}
-
-// 显示表的索引定义信息
-function getIdxInfo() {
-
 }

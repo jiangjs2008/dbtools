@@ -3,34 +3,33 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>查看表</title>
-<script type="text/javascript" src="/dbm/js/jquery-1.6.4.min.js"></script>
-<script type="text/javascript" src="/dbm/js/om-ui.js"></script>
-<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
+<title>查看表定义</title>
+<link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="/dbm/css/icon.css">
 <link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
+<script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
+<script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="/dbm/js/main.js"></script>
 <script type="text/javascript">
-
 $(document).ready(function() {
-
-	$("#tblgrid").omGrid({
-		height: 'fit',
-		width : 'fit',
-		limit : 0,
-        colModel : [ {header : '列名', name : 'colname', width : 200}, 
-                     {header : '类型名', name : 'type', width : 100}, 
-                     {header : '大小', name : 'size', width : 100}, 
-                     {header : '主键', name : 'pk', width : 100}, 
-                     {header : '为空', name : 'nullable', width : 100},
-                     {header : '注释', name : 'remark', width : 200} ]
-	});
-
-	$("#tblgrid").omGrid('setData', "/dbm/ajax/tblinfo.do?tblname=${tblname}&t=" + parseInt(Math.random()*100000));
-
+	var rdata = ${rowobj};
+	$('#favrid').datagrid('loadData', rdata);
 });
 </script>
 </head>
 
 <body>
-<table id="tblgrid"></table>
+<table id="favrid" class="easyui-datagrid" data-options="rownumbers:true,singleSelect:true" border="0">
+    <thead>
+        <tr>
+            <th data-options="field:'colname',width:200,halign:'center'">列名</th>
+            <th data-options="field:'type',width:80,halign:'center'">类型名</th>
+            <th data-options="field:'size',width:70,halign:'center'">大小</th>
+            <th data-options="field:'pk',width:30,align:'center'">主键</th>
+            <th data-options="field:'nullable',width:30,align:'center'">为空</th>
+            <th data-options="field:'remark',width:200,halign:'center'">注释</th>
+        </tr>
+    </thead>
+</table>
 </body>
 </html>
