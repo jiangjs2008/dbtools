@@ -130,6 +130,11 @@ public class Man001 extends DefaultController {
 		return rslt.toJSONString();
 	}
 
+	@RequestMapping("/biz/man001.do")
+	public ModelAndView getCmp0030View() {
+		return new ModelAndView("man002").addObject("deployType", PropUtil.getAppConfig("deploy.type"));
+	}
+
 	@RequestMapping("/logout.do")
 	public ModelAndView logout() {
 		// 关闭数据库连接
