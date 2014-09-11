@@ -10,13 +10,15 @@
 <script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="/dbm/js/main.js"></script>
+<script type="text/javascript" src="/dbm/js/man002.js"></script>
 <script type="text/javascript">
-
-function hideMask() {
-	$.messager.progress('close');
-}
-
 $(document).ready(function() {
+<<<<<<< .mine
+	deployType = '${deployType}';
+	resetFunc(deployType);
+	$('#griddiv').hide();
+	$('#griddiv2').hide();
+=======
 	$("#pmask").hide();
 	$("#ptbdiv").hide();
 	var nowDate = new Date();
@@ -135,7 +137,10 @@ $(document).ready(function() {
             });
         }
     });
+>>>>>>> .r228
 });
+<<<<<<< .mine
+=======
 
 var editIndex = undefined;
 function endEditing(){
@@ -157,6 +162,7 @@ function onClickCell(index, field){
     }
 }
 
+>>>>>>> .r228
 </script>
 </head>
 
@@ -180,7 +186,8 @@ function onClickCell(index, field){
 	<a href="#" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px">历史纪录</a>
 	<a href="#" onclick="javascript:logout()" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px" data-options="iconCls:'icon-closed'">退出</a></div>
 </div>
-		    	<table id="grid" class="easyui-datagrid" border="0" ></table>
+		    	<div id="griddiv" style="width:100%;height:100%;overflow:hidden"><table id="grid" class="easyui-datagrid" border="0" ></table></div>
+		    	<div id="griddiv2" style="width:100%;height:100%;overflow:hidden"><table id="grid2" class="easyui-datagrid" border="0" ></table></div>
 			</div>
 		</div>
 	</div>

@@ -16,6 +16,9 @@ if (userAgent.indexOf("MSIE") > 0) {
 <script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="/dbm/js/base64.js"></script>
 <script type="text/javascript" src="/dbm/js/main.js"></script>
+<<<<<<< .mine
+<script type="text/javascript" src="/dbm/js/man001.js"></script>
+=======
 <script type="text/javascript">
 var nowDate = new Date();
 $(document).ready(function() {
@@ -65,11 +68,11 @@ function submitForm() {
 }
 
 </script>
+>>>>>>> .r228
 </head>
 
 <body>
-<div style="padding-top:150px">
-<form method="post" id="man001form" action="">
+<div style="padding-top:150px"></div>
 <table cellspacing="0" cellpadding="0" border="0" style="height:200px" align="center">
 	<tr>
 		<td>请选择数据库：</td>
@@ -87,8 +90,8 @@ function submitForm() {
 		<td align="center" colspan="2"><a href="javascript:void(0)" class="easyui-linkbutton" style="width:60px;" onclick="submitForm()">确定</a></td>
 	</tr>
 </table>
-</form>
-</div><br/><br/>
+<br/><br/>
 <div id="pmsg" style="text-align:center;font-size:12px"></div>
+<form method="post" id="man001form" action="/dbm/biz/man001.do"></form>
 </body>
 </html>
