@@ -26,6 +26,8 @@ function showerror(errcode) {
 		$.messager.alert("注意", "连接超时，请重新登录。");
 	}
 }
+<<<<<<< .mine
+=======
 
 
 function logout() {
@@ -178,3 +180,4 @@ function getIdxInfo() {
 		});
 	}
 }
+>>>>>>> .r228
