@@ -4,204 +4,251 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>查看表</title>
-<link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
-<link rel="stylesheet" type="text/css" href="/dbm/css/icon.css">
-<link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
-<script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
-<script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
-<script type="text/javascript" src="/dbm/js/main.js"></script>
-<script type="text/javascript" src="/dbm/js/man002.js"></script>
+<script type="text/javascript" src="/dbm/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/dbm/js/operamasks-ui.js"></script>
+<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
 <script type="text/javascript">
+
+$(window).resize(function(){
+	$("#west-panel").height($(window).height() - 27);
+	$("#sqlscript").width($(window).width() - 262);
+});
+
 $(document).ready(function() {
-<<<<<<< .mine
-	deployType = '${deployType}';
-	resetFunc(deployType);
-	$('#griddiv').hide();
-	$('#griddiv2').hide();
-=======
-	$("#pmask").hide();
-	$("#ptbdiv").hide();
-	var nowDate = new Date();
+	$("#west-panel").height($(window).height() - 27);
+	$("#sqlscript").width($(window).width() - 262);
 
-	$.getJSON("/dbm/ajax/getcatalog.do?t=" + nowDate.getTime(), function(subdata) {
-		if (subdata.ecd) {
-			location.href = '/dbm/index.html';
-			return;
-		}
-		$('#mytree2').tree({
-			data: subdata,
-			onBeforeLoad:function(row,param){
-				if (row) {
-					$(this).tree('options').url = '....../?parentId=row.id'; // TODO-- 此处用法不明，没有这种处理的话会重复加载父节点
-				}
-			},
-			onDblClick: function(node) {
-				if (node.hassub) {
-					// 点击的是父节点 
-					$(this).tree('toggle', node.target);
-				} else {
-					// 点击的是表，显示该表数据
-					$.messager.progress({ 
-				        title: 'Please waiting', 
-				        text: '正在努力获取数据中......' 
-				    });
-				    $("#ptbdiv").show();
-					var tblName1 = encodeURIComponent(node.text);
+	$("body").omBorderLayout({
+		spacing : 3, fit: true,
+		panels:[{id:"north-panel", header:false, region:"north", height:220 },
+				{id:"center-panel", header:false, region:"center" },
+				{id:"west-panel", title:"数据库表一览", region:"west", width:250, expandToTop:true, expandToBottom:true, resizable:true }]
+	});
+	$("#north-panel").omBorderLayout({
+		spacing : 0, fit: true,
+		panels:[{id:"north-panel2", header:false, region:"north", height:180},
+				{id:"center-panel2", header:false, region:"center"}]
+	});
 
-					$("#tblname").text(node.text);
-					// 打开新的表时必须刷新pageNumber，重置为1
-					$('#grid').datagrid({
-						toolbar: '#ptb',
-						method: 'get',
-						pagination: true,
-						pageSize: 100,
-						pageList: [100],
-						fit:true, fitColumns: false,
-						rownumbers:true,
-						onLoadError: function() { $('select.pagination-page-list').hide(); hideMask(); },
-						onClickCell: onClickCell,
-						pageNumber: 1,
-						url: "/dbm/ajax/griddata.do?t=" + parseInt(Math.random()*100000),
-						queryParams: { tblname: tblName1 },
-						onLoadSuccess: function(_5a8, data) {
-							$('select.pagination-page-list').hide();
-							hideMask();
-							if (_5a8.ecd != undefined) {
-								showerror(_5a8.ecd);
-							}
+	$("#mytree2").omTree({
+		dataSource : ${dbInfo},
+		onExpand: function(nodeData) {
+			if (nodeData.isCatalog) {
+				// 父结点，取得表一览
+				if (!nodeData.isQuery) {
+					// 未查询过
+					$.ajax({
+						url: '/dbm/ajax/gettbllist.do?catalog=' + nodeData.text + '&t=' + parseInt(Math.random()*100000),
+						dataType: 'json',
+						success: function(data){
+							nodeData.isQuery = true;
+							$("#mytree2").omTree("insert", data, nodeData);
 						}
-					});
-				}
-			},
-			onExpand: function(node) {
-				if (!node.hasdata) {
-					// 如果没有加载子节点，则加载
-					$.messager.progress({ 
-				        title: 'Please waiting', 
-				        text: '正在努力获取数据中......' 
-				    });
-					// append some nodes to the selected node
-					$.getJSON("/dbm/ajax/gettbllist.do?catalog=" + node.text + '&t=' + nowDate.getTime(), function(subdata2) {
-						if (subdata2.ecd) {
-							hideMask();
-							$.messager.alert('注意', '操作过程中发生错误', 'warning');
-						} else {
-							$('#mytree2').tree('append', {
-								parent: node.target,
-								data: subdata2
-							});
-							hideMask();
-						}
-					});
-					node.hasdata = true;
-				}
-			},
-			onContextMenu: function(e, node){
-				e.preventDefault();
-				// select the node
-				$('#mytree2').tree('select', node.target);
-				// display context menu
-				if (!!node.hassub) {
-					$('#mm1').menu('show', {
-						left: e.pageX,
-						top: e.pageY
-					});
-				} else {
-					$('#mm2').menu('show', {
-						left: e.pageX,
-						top: e.pageY
 					});
 				}
 			}
-		});
+		},
+		onDblClick : function(nodeData, event){
+			if (!nodeData.isCatalog) {
+				// 查询指定表的数据
+				var tblName = encodeURIComponent(nodeData.text);
+				//首先从服务器端获取表头数据，再初始化数据表
+
+					$("#tblname").text(nodeData.text),
+					$("#grid").omGrid({
+						limit: ${dataLimit},
+						height: 'fit',
+						width : 'fit',
+						editMode:"all",
+						autoColModel: true,
+						autoFit: true,
+						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+						onAfterEdit:function(rowIndex , rowData){
+							 alert("您刚刚编辑的记录索引为:" + rowIndex);
+						}
+					});
+
+			}
+		},
+		onRightClick : function(nodedata, e) {
+			$("#menu").omMenu("hide");
+			$("#menu2").omMenu("hide");
+
+			// 通过节点的text属性来判断是否响应右键菜单，也可以自行添加特殊属性来判断
+				// 右键选中并显示菜单
+			if (nodedata.hasChildren) {
+				// 显示[刷新]
+				$('#mytree2').omTree('select', nodedata);
+				$('#menu2').omMenu('show', e);
+			} else {
+				$('#mytree2').omTree('select', nodedata);
+				$('#menu').omMenu('show', e);
+			}
+			e.preventDefault();
+		}
 	});
 
-	// 设置单元格为可编辑
-    $.extend($.fn.datagrid.methods, {
-        editCell: function(jq,param){
-            return jq.each(function(){
-                var opts = $(this).datagrid('options');
-                var fields = $(this).datagrid('getColumnFields',true).concat($(this).datagrid('getColumnFields'));
-                for(var i=0; i<fields.length; i++){
-                    var col = $(this).datagrid('getColumnOption', fields[i]);
-                    col.editor1 = col.editor;
-                    if (fields[i] != param.field){
-                        col.editor = null;
-                    }
-                }
-                $(this).datagrid('beginEdit', param.index);
-                for(var i=0; i<fields.length; i++){
-                    var col = $(this).datagrid('getColumnOption', fields[i]);
-                    col.editor = col.editor1;
-                }
-            });
-        }
-    });
->>>>>>> .r228
+	$('#menu').omMenu({
+		contextMenu : true, minWidth : 130,
+		dataSource : [{id:'001', label:'查看表定义', icon:'css/icons/t1.png'},
+					  {id:'002', label:'查看索引定义', icon:'css/icons/t2.png'}],
+		onSelect : function(item){
+			var node = $("#mytree2").omTree("getSelected");
+			var tblName = encodeURIComponent(node.text);
+
+			$("#menu").omMenu("hide");
+			if (item.id == "001") {
+				//window.showModalDialog("/dbm/biz/inf001.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000), null, 'dialogWidth:850px;dialogHeight:450px;center:yes;toolbar:no; menubar:no; scrollbars:no;scroll:no');
+	             $('#grid2').omGrid({
+	                 dataSource : "/dbm/ajax/biz/inf001.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+	                 width : 'auto',
+	                 height: 400,
+					limit : 0,
+					autoFit: false,
+			        colModel : [ {header : '列名', name : 'colname', width : 200},
+			                     {header : '类型名', name : 'type', width : 110},
+			                     {header : '大小', name : 'size', width : 60},
+			                     {header : '主键', name : 'pk', width : 30},
+			                     {header : '为空', name : 'nullable', width : 30},
+			                     {header : '注释', name : 'remark', width : 250} ]
+	             });
+	             $( "#dialog").omDialog({
+	     			width : 950,
+	     			height: 450,
+	     			modal: true,
+	     			resizable:false
+	     		});
+
+			} else if (item.id  == "002") {
+
+			}
+		}
+	});
+	$('#menu2').omMenu({
+		contextMenu : true, minWidth : 130,
+		dataSource : [{id:'003', label:'刷新', icon:'css/icons/reload.png'}],
+		onSelect : function(item){
+			var node = $("#mytree2").omTree("getSelected");
+			var tblName = encodeURIComponent(node.text);
+
+			//window.showModalDialog("/dbm/biz/inf001.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000), null, 'dialogWidth:850px;dialogHeight:450px;center:yes;toolbar:no; menubar:no; scrollbars:no;scroll:no');
+
+		}
+	});
+	// 左键点击页面隐藏菜单
+	$("body").bind("click", function(){
+		$("#menu").omMenu("hide");
+		$("#menu2").omMenu("hide");
+	});
+
+	$(window).resize(function() {
+		$('#grid').omGrid("resize");
+	});
+
+	$('#bButton').omButton({});
+	$('#bButton').click(function () {
+
+	});
+	$('#cButton').omButton({icons : {left:"css/icons/closed.png"}});
+	$('#cButton').click(function () {
+		// 退出
+		document.forms[0].submit();
+	});
+
+	$('#aButton').omButton({});
+	$('#aButton').click(function () {
+		var sqlScript = $.trim($("#sqlscript").val());
+		if (sqlScript == '请在此输入SQL执行脚本：') {
+			return;
+		}
+
+		// 判断SQL类型
+		var idx = sqlScript.indexOf(' ');
+		if (idx == -1) {
+			$.omMessageBox.alert({
+				title: '注意',
+				content: 'SQL语句不正确, 请重新输入.'
+			});
+			return;
+		}
+		var sqlType = sqlScript.substring(0, idx).toLocaleLowerCase();
+		sqlScript = encodeURIComponent(sqlScript);
+
+		var target = $('#mytree2').omTree('getSelected');
+		if (target != null) {
+			$('#mytree2').omTree('unselect', target);
+		}
+		$("#tblname").text('');
+
+		if ('select' != sqlType) {
+
+			$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) {
+				if (data.ecd == '1') {
+				   $.omMessageBox.waiting({
+					   content: 'SQL语句执行成功！'
+				   });
+				   setTimeout("$.omMessageBox.waiting('close');", 1000);
+
+				} else if (data.ecd == '2') {
+				   $.omMessageBox.alert({
+					   content: 'SQL语句执行失败，请再次确认你的SQL语句'
+				   });
+
+				} else if (data.ecd == '3') {
+				   $.omMessageBox.alert({
+					   content: '执行SQL语句时发生错误，请再次确认你的SQL语句，并可查看LOG文件<br>' + data.msg
+				   });
+
+				}
+			});
+		} else {
+
+			$("#grid").omGrid({
+				limit: ${dataLimit},
+				height: 'fit',
+				width : 'fit',
+				autoColModel: true,
+				dataSource: "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000)
+			});
+
+		}
+	});
 });
-<<<<<<< .mine
-=======
 
-var editIndex = undefined;
-function endEditing(){
-    if (editIndex == undefined){return true}
-    if ($('#grid').datagrid('validateRow', editIndex)){
-        $('#grid').datagrid('endEdit', editIndex);
-        editIndex = undefined;
-        return true;
-    } else {
-        return false;
-    }
+function showMsg() {
+
 }
 
-function onClickCell(index, field){
-    if (endEditing()){
-        $('#grid').datagrid('selectRow', index)
-                  .datagrid('editCell', {index:index, field:field});
-        editIndex = index;
-    }
-}
-
->>>>>>> .r228
 </script>
 </head>
 
 <body>
-<div class="easyui-layout" data-options="fit:true">
-	<div id="l1" data-options="region:'west',split:true" title="Database" style="width:250px">
-		<ul id="mytree2" class="easyui-tree" data-options="lines:true"></ul>
-	</div>
-	<div id="r1" data-options="region:'center'">
-		<div class="easyui-layout" data-options="fit:true">
-		    <div data-options="region:'north',border:false" style="height:155px;border-bottom:2px solid #E6EEF8">
-		        <textarea id="sqlscript" name="sqlscript" style="width:99%;height:96%;color:#999" onselect="showMsg()" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#999'}">请在此输入SQL执行脚本：</textarea>
-		    </div>
-		    <div data-options="region:'center',border:false" >
-<div id="ptb" style="height:31px;">
-	<div id="ptbdiv" style="float:left"><img src="/dbm/css/icons/shapes.png" style="margin-left:10px;margin-right:10px;margin-top:4px"/><span id="tblname" style="position:relative;font-size:14px;top:-5px"></span>
-	<a href="#" class="easyui-linkbutton" style="margin-left:50px;margin-top:-12px" data-options="iconCls:'icon-add'">添加记录</a>
-	<a href="#" class="easyui-linkbutton" style="margin-left:30px;margin-top:-12px" data-options="iconCls:'icon-remove'">删除记录</a>
-	<a href="#" class="easyui-linkbutton" style="margin-left:30px;margin-top:-12px" data-options="iconCls:'icon-save'">保存修改</a></div>
-	<div style="float:right"><a href="#" onclick="javascript:execSQL()" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px">执行SQL</a>
-	<a href="#" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px">历史纪录</a>
-	<a href="#" onclick="javascript:logout()" class="easyui-linkbutton" style="margin-right:30px;margin-top:2px" data-options="iconCls:'icon-closed'">退出</a></div>
+
+<div id="west-panel">
+	<ul id="mytree2"></ul>
 </div>
-		    	<div id="griddiv" style="width:100%;height:100%;overflow:hidden"><table id="grid" class="easyui-datagrid" border="0" ></table></div>
-		    	<div id="griddiv2" style="width:100%;height:100%;overflow:hidden"><table id="grid2" class="easyui-datagrid" border="0" ></table></div>
-			</div>
-		</div>
+<div id="north-panel" style="border-style:none;background-color:#d2e3ec">
+	<div id="north-panel2" style="border-style:none;overflow:hidden;background-color:#d2e3ec">
+		<textarea id="sqlscript" name="sqlscript" style="height:174px;color:#686868;background-color:#F0F0F0;border-bottom-color:#F0F0F0" onselect="showMsg()" onFocus="if(value=='请在此输入SQL执行脚本：'){value='';this.style.color='#000'}" onBlur="if(!value){value='请在此输入SQL执行脚本：';this.style.color='#686868'}">请在此输入SQL执行脚本：</textarea>
+	</div>
+	<div id="center-panel2" style="border-style:none;background-color:#d2e3ec;padding-top:7px;border-top:1px solid #86A3C4">
+		<div id="ptbdiv" style="float:left;">
+			<span style="height:20px;padding-left:5px;line-height:20px;white-space: nowrap">当前选择：[<span id="tblname"></span>]</span>
+			<input type="button" id="zButton" value="确认更新" style="width:60px;"/></div>
+		<div style="float:right;padding-right:15px;">
+			<a id="aButton" style="width:60px;">执行SQL</a>&nbsp;&nbsp;&nbsp;
+			<a id="bButton" style="width:60px;">历史纪录</a>&nbsp;&nbsp;&nbsp;
+			<a id="cButton" style="width:50px">退出</a></div>
 	</div>
 </div>
-<div id="mm1" class="easyui-menu" style="width:120px;">
-	<div onclick="javascript:reloadInfo()" data-options="iconCls:'icon-reload'">刷新</div>
+<div id="center-panel" style="border-style:none;overflow:hidden">
+	<table id="grid" style="table-layout:fixed"></table>
 </div>
-<div id="mm2" class="easyui-menu" style="width:120px;">
-	<div onclick="javascript:getTblInfo()" data-options="iconCls:'icon-tbl'">表定义</div>
-	<div onclick="javascript:getIdxInfo()" data-options="iconCls:'icon-idx'">索引定义</div>
+<div id="menu"></div><div id="menu2"></div>
+<div id="dialog" title="布局组件和弹出窗口组合">
+    <table id="grid2"></table>
 </div>
-<div id="idxinfo" class="easyui-window" style="width:600px;height:400px" title="索引定义" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
-    <table id="idxgrid" class="easyui-datagrid" border="0" ></table>
-</div>
+
 <form method="post" id="man002form" action="/dbm/logout.do"></form>
 </body>
 </html>

@@ -1,97 +1,99 @@
 <%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>选择数据库</title>
-<script type="text/javascript">
-var userAgent = navigator.userAgent;
-if (userAgent.indexOf("MSIE") > 0) {
-	location.href = '/dbm/notsupport.html';
-}
-</script>
-<link rel="stylesheet" type="text/css" href="/dbm/css/default/easyui.css">
-<link rel="stylesheet" type="text/css" href="/dbm/css/main.css">
-<script type="text/javascript" src="/dbm/js/jquery.min.js"></script>
-<script type="text/javascript" src="/dbm/js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="/dbm/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/dbm/js/operamasks-ui.js"></script>
 <script type="text/javascript" src="/dbm/js/base64.js"></script>
-<script type="text/javascript" src="/dbm/js/main.js"></script>
-<<<<<<< .mine
-<script type="text/javascript" src="/dbm/js/man001.js"></script>
-=======
+<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
 <script type="text/javascript">
-var nowDate = new Date();
 $(document).ready(function() {
-	$("#favrid").combobox({
-		url: '/dbm/ajax/getdblist.do?t=' + nowDate.getTime(),
-		method: 'get',
-		valueField: 'favrid',
-		textField: 'name',
-		panelWidth: 450,
-		panelHeight: '200',
-		formatter: formatItem,
-		onSelect: function(param){
-			$.getJSON("/dbm/ajax/getdblogininfo.do?favrid=" + param.favrid + '&t=' + nowDate.getTime(), function(data) {
-				if (data.status == 'ok') {
-					$("#account").val(data.account);
-					$("#password").val(data.password);
-				}
-			});
-		}
+
+	showerror();
+
+	$.getJSON("/dbm/ajax/getdblist.do", function(data) {
+		$('#combo1').omCombo({
+			dataSource : data,
+			editable : false,
+			valueField : 'favrid',
+			optionField : function(data, index) {
+				return '<div style="font-size:15px"><div style="float:left">' + data.name + '</div><div style="float:right">' + data.description + '</div></div>';
+			},
+			inputField : function(data, index) {
+				return data.name;
+			},
+			onValueChange:function(target, newValue, oldValue, event) {
+				$.getJSON("/dbm/ajax/getdblogininfo.do?favrid=" + newValue, function(data) {
+					if (data.status == 'ok') {
+						$("#account1").val(data.account);
+						$("#password1").val(data.password);
+					}
+				});
+			}
+		});
 	});
-	$("#favrid").combobox("setValue", "请选择数据库：");
+	$('#aButton').omButton({});
+	$('#aButton').click(function () {
+		var checkInput = $("#account1").val();
+		if (checkInput) {
+			$("#account").val(base64encode(checkInput));
+		}
+		var checkInput = $("#password1").val();
+		if (checkInput) {
+			$("#password").val(base64encode(checkInput));
+		}
+		$('#favrid').val($('#combo1').omCombo('value'));
+		document.forms[0].submit();
+	});
 });
 
-function formatItem(row) {
-	var s = '<div style="font-size:16px;height:20px;line-height:20px;margin-right:3px"><div style="float:left">' + row.name + '</div><div style="float:right;color:#888">' + row.description + '</div></div>';
-	return s;
-}
-
-function submitForm() {
-	var account = $("#account").val();
-	if (account) {
-		account = base64encode(account);
+function showerror() {
+	// 显示错误信息
+	var value = "${errcode}";
+	if ("1" == value) {
+		 $.omMessageBox.alert({content:'用户名或者密码错误'});
+	} else if("2" == value) {
+		alert("登录超时，请重新登录！");
+	} else if("3" == value) {
+		alert("您的账号在别处登录。如非本人操作，请注意账号安全。");
+	} else if("4" == value) {
+		alert("您的账号存在登录异常，请重新登录。");
+	} else if("5" == value) {
+		alert("请选择数据库...");
+	} else if("999" == value) {
+		alert("连接访问错误，请重新登录。");
 	}
-	var password = $("#password").val();
-	if (password) {
-		password = base64encode(password);
-	}
-	var aurl = "/dbm/ajax/login.do?favrid=" + $("#favrid").combobox('getValue');
-	aurl += "&user=" + account + "&pwd=" + password;
-	$.getJSON(aurl + '&t=' + nowDate.getTime(), function(data) {
-		if (data.ecd == 'ok') {
-			location.href = '/dbm/jsp/man002.jsp';
-		} else {
-			showerror(data.ecd);
-		}
-	});
 }
-
 </script>
->>>>>>> .r228
+<!-- view_source_end -->
 </head>
 
 <body>
-<div style="padding-top:150px"></div>
+<div style="padding-top:150px">
 <table cellspacing="0" cellpadding="0" border="0" style="height:200px" align="center">
 	<tr>
 		<td>请选择数据库：</td>
-		<td align="left"><input class="easyui-combobox" style="width:250px;height:25px;line-height:25px" id="favrid" name="favrid" ></td>
+		<td align="left"><input id="combo1" style="width:200px"/></td>
 	</tr>
 	<tr>
 		<td>用户：</td>
-		<td align="left"><input type="text" id="account" name="user" style="width:150px;line-height:20px;height:20px"/></td>
+		<td align="left"><input type="text" id="account1" style="width:150px;line-height:20px;height:20px"/></td>
 	</tr>
 	<tr>
 		<td>密码：</td>
-		<td align="left"><input type="password" id="password" name="pwd" style="width:150px;line-height:20px;height:20px"/></td>
+		<td align="left"><input type="password" id="password1" style="width:150px;line-height:20px;height:20px"/></td>
 	</tr>
 	<tr>
-		<td align="center" colspan="2"><a href="javascript:void(0)" class="easyui-linkbutton" style="width:60px;" onclick="submitForm()">确定</a></td>
+		<td align="center" colspan="2"><input type="button" id="aButton" value="确定" style="width:60px;"/></td>
 	</tr>
 </table>
-<br/><br/>
-<div id="pmsg" style="text-align:center;font-size:12px"></div>
-<form method="post" id="man001form" action="/dbm/biz/man001.do"></form>
+</div>
+<form method="post" id="man001form" action="/dbm/login.do">
+<input type="hidden" id="favrid" name="favrid"/>
+<input type="hidden" id="account" name="user"/>
+<input type="hidden" id="password" name="pwd"/>
+</form>
 </body>
 </html>
