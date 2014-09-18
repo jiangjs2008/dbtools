@@ -15,12 +15,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
+import com.dbm.common.property.PropUtil;
+import com.dbm.common.util.StringUtil;
 
 /**
  * [name]<br>
- * Mpc0110 Controller<br><br>
+ * Man0021 Controller<br><br>
  * [function]<br>
- * 修改车机信息<br><br>
+ * 执行SQL脚本<br><br>
  * [history]<br>
  * 2014/05/05 ver1.00 JiangJusheng<br>
  */
@@ -34,9 +36,8 @@ public class Man0021 extends DefaultController {
 		String sqlScript = requestParam.get("sqlscript");
 		JSONObject rsltJObj = new JSONObject();
 		rsltJObj.put("total", 0);
-		rsltJObj.put("rows", new ArrayList<JSONObject>());
-		rsltJObj.put("columns", "[[]]");
-		rsltJObj.put("page", 0);
+		rsltJObj.put("rows", "{}");
+		rsltJObj.put("colmodel", "[[]]");
 
 //		try {
 //			sqlScript = new String(sqlScript.getBytes("ISO-8859-1"), "utf-8");
@@ -45,8 +46,15 @@ public class Man0021 extends DefaultController {
 //			rsltJObj.put("ecd", "0");
 //			return rsltJObj.toJSONString();
 //		}
+		int start = NumberUtils.toInt(requestParam.get("start"), -1);
+		int pageNum = 0;
+		if (start == -1) {
+			pageNum = 1;
+		} else {
+			int lmt = StringUtil.parseInt(PropUtil.getAppConfig("page.data.count"));
+			pageNum = start / lmt + 1;
+		}
 
-		int pageNum = NumberUtils.toInt(requestParam.get("page"));
 		if (sqlScript == null || sqlScript.length() == 0 || pageNum == 0) {
 			logger.error("执行时错误 参数不对");
 			rsltJObj.put("ecd", "4");
@@ -55,6 +63,11 @@ public class Man0021 extends DefaultController {
 
 		try {
 			DbClient dbClient = DbClientFactory.getDbClient();
+			if (dbClient == null) {
+				logger.warn("数据库联接不正常 表：");
+				rsltJObj.put("emsg", "数据库联接不正常.");
+				return rsltJObj.toJSONString();
+			}
 
 			if (dbClient.getExecScriptType(sqlScript) == 1) {
 				// 数据检索
@@ -79,14 +92,10 @@ public class Man0021 extends DefaultController {
 				for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
 					colName = rsm.getColumnName(i);
 					JSONObject params = new JSONObject();
-					params.put("field", colName);
-					params.put("title", colName);
-					params.put("editor", "text");
+					params.put("header", colName);
+					params.put("name", colName);
 					columnInfo.add(params);
 				}
-
-				JSONArray rslt = new JSONArray();
-				rslt.add(columnInfo);
 
 				// 设置grid数据
 				JSONArray dataInfo = new JSONArray();
@@ -103,8 +112,7 @@ public class Man0021 extends DefaultController {
 				JSONObject params = new JSONObject();
 				params.put("total", dbClient.size());
 				params.put("rows", dataInfo);
-				params.put("columns", rslt);
-				params.put("page", pageNum);
+				params.put("colmodel", columnInfo);
 				return params.toJSONString();
 
 			} else {

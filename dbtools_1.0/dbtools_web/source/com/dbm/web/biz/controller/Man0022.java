@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSONObject;
@@ -19,19 +20,30 @@ import com.dbm.common.util.StringUtil;
 
 /**
  * [name]<br>
- * Mpc0110 Controller<br><br>
+ * Man0022 Controller<br><br>
  * [function]<br>
- * 修改车机信息<br><br>
+ * 获取表定义及索引定义信息<br><br>
  * [history]<br>
  * 2014/05/05 ver1.00 JiangJusheng<br>
  */
 @Controller
 public class Man0022 extends DefaultController {
 
-	@RequestMapping("/biz/inf001.do")
-	public ModelAndView getCmp0030View(@RequestParam Map<String,String> requestParam){
+	/**
+	 * 获取表定义信息
+	 *
+	 * @param requestParam
+	 *
+	 * @return
+	 */
+	@RequestMapping("/ajax/biz/inf001.do")
+	@ResponseBody
+	public String getCmp0030View(@RequestParam Map<String,String> requestParam){
 		logger.debug("/sale/cmp0010.do =>getCmp0010View()");
-		ModelAndView mv = new ModelAndView("inf001");
+		JSONObject rsltJObj = new JSONObject();
+		rsltJObj.put("total", 0);
+		rsltJObj.put("rows", "{}");
+
 		try {
 			DbClient dbClient = DbClientFactory.getDbClient();
 			DatabaseMetaData dmd = dbClient.getConnection().getMetaData();
@@ -88,17 +100,14 @@ public class Man0022 extends DefaultController {
 				allData.add(columnInfo);
 			}
 
-			mv.addObject("ecd", 0);
-			JSONObject params = new JSONObject();
-			params.put("total", total);
-			params.put("rows", allData);
-			mv.addObject("rowobj", params);
+			rsltJObj.put("total", total);
+			rsltJObj.put("rows", allData);
 
 		} catch (Exception exp) {
 			logger.error("", exp);
-			mv.addObject("ecd", 1);
+			rsltJObj.put("ecd", 1);
 		}
-		return mv;
+		return rsltJObj.toJSONString();
 	}
 
 	private String getRealTblName(DbClient dbClient, String tblName) {

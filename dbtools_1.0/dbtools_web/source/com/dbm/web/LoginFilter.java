@@ -45,7 +45,7 @@ public class LoginFilter implements Filter {
 				|| "/jsp/man001.jsp".equals(servletPath)
 				|| "/ajax/getdblist.do".equals(servletPath)
 				|| "/ajax/getdblogininfo.do".equals(servletPath)
-				|| "/ajax/login.do".equals(servletPath)
+				|| "/login.do".equals(servletPath)
 				|| "/logout.do".equals(servletPath)) {
 
 		} else {
