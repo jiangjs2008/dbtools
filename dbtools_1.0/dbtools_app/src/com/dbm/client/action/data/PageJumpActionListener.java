@@ -33,7 +33,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 	private JPanel pagejumpPanel = null;
 	private JTextField pageInfoTxtField = null;
 	private JTextField inputPageTxtField = null;
-	// 当前页数
+	// 当前页数,从1开始计数
 	private int currPage = 0;
 	// 总页数
 	private int _pageCnt = 0;
@@ -62,6 +62,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 		dbClient = DbClientFactory.getDbClient();
 		this._rowSet = rowSet;
 		this._dataCnt = dbClient.size();
+		this.currPage = currPage;
 
 		// 当前页表示件数
 		int itemSize = 0;
@@ -132,15 +133,11 @@ public class PageJumpActionListener extends AbstractActionListener {
 				}
 
 				Vector<String> colValue = new Vector<String>(colCount);
-				colValue.add(Integer.toString(i + currPage * dataLimit));
+				colValue.add(Integer.toString(i + (currPage - 1) * dataLimit));
 
 				for (int k = 1; k < colCount; k ++) {
 					Object obj = _rowSet.getObject(k);
-					if (obj == null) {
-						colValue.add("");
-					} else {
-						colValue.add(dbClient.procCellData(obj));
-					}
+					colValue.add(dbClient.procCellData(obj));
 				}
 				allData.add(colValue);
 			}
