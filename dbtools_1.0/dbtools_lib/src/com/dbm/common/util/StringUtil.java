@@ -96,22 +96,19 @@ public final class StringUtil {
 	 * @return String The converted int
 	 */
 	public static int parseInt(String value) {
-		if (value == null || "".equals(value.trim())) {
-			return 0;
-		}
-		try {
-			return Integer.parseInt(value.trim());
-		} catch (NumberFormatException ex) {
-			return 0;
-		}
+		return parseInt(value, 0);
 	}
 
 	public static int parseInt(String value, int defaultValue) {
-		if (value == null || "".equals(value.trim())) {
+		if (value == null) {
+			return defaultValue;
+		}
+		value = value.trim();
+		if (value.length() == 0) {
 			return defaultValue;
 		}
 		try {
-			return Integer.parseInt(value.trim());
+			return Integer.parseInt(value);
 		} catch (NumberFormatException nfe) {
 			return defaultValue;
 		}

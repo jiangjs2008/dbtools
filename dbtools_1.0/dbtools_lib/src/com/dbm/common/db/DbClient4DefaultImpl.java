@@ -33,10 +33,10 @@ public class DbClient4DefaultImpl extends DbClient {
 
 	@Override
 	public String getTableDataAt(int rowNum, int colNum) {
-		if (rs != null && rowNum <= size()) {
+		if (allRowSet != null && rowNum <= size()) {
 			try {
-				rs.absolute(rowNum);
-				return rs.getString(colNum);
+				allRowSet.absolute(rowNum);
+				return allRowSet.getString(colNum);
 			} catch (Exception exp) {
 				throw new BaseExceptionWrapper(exp);
 			}
@@ -225,7 +225,7 @@ public class DbClient4DefaultImpl extends DbClient {
 	@Override
 	public String procCellData(Object obj) {
 		if (obj == null) {
-			return null;
+			return "";
 		}
 		return obj.toString();
 	}

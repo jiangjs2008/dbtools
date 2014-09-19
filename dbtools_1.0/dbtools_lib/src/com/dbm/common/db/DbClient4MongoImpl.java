@@ -6,11 +6,6 @@ package com.dbm.common.db;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import javax.sql.rowset.CachedRowSet;
 
 import jdbc.wrapper.mongo.MongoCachedRowSetImpl;
 import jdbc.wrapper.mongo.MongoConnection;
@@ -27,11 +22,9 @@ import com.mongodb.util.JSON;
  *
  * @author JiangJusheng
  */
-public class DbClient4MongoImpl extends DbClient {
+public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 
 	private DB dbObj = null;
-	protected Statement stmt = null;
-	protected ResultSet rs = null;
 
 	@Override
 	public boolean start(String[] args) {
@@ -137,8 +130,6 @@ public class DbClient4MongoImpl extends DbClient {
 		return false;
 	}
 
-	CachedRowSet allRowSet = null;
-
 	/**
 	 * 分页方案1.<br>
 	 * 	对"_id"排序，记住关键点的_id，此方案弊端是只能前后翻页，不能跳转到指定页面<br>
@@ -174,43 +165,4 @@ public class DbClient4MongoImpl extends DbClient {
 		}
 	}
 
-	// 当前页数
-	protected int currPage = 0;
-
-	@Override
-	public int getCurrPageNum() {
-		return currPage;
-	}
-
-	@Override
-	public String procCellData(Object obj) {
-		if (obj == null) {
-			return "";
-		}
-		return obj.toString();
-	}
-
-	@Override
-	public String getTableDataAt(int rowNum, int colNum) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void defaultUpdate(HashMap<Integer, HashMap<Integer, String>> params,
-			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	void close() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setTableName(String tblName) {
-		this._tblName = tblName;
-	}
 }
