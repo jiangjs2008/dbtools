@@ -4604,6 +4604,9 @@ $.extend($.om.sortable, {
 				pagerHeight = this.pDiv.is(":hidden")? 0 : this.pDiv.outerHeight(true),
 				titleHeight = this.titleDiv.is(":hidden")? 0 : this.titleDiv.outerHeight(true);
 
+			if (pagerHeight == 0 && this.options.limit == 0) {
+				pagerHeight = 26;
+			}
 			$grid.children('.bDiv').outerHeight($grid.height() - headerHeight - pagerHeight - titleHeight);
 		},
 		_getColModel : function(){
@@ -4683,7 +4686,10 @@ $.extend($.om.sortable, {
 					if (j == 0) {
 						$(obj2).children().first().css("width", "45");
 					} else {
-						$(obj2).children().first().css("width", cms[j - 1].width);
+						var itemWidth = cms[j - 1].width;
+						if (itemWidth != undefined) {
+							$(obj2).children().first().css("width", itemWidth);
+						}
 					}
 				});
 			});

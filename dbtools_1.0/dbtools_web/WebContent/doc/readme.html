@@ -35,7 +35,7 @@ Resin4.x为com.caucho.server.resin.Resin。
 	at com.dbm.web.biz.controller.Man002.mpc0120dispinfo(Man002.java:185) [classes:]
 解决方法：
 编辑 ${Jboss_home}\modules\system\layers\base\sun\jdk\main\module.xml
-添加 
+添加 rowset 模块
     <path name="com/sun/rowset"/>
     <path name="com/sun/rowset/internal"/>
     <path name="com/sun/rowset/providers"/>

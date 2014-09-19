@@ -61,7 +61,6 @@ $(document).ready(function() {
 						width : 'fit',
 						editMode:"all",
 						autoColModel: true,
-						autoFit: true,
 						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
 						onAfterEdit:function(rowIndex , rowData){
 							 alert("您刚刚编辑的记录索引为:" + rowIndex);
@@ -102,9 +101,8 @@ $(document).ready(function() {
 	             $('#grid2').omGrid({
 	                 dataSource : "/dbm/ajax/biz/inf001.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
 	                 width : 'auto',
-	                 height: 400,
+	                 height: 404,
 					limit : 0,
-					autoFit: false,
 			        colModel : [ {header : '列名', name : 'colname', width : 200},
 			                     {header : '类型名', name : 'type', width : 110},
 			                     {header : '大小', name : 'size', width : 60},
@@ -208,9 +206,12 @@ $(document).ready(function() {
 				height: 'fit',
 				width : 'fit',
 				autoColModel: true,
-				dataSource: "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000)
+				onSuccess:function(data,testStatus,XMLHttpRequest,event){
+					alert('fetch data success,got '+data.rows+' rows');
+				}
 			});
-
+				//dataSource: "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000)
+			$('#grid').omGrid('setData', "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000));
 		}
 	});
 });
@@ -245,7 +246,7 @@ function showMsg() {
 	<table id="grid" style="table-layout:fixed"></table>
 </div>
 <div id="menu"></div><div id="menu2"></div>
-<div id="dialog" title="布局组件和弹出窗口组合">
+<div id="dialog">
     <table id="grid2"></table>
 </div>
 
