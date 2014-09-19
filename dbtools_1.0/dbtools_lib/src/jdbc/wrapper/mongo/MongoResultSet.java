@@ -3,8 +3,6 @@ package jdbc.wrapper.mongo;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import jdbc.wrapper.AbstractResultSet;
 
 public class MongoResultSet extends AbstractResultSet {
@@ -16,6 +14,7 @@ public class MongoResultSet extends AbstractResultSet {
 
 	private int rowIdx = 0;
 	private int rowCnt = 0;
+	private int colCnt = 0;
 
 	private String[] header = null;
 	private String[][] datas = null;
@@ -26,12 +25,15 @@ public class MongoResultSet extends AbstractResultSet {
 	public MongoResultSet(String[] header, String[][] datas) {
 		rowIdx = -1;
 		rowCnt = -1;
+		this.datas = datas;
 		if (datas != null) {
 			rowCnt = datas.length;
 		}
 
 		this.header = header;
-		this.datas = datas;
+		if (header != null) {
+			colCnt = header.length;
+		}
 	}
 
 	public boolean next() throws SQLException {
@@ -41,11 +43,6 @@ public class MongoResultSet extends AbstractResultSet {
 		} else {
 			return false;
 		}
-	}
-
-	@Override
-	public int findColumn(String columnLabel) throws SQLException {
-		return ArrayUtils.indexOf(header, columnLabel) + 1;
 	}
 
 	public String getString(int columnIndex) throws SQLException {
@@ -75,4 +72,16 @@ public class MongoResultSet extends AbstractResultSet {
 		return md;
 	}
 
+	@Override
+	public int findColumn(String columnLabel) throws SQLException {
+		if (header == null) {
+			return -1;
+		}
+		for (int i = 0; i < colCnt; i ++) {
+			if (columnLabel.equals(header[i])) {
+				return i + 1;
+			}
+		}
+		return -1;
+	}
 }
