@@ -208,10 +208,7 @@ $(document).ready(function() {
 				limit: ${dataLimit},
 				height: 'fit',
 				width : 'fit',
-				autoColModel: true,
-				onSuccess:function(data,testStatus,XMLHttpRequest,event){
-					alert('fetch data success,got '+data.rows+' rows');
-				}
+				autoColModel: true
 			});
 				//dataSource: "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000)
 			$('#grid').omGrid('setData', "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000));

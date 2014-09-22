@@ -4680,15 +4680,15 @@ $.extend($.om.sortable, {
 
 			var cms = ops.colModel;
 
-			var bodyTrs = $(".bDiv table tr");
-			bodyTrs.each(function (i, obj) {
-				$(obj).children().each(function (j, obj2) {
+			var el = this.element;
+			el.children().children().each(function (j, obj2) {
+				$(obj2).children().children().each(function (j, obj3) {
 					if (j == 0) {
-						$(obj2).children().first().css("width", "45");
+						$(obj3).css("width", "45");
 					} else {
 						var itemWidth = cms[j - 1].width;
 						if (itemWidth != undefined) {
-							$(obj2).children().first().css("width", itemWidth);
+							$(obj3).css("width", itemWidth);
 						}
 					}
 				});
