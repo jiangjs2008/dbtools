@@ -54,19 +54,22 @@ $(document).ready(function() {
 				var tblName = encodeURIComponent(nodeData.text);
 				//首先从服务器端获取表头数据，再初始化数据表
 
-					$("#tblname").text(nodeData.text),
-					$("#grid").omGrid({
-						limit: ${dataLimit},
-						height: 'fit',
-						width : 'fit',
-						editMode:"all",
-						autoColModel: true,
-						dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
-						onAfterEdit:function(rowIndex , rowData){
-							 alert("您刚刚编辑的记录索引为:" + rowIndex);
-						}
-					});
-
+				$("#tblname").text(nodeData.text),
+				$("#grid").omGrid({
+					limit: ${dataLimit},
+					height: 'fit',
+					width : 'fit',
+					editMode:"all",
+					autoColModel: true,
+					dataSource: "/dbm/ajax/griddata.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+					onAfterEdit:function(rowIndex , rowData){
+						 //alert("您刚刚编辑的记录索引为:" + rowIndex);
+					},
+					preProcess: function(data) {
+						 //alert("您刚刚编辑的记录索引为:" + rowIndex);
+						 return data;
+					}
+				});
 			}
 		},
 		onRightClick : function(nodedata, e) {

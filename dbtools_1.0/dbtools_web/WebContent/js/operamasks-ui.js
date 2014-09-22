@@ -5021,6 +5021,9 @@ $.extend($.om.sortable, {
 			//$(gridHeaderCols).each(function(index){
 			//	headerWidth[index] = $('div',$(this)).width();
 			//});
+			if (this.pageData.data.total===0) {
+				return;
+			}
 
 			$.each(rows,function(i, rowData) {
 				var rowCls = isRowClassesFn? rowClasses(i,rowData):rowClasses[i % rowClasses.length];

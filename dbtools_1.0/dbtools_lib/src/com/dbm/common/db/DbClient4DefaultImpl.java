@@ -296,6 +296,7 @@ public class DbClient4DefaultImpl extends DbClient {
 		int colNum = 0;
 		String colValue = null;
 		try {
+			getConnection().setAutoCommit(false);
 			// 更新
 			if (params != null && params.size() > 0) {
 				int rowNum = 0;
