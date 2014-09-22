@@ -4561,6 +4561,7 @@ $.extend($.om.sortable, {
 
 			this._resetHeight();
 			this.pageData={nowPage:1,totalPages:1};
+			this._oldPage = 1;
 			this._populate();
 		},
 		/**
@@ -4921,8 +4922,11 @@ $.extend($.om.sortable, {
 					if (nowPage == 1 && op.autoColModel) {
 						op.colModel = data.colmodel;
 						op._haveColData = true;
-						self._buildTableHead();
-						self._resetHeight();
+						if (self._oldPage == undefined || self._oldPage == 1) {
+							// 如果是从其它页返回到第一页，则不重建表头
+							self._buildTableHead();
+							self._resetHeight();
+						}
 					}
 					// 设置数据列
 					self._addData(data);
