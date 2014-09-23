@@ -198,12 +198,12 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 					// 序号
 					columnInfo.add(Integer.toString(no));
 					no ++;
-					// 列名
+					// 列名(COLUMN_NAME )
 					colName = columnRs.getString(4);
 					columnInfo.add(colName);
-					// 类型名
+					// 类型名(TYPE_NAME)
 					columnInfo.add(columnRs.getString(6));
-					// 列的大小
+					// 列的大小(COLUMN_SIZE)
 					columnInfo.add(columnRs.getString(7));
 
 					// 是否为主键
@@ -214,7 +214,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 						columnInfo.add("");
 					}
 
-					// 是否可为空
+					// 是否可为空(NULLABLE)
 					if (columnRs.getInt(11) == 1) {
 						// 可为空
 						columnInfo.add("Y");
@@ -223,7 +223,12 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 						columnInfo.add("");
 					}
 
-					// 列的注释
+					// 是否自动增加(IS_AUTOINCREMENT)
+					columnInfo.add(columnRs.getString(23));
+					// 默认值(COLUMN_DEF)
+					columnInfo.add(columnRs.getString(13));
+
+					// 列的注释(REMARKS)
 					columnInfo.add(StringUtil.NVL(columnRs.getString(12)));
 					
 					allData.add(columnInfo);
@@ -280,26 +285,27 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 					// 序号
 					columnInfo.add(Integer.toString(no));
 					no ++;
-					// 列名
-					colName = columnRs.getString(4);
+					// 索引名称(INDEX_NAME)
+					colName = columnRs.getString(6);
 					columnInfo.add(colName);
-					// 类型名
-					columnInfo.add(columnRs.getString(6));
-					// 列的大小
+					// 索引类型(TYPE)
 					columnInfo.add(columnRs.getString(7));
+					// 索引类别(INDEX_QUALIFIER)
+					columnInfo.add(columnRs.getString(5));
 
-					// 是否可为空
-					if (columnRs.getInt(11) == 1) {
-						// 可为空
-						columnInfo.add("Y");
-					} else {
-						// 不可为空
-						columnInfo.add("");
-					}
+					// 是否不唯一(NON_UNIQUE)
+					columnInfo.add(columnRs.getString(4));
+//					if (columnRs.getInt(11) == 1) {
+//						// 可为空
+//						columnInfo.add("Y");
+//					} else {
+//						// 不可为空
+//						columnInfo.add("");
+//					}
 
-					// 列的注释
+					// 过滤器条件(FILTER_CONDITION)
 					columnInfo.add(StringUtil.NVL(columnRs.getString(12)));
-					
+
 					allData.add(columnInfo);
 				}
 

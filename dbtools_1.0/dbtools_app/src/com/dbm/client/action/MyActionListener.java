@@ -23,6 +23,7 @@ import com.dbm.client.ui.tbllist.TableCellEditorListener;
 import com.dbm.client.util.TableUtil;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
+import com.dbm.common.util.StringUtil;
 
 public class MyActionListener extends AbstractActionListener {
 
@@ -126,7 +127,7 @@ public class MyActionListener extends AbstractActionListener {
 		while (st1.hasMoreTokens()) {
 			Vector<String> tblRow = new Vector<String>();
 			String rowstring = st1.nextToken();
-			String[] st2 = rowstring.split("\t");
+			String[] st2 = StringUtil.split(rowstring, '\t');
 			lines ++;
 			tblRow.addElement(Integer.toString(lines));
 			for (String colValue : st2) {
