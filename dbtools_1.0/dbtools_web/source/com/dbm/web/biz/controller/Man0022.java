@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
@@ -63,6 +62,7 @@ public class Man0022 extends DefaultController {
 			// 取得指定表的所有列的信息
 			ResultSet columnRs = dmd.getColumns(null, null, realName, "%");
 			String colName = null;
+			String tempValue = null;
 			int total = 0;
 
 			while (columnRs.next()) {
@@ -92,6 +92,17 @@ public class Man0022 extends DefaultController {
 					// 不可为空
 					columnInfo.put("nullable", "");
 				}
+
+				// 是否自动增加(IS_AUTOINCREMENT)
+				tempValue = columnRs.getString(23);
+				if ("YES".equalsIgnoreCase(tempValue)) {
+					columnInfo.put("autoinc", "Y");
+				} else {
+					columnInfo.put("autoinc", "");
+				}
+
+				// 默认值(COLUMN_DEF)
+				columnInfo.put("colvalue", columnRs.getString(13));
 
 				// 列的注释
 				columnInfo.put("remark", StringUtil.NVL(columnRs.getString(12)));

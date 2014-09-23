@@ -33,7 +33,7 @@ public class DbClient4DefaultImpl extends DbClient {
 
 	@Override
 	public String getTableDataAt(int rowNum, int colNum) {
-		if (allRowSet != null && rowNum <= size()) {
+		if (allRowSet != null && rowNum < size()) {
 			try {
 				allRowSet.absolute(rowNum);
 				return allRowSet.getString(colNum);
