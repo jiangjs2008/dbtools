@@ -39,10 +39,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 	private int _pageCnt = 0;
 	// 每页表示件数
 	private int dataLimit = Session.PageDataLimit;
-	// 总件数
-	private int _dataCnt = 0;
 
-	Vector<String> colName = null;
 	private ResultSet _rowSet = null;
 	private DbClient dbClient = null;
 
@@ -61,18 +58,19 @@ public class PageJumpActionListener extends AbstractActionListener {
 	public void displayTableData(ResultSet rowSet, int currPage) {
 		dbClient = DbClientFactory.getDbClient();
 		this._rowSet = rowSet;
-		this._dataCnt = dbClient.size();
 		this.currPage = currPage;
+		// 总件数
+		int dataCnt = dbClient.size();
 
 		// 当前页表示件数
 		int itemSize = 0;
 		if (currPage == 1) {
 			// 第一次显示数据时计算总页数
-			if (_dataCnt > dataLimit) {
-				if (_dataCnt % dataLimit == 0) {
-					_pageCnt = _dataCnt / dataLimit;
+			if (dataCnt > dataLimit) {
+				if (dataCnt % dataLimit == 0) {
+					_pageCnt = dataCnt / dataLimit;
 				} else {
-					_pageCnt = _dataCnt / dataLimit + 1;
+					_pageCnt = dataCnt / dataLimit + 1;
 				}
 			} else {
 				_pageCnt = 1;
@@ -84,7 +82,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 			pagejumpPanel.setVisible(true);
 			if (currPage == _pageCnt) {
 				// 显示最后一页
-				itemSize = _dataCnt - dataLimit * (_pageCnt - 1);
+				itemSize = dataCnt - dataLimit * (_pageCnt - 1);
 			} else {
 				itemSize = dataLimit;
 			}
@@ -93,7 +91,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 
 		} else {
 			// 小于一页时，若分页相关组件已在显示则要关闭
-			itemSize = _dataCnt;
+			itemSize = dataCnt;
 			pagejumpPanel.setVisible(false);
 		}
 
@@ -106,7 +104,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 	 * @param length 数据条数
 	 */
 	private void setTableData(int length) {
-
+		Vector<String> colName = null;
 		Vector<Vector<String>> allData = null;
 		try {
 			// set table column name
@@ -124,7 +122,6 @@ public class PageJumpActionListener extends AbstractActionListener {
 
 			// 如果分页，开始只显示第一页的数据
 			allData = new Vector<Vector<String>>(length);
-			_rowSet.beforeFirst();
 
 			for (int i = 1; i <= length; i ++) {
 

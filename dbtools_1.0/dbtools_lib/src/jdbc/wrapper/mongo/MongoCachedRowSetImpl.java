@@ -63,11 +63,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		if (dataCount == 0) {
 			logger.info("此次查询结果为0");
 		}
-	}
 
-	// TODO -- 必须删除此函数，并入构造函数
-	@Override
-	public void beforeFirst() throws SQLException {
 		// 复制数据(只复制当前页数据)
 		if (_cur.hasNext()) {
 			dataList = new ArrayList<DBObject>(dataCount);
