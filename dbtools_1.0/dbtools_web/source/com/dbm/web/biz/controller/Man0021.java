@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
+import com.dbm.common.db.DbClient4MongoImpl;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.PropUtil;
 import com.dbm.common.util.StringUtil;
@@ -39,6 +40,10 @@ public class Man0021 extends DefaultController {
 		rsltJObj.put("rows", "{}");
 		rsltJObj.put("colmodel", "[[]]");
 
+		if ("empty".equals(sqlScript)) {
+			return rsltJObj.toJSONString();
+		}
+
 //		try {
 //			sqlScript = new String(sqlScript.getBytes("ISO-8859-1"), "utf-8");
 //		} catch (UnsupportedEncodingException eop) {
@@ -57,32 +62,36 @@ public class Man0021 extends DefaultController {
 
 		if (sqlScript == null || sqlScript.length() == 0 || pageNum == 0) {
 			logger.error("执行时错误 参数不对");
-			rsltJObj.put("ecd", "4");
+			rsltJObj.put("ecd", "5");
 			return rsltJObj.toJSONString();
 		}
 
 		try {
 			DbClient dbClient = DbClientFactory.getDbClient();
 			if (dbClient == null) {
-				logger.warn("数据库联接不正常 表：");
-				rsltJObj.put("emsg", "数据库联接不正常.");
+				logger.error("数据库联接不正常");
+				rsltJObj.put("ecd", "9");
+				rsltJObj.put("emsg", "数据库联接不正常");
 				return rsltJObj.toJSONString();
 			}
 
+			if (dbClient instanceof DbClient4MongoImpl) {
+				sqlScript = sqlScript.substring(7);
+			}
 			if (dbClient.getExecScriptType(sqlScript) == 1) {
 				// 数据检索
 				ResultSet rs = dbClient.directQuery(sqlScript, pageNum);
 				if (rs == null) {
 					logger.error("执行时错误 " + sqlScript);
-					rsltJObj.put("ecd", "4");
+					rsltJObj.put("ecd", "3");
 					return rsltJObj.toJSONString();
 				}
-				rsltJObj.put("ecd", "1");
+				
 
 				ResultSetMetaData rsm = rs.getMetaData();
 				if (rsm == null) {
 					logger.error("无元数据信息 " + sqlScript);
-					rsltJObj.put("ecd", "4");
+					rsltJObj.put("ecd", "3");
 					return rsltJObj.toJSONString();
 				}
 
@@ -109,11 +118,11 @@ public class Man0021 extends DefaultController {
 					dataInfo.add(params);
 				}
 
-				JSONObject params = new JSONObject();
-				params.put("total", dbClient.size());
-				params.put("rows", dataInfo);
-				params.put("colmodel", columnInfo);
-				return params.toJSONString();
+				rsltJObj.put("ecd", "0");
+				rsltJObj.put("total", dbClient.size());
+				rsltJObj.put("rows", dataInfo);
+				rsltJObj.put("colmodel", columnInfo);
+				return rsltJObj.toJSONString();
 
 			} else {
 				// 更新数据

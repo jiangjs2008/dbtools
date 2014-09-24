@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.math.NumberUtils;
@@ -38,6 +40,24 @@ import com.dbm.common.util.StringUtil;
 @Controller
 public class Man001 extends DefaultController {
 
+	/**
+	 * 用户登录(WEB)
+	 *
+	 * @param requestParam http request 参数
+	 * @param request http request 对象
+	 * @param response http response 对象
+	 *
+	 * @return ModelAndView 返回页面
+	 */
+	@RequestMapping("/pre001.do")
+	public ModelAndView pre001(HttpServletRequest request, HttpServletResponse response) {
+		Cookie cookUser = new Cookie("clientid", request.getSession().getId());
+		cookUser.setPath(request.getContextPath());
+		response.addCookie(cookUser);
+
+		// 欢迎画面
+		return new ModelAndView("man001");
+	}
 
 	@RequestMapping("/ajax/getdblist.do")
 	@ResponseBody

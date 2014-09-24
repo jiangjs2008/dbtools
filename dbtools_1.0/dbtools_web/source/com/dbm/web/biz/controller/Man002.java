@@ -47,20 +47,22 @@ public class Man002 extends DefaultController {
 			int lmt = StringUtil.parseInt(PropUtil.getAppConfig("page.data.count"));
 			pageNum = start / lmt + 1;
 		}
+
+		JSONObject rsltJObj = new JSONObject();
 		try {
 
 			DbClient dbClient = DbClientFactory.getDbClient();
+			if (dbClient == null) {
+				logger.error("数据库联接不正常");
+				rsltJObj.put("ecd", "9");
+				rsltJObj.put("emsg", "数据库联接不正常");
+				return rsltJObj.toJSONString();
+			}
 			dbClient.setTableName(_tblName);
 			ResultSet rs = dbClient.defaultQuery(pageNum);
 
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();
-			if (rsm == null) {
-				JSONObject params = new JSONObject();
-				params.put("total", 0);
-				params.put("rows", new ArrayList<JSONObject>());
-				return params.toJSONString();
-			}
 
 			JSONObject edtObj = null;
 			int deployType = NumberUtils.toInt(PropUtil.getAppConfig("deploy.type"));
@@ -91,20 +93,20 @@ public class Man002 extends DefaultController {
 				dataInfo.add(params);
 			}
 
-			JSONObject params = new JSONObject();
-			params.put("total", dbClient.size());
-			params.put("rows", dataInfo);
-			params.put("colmodel", columnInfo);
-			return params.toJSONString();
+			rsltJObj.put("total", dbClient.size());
+			rsltJObj.put("rows", dataInfo);
+			rsltJObj.put("colmodel", columnInfo);
+			rsltJObj.put("ecd", "0");
+			return rsltJObj.toJSONString();
 
 		} catch (Exception exp) {
-			logger.error("", exp);
-			JSONObject params = new JSONObject();
-			params.put("total", 0);
-			params.put("rows", "{}");
-			params.put("colmodel", "[[]]");
-			params.put("errorMsg ", exp.toString());
-			return params.toJSONString();
+			logger.error("获取数据时异常 表：" + _tblName, exp);
+			rsltJObj.put("total", 0);
+			rsltJObj.put("rows", "{}");
+			rsltJObj.put("colmodel", "[[]]");
+			rsltJObj.put("ecd", "4");
+			rsltJObj.put("emsg ", exp.toString());
+			return rsltJObj.toJSONString();
 		}
 	}
 
