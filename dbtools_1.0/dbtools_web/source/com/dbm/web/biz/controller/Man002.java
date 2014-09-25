@@ -60,9 +60,19 @@ public class Man002 extends DefaultController {
 			}
 			dbClient.setTableName(_tblName);
 			ResultSet rs = dbClient.defaultQuery(pageNum);
+			if (rs == null) {
+				logger.error("执行时错误 " + _tblName);
+				rsltJObj.put("ecd", "3");
+				return rsltJObj.toJSONString();
+			}
 
 			String colName = null;
 			ResultSetMetaData rsm = rs.getMetaData();
+			if (rsm == null) {
+				logger.error("无元数据信息 " + _tblName);
+				rsltJObj.put("ecd", "3");
+				return rsltJObj.toJSONString();
+			}
 
 			JSONObject edtObj = null;
 			int deployType = NumberUtils.toInt(PropUtil.getAppConfig("deploy.type"));

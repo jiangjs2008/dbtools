@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClient4MongoImpl;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.PropUtil;
 import com.dbm.common.util.StringUtil;
@@ -75,9 +74,6 @@ public class Man0021 extends DefaultController {
 				return rsltJObj.toJSONString();
 			}
 
-			if (dbClient instanceof DbClient4MongoImpl) {
-				sqlScript = sqlScript.substring(7);
-			}
 			if (dbClient.getExecScriptType(sqlScript) == 1) {
 				// 数据检索
 				ResultSet rs = dbClient.directQuery(sqlScript, pageNum);
@@ -86,7 +82,6 @@ public class Man0021 extends DefaultController {
 					rsltJObj.put("ecd", "3");
 					return rsltJObj.toJSONString();
 				}
-				
 
 				ResultSetMetaData rsm = rs.getMetaData();
 				if (rsm == null) {
