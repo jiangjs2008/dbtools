@@ -19,14 +19,20 @@ public class MongoResultSetMetaData extends AbstractResultSetMetaData {
 	 * 取得该表的列的个数<br>
 	 * 缺省主键("_id")不计入输出范围
 	 */
+	@Override
 	public int getColumnCount() throws java.sql.SQLException {
-		if (colNameList == null) {
+		if (colNameList == null || colNameList.length == 0) {
 			return 0;
 		} else {
-			return colNameList.length - 1;
+			if ("_id".equals(colNameList[0])) {
+				return colNameList.length - 1;
+			} else {
+				return colNameList.length ;
+			}
 		}
 	}
 
+	@Override
 	public String getColumnLabel(int column) throws java.sql.SQLException {
 		return getColumnName(column);
 	}
@@ -35,11 +41,16 @@ public class MongoResultSetMetaData extends AbstractResultSetMetaData {
 	 * 取得指定列的名称<br>
 	 * 第一列("_id")的索引为0, 实际应用中索引从1开始
 	 */
+	@Override
 	public String getColumnName(int column) throws java.sql.SQLException {
-		if (colNameList == null) {
+		if (colNameList == null || colNameList.length == 0) {
 			return "";
 		} else {
-			return colNameList[column];
+			if ("_id".equals(colNameList[0])) {
+				return colNameList[column];
+			} else {
+				return colNameList[column - 1];
+			}
 		}
 	}
 

@@ -266,11 +266,11 @@ public abstract class DbClient {
 			rs = dm.getTables(catalog, schemaPattern, tableNamePattern, types);
 			String schemaName = null;
 			while (rs.next()) {
-				schemaName = rs.getString(2);
+				schemaName = rs.getString("TABLE_SCHEM");
 				if (schemaName == null || schemaName.isEmpty()) {
-					list.add(rs.getString(3));
+					list.add(rs.getString("TABLE_NAME"));
 				} else {
-					list.add(rs.getString(2) + "." + rs.getString(3));
+					list.add(rs.getString("TABLE_SCHEM") + "." + rs.getString("TABLE_NAME"));
 				}
 			}
 		} catch (SQLException ex) {

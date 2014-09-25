@@ -34,6 +34,7 @@ public class SQLiteResultSet extends AbstractResultSet {
 		this.datas = datas;
 	}
 
+	@Override
 	public boolean next() throws SQLException {
 		if (rowIdx < rowCnt - 1) {
 			rowIdx ++;
@@ -43,12 +44,14 @@ public class SQLiteResultSet extends AbstractResultSet {
 		}
 	}
 
+	@Override
 	public void setFetchDirection(int dir) throws SQLException {
 		if (dir != ResultSet.FETCH_FORWARD) {
 			throw new SQLException("only forward fetch direction supported");
 		}
 	}
 
+	@Override
 	public int getFetchDirection() throws SQLException {
 		return ResultSet.FETCH_FORWARD;
 	}

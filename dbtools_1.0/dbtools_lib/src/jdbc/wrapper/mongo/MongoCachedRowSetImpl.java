@@ -14,6 +14,7 @@ import javax.sql.rowset.spi.SyncProviderException;
 import jdbc.wrapper.AbstractCachedRowSet;
 
 import com.dbm.common.log.LoggerWrapper;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -47,23 +48,48 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	/**
 	 * 构造函数
 	 */
-	public MongoCachedRowSetImpl(DB dbObj, String tblName, int pageNum, int limit) {
+	public MongoCachedRowSetImpl(DB dbObj, String tblName, BasicDBList reqObj, int pageNum, int limit) {
 		// 查询所有的数据
 		_tblObj = dbObj.getCollection(tblName);
 
 		if (pageNum == 0) {
 			// 不分页
-			_cur = _tblObj.find();
+			if (reqObj == null || reqObj.size() == 0) {
+				_cur = _tblObj.find();
+			} else if (reqObj.size() == 1) {
+				_cur = _tblObj.find((DBObject) reqObj.get(0));
+			} else {
+				_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
+			}
+
 		} else if (pageNum == 1) {
-			_cur = _tblObj.find().limit(limit);
+			if (reqObj == null || reqObj.size() == 0) {
+				_cur = _tblObj.find();
+			} else if (reqObj.size() == 1) {
+				_cur = _tblObj.find((DBObject) reqObj.get(0));
+			} else {
+				_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
+			}
+			_cur = _cur.limit(limit);
+
 		} else {
-			_cur = _tblObj.find().skip((pageNum - 1) * limit).limit(limit);
+			if (reqObj == null || reqObj.size() == 0) {
+				_cur = _tblObj.find();
+			} else if (reqObj.size() == 1) {
+				_cur = _tblObj.find((DBObject) reqObj.get(0));
+			} else {
+				_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
+			}
+			_cur = _cur.skip((pageNum - 1) * limit).limit(limit);
 		}
 		dataCount = _cur.size();
 		if (dataCount == 0) {
 			logger.info("此次查询结果为0");
 		}
+	}
 
+	@Override
+	public void beforeFirst() throws SQLException {
 		// 复制数据(只复制当前页数据)
 		if (_cur.hasNext()) {
 			dataList = new ArrayList<DBObject>(dataCount);
@@ -167,6 +193,9 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	 */
 	@Override
 	public ResultSetMetaData getMetaData() throws SQLException {
+		if (mrsr == null) {
+			mrsr = new MongoResultSetMetaData(null);
+		}
 		return mrsr;
 	}
 

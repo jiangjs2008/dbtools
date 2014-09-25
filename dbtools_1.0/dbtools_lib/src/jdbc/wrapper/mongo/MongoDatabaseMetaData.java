@@ -14,6 +14,11 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 
 	private DB _dbObj = null;
 
+	private final static String[] tableTypName = new String[] { "TABLE_TYPE" };
+	private final static String[][] tableTypValue = new String[][] { {"Collections"}, {"Stored JavaScript"}, {"GridFs"} };
+
+	private final static String[] columnName = new String[] { "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "COLUMN_NAME" };
+
 	/**
 	 * 缺省构造函数
 	 */
@@ -23,12 +28,7 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 
 	@Override
 	public ResultSet getTableTypes() throws SQLException {
-		String[][] rslt = new String[3][1];
-		rslt[0][0] = "Collections";
-		rslt[1][0] = "Stored JavaScript";
-		rslt[2][0] = "GridFs";
-
-		return new MongoResultSet(new String[] { "TABLE_TYPE" }, rslt);
+		return new MongoResultSet(tableTypName, tableTypValue);
 	}
 
 	@Override
@@ -62,13 +62,13 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 			rslt[0][2] = "fs.files";
 			//rslt[1][2] = "fs.chunks";
 		}
-		return new MongoResultSet(null, rslt);
+		return new MongoResultSet(columnName, rslt);
 	}
 
 	@Override
 	public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
 			throws SQLException {
-		ResultSet rs = new MongoCachedRowSetImpl(_dbObj, tableNamePattern, 1, 1);
+		ResultSet rs = new MongoCachedRowSetImpl(_dbObj, tableNamePattern, null, 1, 1);
 		rs.beforeFirst();
 		ResultSetMetaData rsm = rs.getMetaData();
 		if (rsm == null) {
@@ -80,7 +80,7 @@ public class MongoDatabaseMetaData extends AbstractDatabaseMetaData {
 		for (int i = 0; i < colCnt; i ++) {
 			rslt[i][3] = rsm.getColumnName(i + 1);
 		}
-		return new MongoResultSet(null, rslt);
+		return new MongoResultSet(columnName, rslt);
 	}
 
 }

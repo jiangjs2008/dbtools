@@ -19,14 +19,17 @@ public class SQLiteConnection extends AbstractConnection {
 	SQLiteConnection() {
 	}
 
+	@Override
 	public Statement createStatement() {
 		return null;
 	}
 
+	@Override
 	public Statement createStatement(int resultSetType, int resultSetConcurrency) {
 		return null;
 	}
 
+	@Override
 	public DatabaseMetaData getMetaData() throws SQLException {
 		if (meta == null) {
 			meta = new SQLiteDatabaseMetaData();
@@ -34,10 +37,12 @@ public class SQLiteConnection extends AbstractConnection {
 		return meta;
 	}
 
+	@Override
 	public void close() throws SQLException {
 
 	}
 
+	@Override
 	public boolean isClosed() throws SQLException {
 		return true;
 	}

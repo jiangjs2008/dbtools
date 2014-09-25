@@ -23,6 +23,7 @@ public class MongoConnection extends AbstractConnection {
 		this._dbObj = dbObj;
 	}
 
+	@Override
 	public DatabaseMetaData getMetaData() throws SQLException {
 		if (meta == null) {
 			meta = new MongoDatabaseMetaData(_dbObj);

@@ -3,19 +3,18 @@
  */
 package com.dbm.common.db;
 
-import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import jdbc.wrapper.mongo.MongoCachedRowSetImpl;
 import jdbc.wrapper.mongo.MongoConnection;
 import jdbc.wrapper.mongo.MongoResultSet;
 
-import com.dbm.common.error.BaseExceptionWrapper;
-import com.dbm.common.error.WarningException;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
+
 
 /**
  * MongoDb数据库操作
@@ -28,67 +27,89 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 
 	@Override
 	public boolean start(String[] args) {
-		_dbArgs = args;
-		String dbUrl = _dbArgs[1];
-
-		try {
-			Class.forName(_dbArgs[0]);
-			_dbConn = DriverManager.getConnection(dbUrl, _dbArgs[2], _dbArgs[3]);
-			dbObj = ((MongoConnection) _dbConn).getMongoDb();
-			_isConnected = true;
-			return true;
-		} catch (Exception exp) {
-			logger.error(exp);
-			return false;
-		}
+		boolean rslt = super.start(args);
+		dbObj = ((MongoConnection) _dbConn).getMongoDb();
+		return rslt;
 	}
 
-	@Override
-	public int getExecScriptType(String action) {
-		int sqlType = 0;
-		if (action != null) {
-			action = action.trim();
-		}
-		if (action.length() <= 15) {
-			throw new WarningException(20001);
-		}
-
-		// 判断SQL类型
-		if (action.indexOf(".find") > 0 || action.indexOf(".count") > 0) {
-			sqlType = 1;
-		} else if (action.indexOf("db.createCollection(") == 0 || action.indexOf(".drop(") == 0
-				|| action.indexOf(".insert(") == 0 || action.indexOf(".update(") == 0
-				|| action.indexOf(".remove(") == 0 ) {
-			sqlType = 2;
-		} else {
-			throw new WarningException(20001);
-		}
-		return sqlType;
-	}
-
+	/**
+	 * MongoDb目前支持的操作：<br>
+	 * db.collection.find/findOne(), db.collection.count()
+	 */
 	@Override
 	public ResultSet directQuery(String sqlStr, int pageNum) {
 		// 查询数据，此处只需考虑分页，不需考虑更新
-		int dot_1st = sqlStr.indexOf(".");
-		int dot_2nd = sqlStr.indexOf(".", dot_1st + 1);
-		String tblName = sqlStr.substring(dot_1st + 1, dot_2nd);
+		String tblName = null;
+		// 先判断是否是"fs.files"
+		if (sqlStr.indexOf(".fs.files.") > 0) {
+			tblName = "fs.files";
+		} else {
+			int dot_1st = sqlStr.indexOf('.');
+			int dot_2nd = sqlStr.indexOf('.', dot_1st + 1);
+			tblName = sqlStr.substring(dot_1st + 1, dot_2nd);
+		}
 
-		if (sqlStr.indexOf(".find(") > 0) {
+		int findIdx = sqlStr.indexOf(".find(");
+		int findOneIdx = sqlStr.indexOf(".findOne(");
+		int countIdx = sqlStr.indexOf(".count(");
+
+		if (findIdx > 0) {
 			// 查询
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (SQLException exp) {
-					logger.error(exp);
-				}
+			BasicDBList reqObj = getReqDbObj(sqlStr, findIdx + 6);
+			if (reqObj == null) {
+				return null;
 			}
-			rs = new MongoCachedRowSetImpl(dbObj, tblName, 1, 500);
 
-		} else if (sqlStr.indexOf(".findOne(") > 0) {
-			
-			
-		} else if (sqlStr.indexOf(".count(") > 0) {
-			long size = dbObj.getCollection(tblName).count();
+			// 先取得该查询的数据总件数
+			if (pageNum == 1) {
+				_size = 0;
+				allRowSet = new MongoCachedRowSetImpl(dbObj, tblName, reqObj, 0, 0);
+				_size = allRowSet.size();
+				logger.debug("TBL: " + _tblName + " size: " + _size);
+			}
+			allRowSet = new MongoCachedRowSetImpl(dbObj, tblName, reqObj, pageNum, _pageSize);
+			try {
+				allRowSet.beforeFirst();
+			} catch (Exception exp) {
+				logger.error(exp);
+			}
+			return allRowSet;
+
+		} else if (findOneIdx > 0) {
+			_size = 0;
+			BasicDBList reqObj = getReqDbObj(sqlStr, findOneIdx + 9);
+			if (reqObj == null) {
+				return null;
+			}
+
+			BasicDBObject rsltObj = null;
+			if (reqObj.size() == 1) {
+				rsltObj = (BasicDBObject) dbObj.getCollection(tblName).findOne((DBObject) reqObj.get(0));
+			} else if (reqObj.size() == 2) {
+				rsltObj = (BasicDBObject) dbObj.getCollection(tblName).findOne((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
+			} else {
+				rsltObj = (BasicDBObject) dbObj.getCollection(tblName).findOne();
+			}
+			if (rsltObj != null) {
+				_size = rsltObj.size();
+			}
+			if (_size == 0) {
+				return new MongoResultSet(null, null);
+			}
+			return new MongoResultSet(rsltObj);
+
+		} else if (countIdx > 0) {
+			BasicDBList reqObj = getReqDbObj(sqlStr, countIdx + 7);
+			if (reqObj == null) {
+				return null;
+			}
+
+			long size = 0;
+			if (reqObj.size() == 1) { 
+				size = dbObj.getCollection(tblName).count((DBObject) reqObj.get(0));
+			} else {
+				size = dbObj.getCollection(tblName).count();
+			}
 			_size = 1;
 			return new MongoResultSet(new String[] {"count"}, new String[][] { new String[]{ Long.toString(size) } });
 		}
@@ -96,13 +117,43 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	}
 
 	/**
+	 * 解析SQL参数
+	 *
+	 * @param sqlStr SQL文
+	 * @param begIdx SQL参数索引开始位置
+	 *
+	 * @return BasicDBList SQL参数
+	 */
+	private BasicDBList getReqDbObj(String sqlStr, int begIdx) {
+		try {
+			int endIdx = sqlStr.indexOf(')', begIdx);
+			String scripts = sqlStr.substring(begIdx, endIdx);
+			BasicDBList ja = (BasicDBList) JSON.parse("[" + scripts + "]");
+
+			if (ja == null) {
+				logger.error("解析SQL参数时出错: " + sqlStr);
+				return null;
+			}
+			if (ja.size() > 2) {
+				logger.error("不支持的操作，参数过多: " + sqlStr);
+				return null;
+			}
+			return ja;
+
+		} catch (Exception exp) {
+			logger.error("解析SQL语句时出错: " + sqlStr);
+			logger.error(exp);
+			return null;
+		}
+	}
+
+	/**
 	 * MongoDb目前支持的操作：<br>
 	 * db.createCollection(), db.collection.drop(),
-	 * db.collection.find/findOne(), db.collection.insert(), db.collection.update(), db.collection.remove(),
+	 * db.collection.insert(), db.collection.update(), db.collection.remove(),
 	 */
 	@Override
 	public boolean directExec(String action) {
-
 		// 判断SQL类型
 		if (action.startsWith("db.createCollection(")) {
 			// 创建表
@@ -148,21 +199,20 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	public ResultSet defaultQuery(int pageNum) {
 		currPage = pageNum;
 
-		try {
-			// 先取得该表的数据总件数
-			if (pageNum == 1) {
-				allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, 0, 0);
-				_size = allRowSet.size();
-				logger.debug("TBL: " + _tblName + " size: " + _size);
-			}
-
-			allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, pageNum, _pageSize);
-			allRowSet.beforeFirst();
-			return allRowSet;
-
-		} catch (Exception exp) {
-			throw new BaseExceptionWrapper(exp);
+		// 先取得该表的数据总件数
+		if (pageNum == 1) {
+			allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, null, 0, 0);
+			_size = allRowSet.size();
+			logger.debug("TBL: " + _tblName + " size: " + _size);
 		}
+
+		allRowSet = new MongoCachedRowSetImpl(dbObj, _tblName, null, pageNum, _pageSize);
+		try {
+			allRowSet.beforeFirst();
+		} catch (Exception exp) {
+			logger.error(exp);
+		}
+		return allRowSet;
 	}
 
 }

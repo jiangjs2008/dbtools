@@ -1,7 +1,5 @@
 package com.dbm.common.property;
 
-import com.alibaba.fastjson.JSON;
-
 /**
  * [name]<br>
  * 最常用数据库<br><br>
@@ -44,7 +42,16 @@ public class FavrBean {
 	 */
 	public boolean useFlg = false;
 
+	@Override
 	public String toString() {
-		return JSON.toJSONString(this);
+		StringBuilder rs = new StringBuilder();
+		rs.append("ConnBean:={'name':'");
+		rs.append(name);
+		rs.append("', 'description':'");
+		rs.append(description);
+		rs.append("', 'url':'");
+		rs.append(url);
+		rs.append("'}");
+		return rs.toString();
 	}
 }
