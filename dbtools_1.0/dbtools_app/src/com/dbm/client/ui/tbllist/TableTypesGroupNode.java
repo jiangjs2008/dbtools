@@ -34,14 +34,14 @@ public class TableTypesGroupNode extends BaseNode {
 	 * 节点展开，显示所属对象一览，如表、视图一览
 	 */
 	@Override
-	public void expand(List<String> tables) {
+	public void expand(List<String[]> tables) {
 		if (getChildCount() == 0) {
 			CursorChanger cc = new CursorChanger((Component) AppUIAdapter.getUIObj(AppUIAdapter.AppMainGUI));
 			cc.show();
 			try {
 				ObjectsTreeModel model = getTreeModel();
-				for (String objName : tables) {
-					BaseNode node = new BaseNode(model, objName);
+				for (String[] objName : tables) {
+					BaseNode node = new BaseNode(model, objName[0]);
 					model.insertNodeInto(node, this, this.getChildCount());
 				}
 			} catch (Exception ex) {

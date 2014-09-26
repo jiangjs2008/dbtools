@@ -45,7 +45,7 @@ public class BaseNode extends DefaultMutableTreeNode {
     }
 
 
-    public void expand(List<String> tables) {
+    public void expand(List<String[]> tables) {
     }
 
 
