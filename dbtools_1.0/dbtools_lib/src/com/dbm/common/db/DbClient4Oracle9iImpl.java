@@ -107,7 +107,7 @@ public class DbClient4Oracle9iImpl extends DbClient4DefaultImpl {
 	 * @return
 	 */
 	@Override
-	public List<String> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
+	public List<String[]> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
 		String schema = null;
 		try {
 			schema = getConnection().getMetaData().getUserName();

@@ -14,6 +14,7 @@ import java.util.List;
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
 import com.dbm.common.log.LoggerWrapper;
+import com.dbm.common.util.StringUtil;
 
 /**
  * [class]<br>
@@ -256,8 +257,8 @@ public abstract class DbClient {
 	 *
 	 * @return
 	 */
-	public List<String> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
-		ArrayList<String> list = new ArrayList<String>();
+	public List<String[]> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
+		ArrayList<String[]> list = new ArrayList<String[]>();
 		ResultSet rs = null;
 		try {
 			Connection conn = getConnection();
@@ -267,11 +268,14 @@ public abstract class DbClient {
 			String schemaName = null;
 			while (rs.next()) {
 				schemaName = rs.getString("TABLE_SCHEM");
+				String[] items = new String[2];
 				if (schemaName == null || schemaName.isEmpty()) {
-					list.add(rs.getString("TABLE_NAME"));
+					items[0] = rs.getString("TABLE_NAME");
 				} else {
-					list.add(rs.getString("TABLE_SCHEM") + "." + rs.getString("TABLE_NAME"));
+					items[0] = rs.getString("TABLE_SCHEM") + "." + rs.getString("TABLE_NAME");
 				}
+				items[1] = StringUtil.NVL(rs.getString("REMARKS"));
+				list.add(items);
 			}
 		} catch (SQLException ex) {
 			throw new BaseExceptionWrapper(ex);
