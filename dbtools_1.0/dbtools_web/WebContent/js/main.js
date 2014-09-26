@@ -5,9 +5,7 @@ function getCookie(c_name) {
 		if (c_start != -1) { 
 			c_start = c_start + c_name.length + 1 
 			c_end = document.cookie.indexOf(";", c_start)
-			if (c_end == -1) {
-				c_end=document.cookie.length
-			}
+			if (c_end == -1) c_end=document.cookie.length
 			return unescape(document.cookie.substring(c_start,c_end))
 		} 
 	}
@@ -97,11 +95,9 @@ function execScript() {
 		return;
 	}
 
-	var value = getCookie("clientid");
-	//alert(value);
-
+	var clientid = getCookie("clientid");
 	var sqlType = sqlScript.substring(0, idx).toLocaleLowerCase();
-	sqlScript = encodeURIComponent(sqlScript);
+	sqlScript = encodeURIComponent(encodeURIComponent(sqlScript));
 
 	// 先清空现有数据
 	var target = $('#mytree2').omTree('getSelected');
@@ -110,13 +106,12 @@ function execScript() {
 	}
 	$("#tblname").text('');
 
-
 	if ('select' != sqlType) {
 		$("#grid").omGrid({
 			autoColModel: true,
 			dataSource : "/dbm/ajax/sqlscript.do?sqlscript=empty&t=" + parseInt(Math.random()*100000)
 		});
-		$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000), function(data) { showErrMsg(data); });
+		$.getJSON("/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + "&clientid=" + clientid + '&t=' + parseInt(Math.random()*100000), function(data) { showErrMsg(data); });
 	} else {
 
 		$("#grid").omGrid({
@@ -124,7 +119,7 @@ function execScript() {
 			height: 'fit',
 			width : 'fit',
 			autoColModel: true,
-			dataSource : "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + '&t=' + parseInt(Math.random()*100000),
+			dataSource : "/dbm/ajax/sqlscript.do?sqlscript=" + sqlScript + "&clientid=" + clientid + '&t=' + parseInt(Math.random()*100000),
 			preProcess: function(data) {
 				showErrMsg(data);
 				return data;
@@ -244,17 +239,17 @@ function onSelectNode(item) {
 						 {header : '类型名', name : 'type', width : 110},
 						 {header : '大小', name : 'size', width : 60},
 						 {header : '主键', name : 'pk', width : 30, align : 'center' },
-						 {header : '为空', name : 'nullable', width : 30, align : 'center' },
+						 {header : '可为空', name : 'nullable', width : 35, align : 'center' },
 						 {header : '自增加', name : 'autoinc', width : 35, align : 'center' },
-						 {header : '默认值', name : 'colvalue', width : 60},
+						 {header : '默认值', name : 'colvalue', width : 50},
 						 {header : '注释', name : 'remark', width : 250} ]
 		 });
 		 $( "#dialog").omDialog({
-			width : 950,
+			width : 962,
 			height: 350,
 			modal: true,
 			resizable:false,
-			title: '表定义'
+			title: '表定义 [' + node.text + "] - " + node.remarks
 		});
 
 	} else if (item.id  == "002") {

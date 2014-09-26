@@ -1,5 +1,7 @@
 package com.dbm.web.biz.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.PropUtil;
 import com.dbm.common.util.StringUtil;
+import com.dbm.web.util.SQLsSession;
 
 /**
  * [name]<br>
@@ -40,16 +43,19 @@ public class Man0021 extends DefaultController {
 		rsltJObj.put("colmodel", "[[]]");
 
 		if ("empty".equals(sqlScript)) {
+			// 清空画面原有数据
+			rsltJObj.put("ecd", "0");
 			return rsltJObj.toJSONString();
 		}
 
-//		try {
-//			sqlScript = new String(sqlScript.getBytes("ISO-8859-1"), "utf-8");
-//		} catch (UnsupportedEncodingException eop) {
-//			logger.error(sqlScript, eop);
-//			rsltJObj.put("ecd", "0");
-//			return rsltJObj.toJSONString();
-//		}
+		try {
+			sqlScript = URLDecoder.decode(sqlScript, "UTF-8");
+		} catch (UnsupportedEncodingException eop) {
+			logger.error(sqlScript, eop);
+			rsltJObj.put("ecd", "5");
+			return rsltJObj.toJSONString();
+		}
+
 		int start = NumberUtils.toInt(requestParam.get("start"), -1);
 		int pageNum = 0;
 		if (start == -1) {
@@ -65,15 +71,21 @@ public class Man0021 extends DefaultController {
 			return rsltJObj.toJSONString();
 		}
 
-		try {
-			DbClient dbClient = DbClientFactory.getDbClient();
-			if (dbClient == null) {
-				logger.error("数据库联接不正常");
-				rsltJObj.put("ecd", "9");
-				rsltJObj.put("emsg", "数据库联接不正常");
-				return rsltJObj.toJSONString();
-			}
+		DbClient dbClient = DbClientFactory.getDbClient();
+		if (dbClient == null) {
+			logger.error("数据库联接不正常");
+			rsltJObj.put("ecd", "9");
+			rsltJObj.put("emsg", "数据库联接不正常");
+			return rsltJObj.toJSONString();
+		}
 
+		// 将用户的SQL脚本存入缓存
+		String clientId = requestParam.get("clientid");
+		if (clientId != null && clientId.length() > 0) {
+			SQLsSession.saveSQLsSession(clientId, sqlScript);
+		}
+
+		try {
 			if (dbClient.getExecScriptType(sqlScript) == 1) {
 				// 数据检索
 				ResultSet rs = dbClient.directQuery(sqlScript, pageNum);

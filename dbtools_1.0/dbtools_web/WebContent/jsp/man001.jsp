@@ -7,12 +7,19 @@
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">
 <title>选择数据库</title>
+<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
 <script type="text/javascript" src="/dbm/js/jquery-1.8.3.min.js"></script>
 <script type="text/javascript" src="/dbm/js/operamasks-ui.js"></script>
 <script type="text/javascript" src="/dbm/js/base64.js"></script>
 <script type="text/javascript" src="/dbm/js/main.js"></script>
-<link rel="stylesheet" type="text/css" href="/dbm/css/om-default.css">
 <script type="text/javascript">
+
+var value = getCookie('clientid');
+if (value == null || value == "") {
+	value = "<%=session.getId()%>";
+	setCookie('clientid', value, 365);
+}
+
 $(document).ready(function() {
 	$.getJSON("/dbm/ajax/getdblist.do", initCombo);
 	$('#aButton').omButton({onClick : man001Submit});
