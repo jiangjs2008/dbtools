@@ -43,6 +43,7 @@ public class LoginFilter implements Filter {
 		// 如果访问首页则不验证
 		if ("/".equals(servletPath)
 				|| "/jsp/man001.jsp".equals(servletPath)
+				|| "/ajax/createopid.do".equals(servletPath)
 				|| "/ajax/getdblist.do".equals(servletPath)
 				|| "/ajax/getdblogininfo.do".equals(servletPath)
 				|| "/login.do".equals(servletPath)
