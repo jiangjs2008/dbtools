@@ -221,7 +221,7 @@ public abstract class DbClient {
 	/**
 	 * 取得DB对象分类信息，如：表、视图等等
 	 */
-	public List<String> getDbMetaData() {
+	public List<String> getTableTypes() {
 		List<String> rslt = new ArrayList<String>();
 		ResultSet rs = null;
 		try {
@@ -257,7 +257,7 @@ public abstract class DbClient {
 	 *
 	 * @return
 	 */
-	public List<String[]> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
+	public List<String[]> getTableList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
 		ArrayList<String[]> list = new ArrayList<String[]>();
 		ResultSet rs = null;
 		try {

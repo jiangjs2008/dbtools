@@ -16,7 +16,6 @@ import oracle.sql.STRUCT;
 
 import com.dbm.common.error.BaseExceptionWrapper;
 
-
 /**
  * 缺省数据库操作类
  *
@@ -107,13 +106,13 @@ public class DbClient4Oracle9iImpl extends DbClient4DefaultImpl {
 	 * @return
 	 */
 	@Override
-	public List<String[]> getDbObjList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
+	public List<String[]> getTableList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
 		String schema = null;
 		try {
 			schema = getConnection().getMetaData().getUserName();
 		} catch (SQLException ex) {
 			logger.error(ex);
 		}
-		return super.getDbObjList(catalog, schema, tableNamePattern, types);
+		return super.getTableList(catalog, schema, tableNamePattern, types);
 	}
 }
