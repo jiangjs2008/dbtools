@@ -2,6 +2,7 @@ package com.dbm.web.biz.controller;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +32,13 @@ public class Man0022 extends DefaultController {
 	/**
 	 * 获取表定义信息
 	 *
-	 * @param requestParam
+	 * @param requestParam HTTP请求参数
 	 *
-	 * @return
+	 * @return String 表定义信息
 	 */
 	@RequestMapping("/ajax/biz/inf001.do")
 	@ResponseBody
-	public String getCmp0030View(@RequestParam Map<String,String> requestParam){
+	public String getTblDefInfo(@RequestParam Map<String,String> requestParam){
 		logger.debug("/sale/cmp0010.do =>getCmp0010View()");
 		JSONObject rsltJObj = new JSONObject();
 		rsltJObj.put("total", 0);
@@ -45,47 +46,66 @@ public class Man0022 extends DefaultController {
 
 		try {
 			DbClient dbClient = DbClientFactory.getDbClient();
+			if (dbClient == null) {
+				logger.error("数据库联接不正常");
+				rsltJObj.put("ecd", "9");
+				rsltJObj.put("emsg", "数据库联接不正常");
+				return rsltJObj.toJSONString();
+			}
+			String realName = requestParam.get("tblname");
+			realName = getRealTblName(dbClient, realName);
+			if (realName == null) {
+				logger.error("执行时错误 参数不对");
+				rsltJObj.put("ecd", "5");
+				return rsltJObj.toJSONString();
+			}
 			DatabaseMetaData dmd = dbClient.getConnection().getMetaData();
 
-			String realName = getRealTblName(dbClient, requestParam.get("tblname"));
+			String schema = null;
+			try {
+				if (dbClient.hasSchema()) {
+					schema = dbClient.getConnection().getMetaData().getUserName();
+				}
+			} catch (SQLException ex) {
+				logger.error(ex);
+			}
 
 			// 取得指定表的主键信息
-			ResultSet pkRs = dmd.getPrimaryKeys(null, null, realName);
+			ResultSet pkRs = dmd.getPrimaryKeys(null, schema, realName);
 			ArrayList<String> pkList = new ArrayList<String>();
 			if (pkRs != null) {
 				while (pkRs.next()) {
-					pkList.add(pkRs.getString(4));
+					pkList.add(pkRs.getString(4)); // COLUMN_NAME
 				}
 			}
 
 			ArrayList<HashMap<String, String>> allData = new ArrayList<HashMap<String, String>>();
 			// 取得指定表的所有列的信息
-			ResultSet columnRs = dmd.getColumns(null, null, realName, "%");
-			String colName = null;
+			ResultSet columnRs = dmd.getColumns(null, schema, realName, "%");
 			String tempValue = null;
-			int total = 0;
 
 			while (columnRs.next()) {
-				HashMap<String, String> columnInfo = new HashMap<String, String>(6);
+				HashMap<String, String> columnInfo = new HashMap<String, String>(8);
 
-				// 列名
-				colName = columnRs.getString(4);
-				columnInfo.put("colname", colName);
-				// 类型名
+				// 列名 COLUMN_NAME
+				tempValue = columnRs.getString(4);
+				columnInfo.put("colname", tempValue);
+				// 类型名 TYPE_NAME
 				columnInfo.put("type", columnRs.getString(6));
-				// 列的大小
+				// 列的大小 COLUMN_SIZE
 				columnInfo.put("size", columnRs.getString(7));
 
 				// 是否为主键
-				if (pkList.indexOf(colName) >= 0) {
+				if (pkList.indexOf(tempValue) >= 0) {
 					// 是主键
 					columnInfo.put("pk", "Y");
 				} else {
 					columnInfo.put("pk", "");
 				}
 
-				// 是否可为空
-				if (columnRs.getInt(11) == 1) {
+				// 是否可为空 NULLABLE
+				tempValue = columnRs.getString(11);
+				if ("YES".equalsIgnoreCase(tempValue) || "true".equalsIgnoreCase(tempValue) || "1".equals(tempValue)) {
 					// 可为空
 					columnInfo.put("nullable", "Y");
 				} else {
@@ -93,35 +113,140 @@ public class Man0022 extends DefaultController {
 					columnInfo.put("nullable", "");
 				}
 
-				// 是否自动增加(IS_AUTOINCREMENT)
+				// 是否自动增加 IS_AUTOINCREMENT
 				tempValue = columnRs.getString(23);
-				if ("YES".equalsIgnoreCase(tempValue)) {
+				if ("YES".equalsIgnoreCase(tempValue) || "true".equalsIgnoreCase(tempValue) || "1".equals(tempValue)) {
 					columnInfo.put("autoinc", "Y");
 				} else {
 					columnInfo.put("autoinc", "");
 				}
 
-				// 默认值(COLUMN_DEF)
+				// 默认值 COLUMN_DEF
 				columnInfo.put("colvalue", columnRs.getString(13));
 
-				// 列的注释
+				// 列的注释 REMARKS
 				columnInfo.put("remark", StringUtil.NVL(columnRs.getString(12)));
 
-				total ++;
 				allData.add(columnInfo);
 			}
 
-			rsltJObj.put("total", total);
+			rsltJObj.put("ecd", "0");
+			rsltJObj.put("total", allData.size());
 			rsltJObj.put("rows", allData);
 
 		} catch (Exception exp) {
 			logger.error("", exp);
-			rsltJObj.put("ecd", 1);
+			rsltJObj.put("ecd", "4");
+			rsltJObj.put("emsg ", exp.toString());
 		}
 		return rsltJObj.toJSONString();
 	}
 
+	/**
+	 * 获取索引定义信息
+	 *
+	 * @param requestParam HTTP请求参数
+	 *
+	 * @return String 表定义信息
+	 */
+	@RequestMapping("/ajax/biz/inf002.do")
+	@ResponseBody
+	public String getTblIdxInfo(@RequestParam Map<String,String> requestParam){
+		logger.debug("/sale/cmp0010.do =>getCmp0010View()");
+		JSONObject rsltJObj = new JSONObject();
+		rsltJObj.put("total", 0);
+		rsltJObj.put("rows", "{}");
+
+		try {
+			DbClient dbClient = DbClientFactory.getDbClient();
+			if (dbClient == null) {
+				logger.error("数据库联接不正常");
+				rsltJObj.put("ecd", "9");
+				rsltJObj.put("emsg", "数据库联接不正常");
+				return rsltJObj.toJSONString();
+			}
+			String realName = getRealTblName(dbClient, requestParam.get("tblname"));
+			if (realName == null) {
+				logger.error("执行时错误 参数不对");
+				rsltJObj.put("ecd", "5");
+				return rsltJObj.toJSONString();
+			}
+			DatabaseMetaData dmd = dbClient.getConnection().getMetaData();
+
+			String schema = null;
+			try {
+				if (dbClient.hasSchema()) {
+					schema = dbClient.getConnection().getMetaData().getUserName();
+				}
+			} catch (SQLException ex) {
+				logger.error(ex);
+			}
+
+			// 取得指定表的索引信息
+			ResultSet columnRs = dmd.getIndexInfo(null, schema, realName, true, true);
+			String tempValue = null;
+			HashMap<String, String>  columnInfo = null;
+			ArrayList<HashMap<String, String>> allData = new ArrayList<HashMap<String, String>>();
+
+			while (columnRs.next()) {
+				columnInfo = new HashMap<String, String>(6);
+
+				// 索引名称(INDEX_NAME)
+				columnInfo.put("name", columnRs.getString(6));
+				// 索引类型(TYPE)
+				tempValue = columnRs.getString(7);
+				if ("0".equals(tempValue)) {
+					tempValue = "0:tableIndexStatistic";
+				} else if ("1".equals(tempValue)) {
+					tempValue = "1:tableIndexClustered";
+				} else if ("2".equals(tempValue)) {
+					tempValue = "2:tableIndexHashed";
+				} else if ("3".equals(tempValue)) {
+					tempValue = "3:tableIndexOther";
+				}
+				columnInfo.put("type", tempValue);
+
+				// 是否不唯一(NON_UNIQUE)
+				tempValue = columnRs.getString(4);
+				if ("YES".equalsIgnoreCase(tempValue) || "true".equalsIgnoreCase(tempValue) || "1".equals(tempValue)) {
+					columnInfo.put("nun", "Y");
+				} else {
+					columnInfo.put("nun", "");
+				}
+
+				// 索引中的列序列号(ORDINAL_POSITION)
+				columnInfo.put("ord", columnRs.getString(8));
+				// 列排序序列(ASC_OR_DESC)
+				columnInfo.put("asc", StringUtil.NVL(columnRs.getString(10)));
+				// 列名称 COLUMN_NAME
+				columnInfo.put("colname", columnRs.getString(9));
+				
+				allData.add(columnInfo);
+			}
+
+			rsltJObj.put("total", allData.size());
+			rsltJObj.put("rows", allData);
+
+		} catch (Exception exp) {
+			logger.error("", exp);
+			rsltJObj.put("ecd", "4");
+			rsltJObj.put("emsg ", exp.toString());
+		}
+		return rsltJObj.toJSONString();
+	}
+	
+	/**
+	 * 获取真实表名称，过滤Schema名
+	 *
+	 * @param dbClient 数据库客户端对象
+	 * @param tblName  表名
+	 *
+	 * @return String 真实表名称
+	 */
 	private String getRealTblName(DbClient dbClient, String tblName) {
+		if (tblName == null || tblName.length() == 0) {
+			return null;
+		}
 		if (dbClient.hasSchema()) {
 			String realName = tblName;
 			if (tblName.indexOf('.') > 0) {
@@ -129,7 +254,6 @@ public class Man0022 extends DefaultController {
 				realName = arr[1];
 			}
 			return realName;
-
 		} else {
 			return tblName;
 		}

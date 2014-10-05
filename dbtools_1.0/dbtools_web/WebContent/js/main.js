@@ -18,34 +18,75 @@ function setCookie(c_name, value, expiredays) {
 	document.cookie = c_name + "=" + escape(value) + ((expiredays==null) ? "" : ";expires=" + exdate.toGMTString())
 }
 
+function createOpid() {
+	if ($("#opid1").val() == "") {
+		$.getJSON("/dbm/ajax/createopid.do?t=" + parseInt(Math.random()*100000), function(data) {
+			if (data) {
+				$("#opid").val(data.opid);
+				$("#opid1").val(data.opid);
+				setCookie('clientid', data.opid, 365);
+			}
+		});
+	} else {
+		$.omMessageBox.confirm({
+			title: '确认',
+			content: '已经存在识别编号了，你确定要创建一个新的编号吗？',
+			onClose: function(v) {
+            	if (v) {
+            		$.getJSON("/dbm/ajax/createopid.do?t=" + parseInt(Math.random()*100000), function(data) {
+						if (data) {
+							$("#opid").val(data.opid);
+							$("#opid1").val(data.opid);
+							setCookie('clientid', data.opid, 365);
+						}
+					});
+            	}
+        	}
+    	});
+	}
+}
+
 function man001Submit() {
+	var favrId = $('#combo1').omCombo('value');
+	if (favrId == '') {
+		$.omMessageBox.alert({content:'请选择数据库...'});
+		return;
+	}
 	var checkInput = $("#account1").val();
 	if (checkInput) {
 		$("#account").val(base64encode(checkInput));
 	}
-	var checkInput = $("#password1").val();
+	checkInput = $("#password1").val();
 	if (checkInput) {
 		$("#password").val(base64encode(checkInput));
 	}
 	$('#favrid').val($('#combo1').omCombo('value'));
+
+	var opId = $("#opid1").val();
+	$("#opid").val(opId);
+	setCookie('clientid', opId, 365);
+
 	document.forms[0].submit();
 }
 
-function showerror() {
+function showerror(value) {
 	// 显示错误信息
-	var value = "${errcode}";
 	if ("1" == value) {
 		 $.omMessageBox.alert({content:'用户名或者密码错误'});
 	} else if("2" == value) {
-		alert("登录超时，请重新登录！");
+		$.omMessageBox.alert({content:'登录超时，请重新登录！'});
 	} else if("3" == value) {
-		alert("您的账号在别处登录。如非本人操作，请注意账号安全。");
+		$.omMessageBox.alert({content:'您的账号在别处登录。如非本人操作，请注意账号安全。'});
 	} else if("4" == value) {
-		alert("您的账号存在登录异常，请重新登录。");
+		$.omMessageBox.alert({content:'您的账号存在登录异常，请重新登录。'});
 	} else if("5" == value) {
-		alert("请选择数据库...");
+		$.omMessageBox.alert({content:'请选择数据库...'});
+	} else if("6" == value) {
+		$.omMessageBox.alert({content:'连接数据库时出错了。'});
+	} else if("9" == value) {
+		$.omMessageBox.alert({content:'连接数据库时发生异常。'});
 	} else if("999" == value) {
-		alert("连接访问错误，请重新登录。");
+		$.omMessageBox.alert({content:'连接访问错误，请重新登录。'});
 	}
 }
 
@@ -229,7 +270,6 @@ function onSelectNode(item) {
 
 	$("#menu").omMenu("hide");
 	if (item.id == "001") {
-		//window.showModalDialog("/dbm/biz/inf001.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000), null, 'dialogWidth:850px;dialogHeight:450px;center:yes;toolbar:no; menubar:no; scrollbars:no;scroll:no');
 		$('#grid2').omGrid({
 			dataSource : "/dbm/ajax/biz/inf001.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
 			width : 'auto',
@@ -253,7 +293,25 @@ function onSelectNode(item) {
 		});
 
 	} else if (item.id  == "002") {
-
+		$('#grid2').omGrid({
+			dataSource : "/dbm/ajax/biz/inf002.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000),
+			width : 'auto',
+			height: '305',
+			limit : 0,
+			colModel : [ {header : '索引名称', name : 'name', width : 200},
+						 {header : '索引类型', name : 'type', width : 150},
+						 {header : '不唯一', name : 'nun', width : 35, align : 'center' },
+						 {header : '列序号', name : 'ord', width : 35, align : 'center' },
+						 {header : '列名', name : 'colname', width : 180 },
+						 {header : '排序', name : 'asc', width : 30, align : 'center' } ]
+		 });
+		 $( "#dialog").omDialog({
+			width : 962,
+			height: 350,
+			modal: true,
+			resizable:false,
+			title: '索引定义 [' + node.text + "]"
+		});
 	}
 }
 

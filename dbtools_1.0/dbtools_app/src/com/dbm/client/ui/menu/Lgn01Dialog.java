@@ -220,7 +220,7 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 			dbClient.setPageSize(Session.PageDataLimit);
 
 			// 显示数据库内容：表、视图等等
-			List<String> objList = dbClient.getDbMetaData();
+			List<String> objList = dbClient.getTableTypes();
 			if (objList != null && objList.size() > 0) {
 				JTree jTree1 = (JTree) AppUIAdapter.getUIObj(AppUIAdapter.TableTreeUIObj);
 				jTree1.addTreeExpansionListener(new MyExpansionListener());
@@ -243,7 +243,7 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 			if (node instanceof TableTypesGroupNode) {
 				// 显示DB所属对象一览
 				DbClient dbClient = DbClientFactory.getDbClient();
-				((BaseNode) node).expand(dbClient.getDbObjList(null, null, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
+				((BaseNode) node).expand(dbClient.getTableList(null, null, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
 			}
 		}
 

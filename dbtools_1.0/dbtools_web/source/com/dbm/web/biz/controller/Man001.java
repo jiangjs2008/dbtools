@@ -1,6 +1,5 @@
 package com.dbm.web.biz.controller;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +25,7 @@ import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
 import com.dbm.common.util.SecuUtil;
 import com.dbm.common.util.StringUtil;
+import com.dbm.web.util.SQLsSession;
 
 /**
  * [name]<br>
@@ -60,6 +60,14 @@ public class Man001 extends DefaultController {
 			logger.error("", exp);
 			return "";
 		}
+	}
+
+	@RequestMapping("/ajax/createopid.do")
+	@ResponseBody
+	public String createOpId() {
+		JSONObject item = new JSONObject();
+		item.put("opid", SQLsSession.createOpId());
+		return item.toJSONString();
 	}
 
 	@RequestMapping("/ajax/getdblogininfo.do")
@@ -120,7 +128,7 @@ public class Man001 extends DefaultController {
 			}
 
 			// 显示数据库内容：表、视图等等
-			List<String> objList = dbClient.getDbMetaData();
+			List<String> objList = dbClient.getTableTypes();
 			ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(objList.size());
 			for (String item : objList) {
 				HashMap<String, Object> objMap = new HashMap<String, Object>(2);
@@ -138,7 +146,7 @@ public class Man001 extends DefaultController {
 
 		} catch (Exception exp) {
 			logger.error("登陆到数据库时发生错误", exp);
-			return new ModelAndView("man001").addObject("ecd", 6);
+			return new ModelAndView("man001").addObject("ecd", 9);
 		}
 	}
 
@@ -149,31 +157,5 @@ public class Man001 extends DefaultController {
 		return new ModelAndView("man001");
 	}
 
-	@RequestMapping("/ajax/gettbllist.do")
-	@ResponseBody
-	public String getTblList(@RequestParam Map<String,String> requestParam) {
-		String tblName = requestParam.get("catalog");
 
-		DbClient dbClient = DbClientFactory.getDbClient();
-		String schema = null;
-		try {
-			if (dbClient.hasSchema()) {
-				schema = dbClient.getConnection().getMetaData().getUserName();
-			}
-		} catch (SQLException ex) {
-			logger.error(ex);
-		}
-		List<String[]> tblList = dbClient.getDbObjList(null, schema, "%", new String[] { tblName });
-
-		// 显示数据库内容：表、视图等等
-		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(tblList.size());
-		for (String[] items : tblList) {
-			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
-			objMap.put("text", items[0]);
-			objMap.put("remarks", items[1]);
-			dbInfo.add(objMap);
-		}
-
-		return JSON.toJSONString(dbInfo);
-	}
 }

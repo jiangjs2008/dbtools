@@ -3,7 +3,10 @@ package com.dbm.web.biz.controller;
 import java.net.URLDecoder;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.math.NumberUtils;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
@@ -28,6 +32,34 @@ import com.dbm.common.util.StringUtil;
  */
 @Controller
 public class Man002 extends DefaultController {
+
+	@RequestMapping("/ajax/gettbllist.do")
+	@ResponseBody
+	public String getTblList(@RequestParam Map<String,String> requestParam) {
+		String tblName = requestParam.get("catalog");
+
+		DbClient dbClient = DbClientFactory.getDbClient();
+		String schema = null;
+		try {
+			if (dbClient.hasSchema()) {
+				schema = dbClient.getConnection().getMetaData().getUserName();
+			}
+		} catch (SQLException ex) {
+			logger.error(ex);
+		}
+		List<String[]> tblList = dbClient.getTableList(null, schema, "%", new String[] { tblName });
+
+		// 显示数据库内容：表、视图等等
+		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(tblList.size());
+		for (String[] items : tblList) {
+			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
+			objMap.put("text", items[0]);
+			objMap.put("remarks", items[1]);
+			dbInfo.add(objMap);
+		}
+
+		return JSON.toJSONString(dbInfo);
+	}
 
 	@RequestMapping("/ajax/griddata.do")
 	@ResponseBody
@@ -58,6 +90,7 @@ public class Man002 extends DefaultController {
 				rsltJObj.put("emsg", "数据库联接不正常");
 				return rsltJObj.toJSONString();
 			}
+
 			dbClient.setTableName(_tblName);
 			ResultSet rs = dbClient.defaultQuery(pageNum);
 			if (rs == null) {
