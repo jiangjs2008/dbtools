@@ -86,6 +86,7 @@ public class Man0022 extends DefaultController {
 
 			while (columnRs.next()) {
 				HashMap<String, String> columnInfo = new HashMap<String, String>(8);
+				// *注：这里必须按照列的顺序(按列序号由小到大)来取值
 
 				// 列名 COLUMN_NAME
 				tempValue = columnRs.getString(4);
@@ -113,6 +114,12 @@ public class Man0022 extends DefaultController {
 					columnInfo.put("nullable", "");
 				}
 
+				// 列的注释 REMARKS
+				columnInfo.put("remark", StringUtil.NVL(columnRs.getString(12)));
+
+				// 默认值 COLUMN_DEF
+				columnInfo.put("colvalue", columnRs.getString(13));
+
 				// 是否自动增加 IS_AUTOINCREMENT
 				tempValue = columnRs.getString(23);
 				if ("YES".equalsIgnoreCase(tempValue) || "true".equalsIgnoreCase(tempValue) || "1".equals(tempValue)) {
@@ -120,12 +127,6 @@ public class Man0022 extends DefaultController {
 				} else {
 					columnInfo.put("autoinc", "");
 				}
-
-				// 默认值 COLUMN_DEF
-				columnInfo.put("colvalue", columnRs.getString(13));
-
-				// 列的注释 REMARKS
-				columnInfo.put("remark", StringUtil.NVL(columnRs.getString(12)));
 
 				allData.add(columnInfo);
 			}
@@ -191,6 +192,14 @@ public class Man0022 extends DefaultController {
 			while (columnRs.next()) {
 				columnInfo = new HashMap<String, String>(6);
 
+				// 是否不唯一(NON_UNIQUE)
+				tempValue = columnRs.getString(4);
+				if ("YES".equalsIgnoreCase(tempValue) || "true".equalsIgnoreCase(tempValue) || "1".equals(tempValue)) {
+					columnInfo.put("nun", "Y");
+				} else {
+					columnInfo.put("nun", "");
+				}
+
 				// 索引名称(INDEX_NAME)
 				columnInfo.put("name", columnRs.getString(6));
 				// 索引类型(TYPE)
@@ -206,21 +215,13 @@ public class Man0022 extends DefaultController {
 				}
 				columnInfo.put("type", tempValue);
 
-				// 是否不唯一(NON_UNIQUE)
-				tempValue = columnRs.getString(4);
-				if ("YES".equalsIgnoreCase(tempValue) || "true".equalsIgnoreCase(tempValue) || "1".equals(tempValue)) {
-					columnInfo.put("nun", "Y");
-				} else {
-					columnInfo.put("nun", "");
-				}
-
 				// 索引中的列序列号(ORDINAL_POSITION)
 				columnInfo.put("ord", columnRs.getString(8));
-				// 列排序序列(ASC_OR_DESC)
-				columnInfo.put("asc", StringUtil.NVL(columnRs.getString(10)));
 				// 列名称 COLUMN_NAME
 				columnInfo.put("colname", columnRs.getString(9));
-				
+				// 列排序序列(ASC_OR_DESC)
+				columnInfo.put("asc", StringUtil.NVL(columnRs.getString(10)));
+
 				allData.add(columnInfo);
 			}
 

@@ -86,7 +86,8 @@ public class Man0021 extends DefaultController {
 		}
 
 		try {
-			if (dbClient.getExecScriptType(sqlScript) == 1) {
+			int sqlType = dbClient.getExecScriptType(sqlScript);
+			if (sqlType == 1) {
 				// 数据检索
 				ResultSet rs = dbClient.directQuery(sqlScript, pageNum);
 				if (rs == null) {
@@ -120,7 +121,6 @@ public class Man0021 extends DefaultController {
 					for (int i = 1, lengs = rsm.getColumnCount() + 1; i < lengs; i ++) {
 						colName = rsm.getColumnName(i);
 						params.put(colName, dbClient.procCellData(rs.getObject(i)));
-						
 					}
 					dataInfo.add(params);
 				}
@@ -133,10 +133,15 @@ public class Man0021 extends DefaultController {
 
 			} else {
 				// 更新数据
-				if (dbClient.directExec(sqlScript)) {
-					rsltJObj.put("ecd", "1");
+				int rs = dbClient.directExec(sqlScript);
+				if (sqlType == 2) {
+					if (rs > 0) {
+						rsltJObj.put("ecd", "1");
+					} else {
+						rsltJObj.put("ecd", "2");
+					}
 				} else {
-					rsltJObj.put("ecd", "2");
+					rsltJObj.put("ecd", "1");
 				}
 			}
 

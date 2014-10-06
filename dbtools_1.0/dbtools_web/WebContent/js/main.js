@@ -320,6 +320,21 @@ function onSelectGroup(item) {
 	var node = $("#mytree2").omTree("getSelected");
 	var tblName = encodeURIComponent(node.text);
 
-	//window.showModalDialog("/dbm/biz/inf001.do?tblname=" + tblName + "&t=" + parseInt(Math.random()*100000), null, 'dialogWidth:850px;dialogHeight:450px;center:yes;toolbar:no; menubar:no; scrollbars:no;scroll:no');
+	$.ajax({
+		url: '/dbm/ajax/gettbllist.do?catalog=' + node.text + '&t=' + parseInt(Math.random()*100000),
+		dataType: 'json',
+		success: function(data){
+			// 先清空原来数据
+			var newObject = $.extend(true, {}, node);
+			newObject.children = [];
+			$('#mytree2').omTree('modify', node, newObject);
 
+			newObject.isQuery = true;
+			$("#mytree2").omTree("insert", data, newObject);
+			$('#mytree2').omTree('expand', newObject);
+
+			$.omMessageBox.waiting({ content: '刷新成功！' });
+			setTimeout("$.omMessageBox.waiting('close');", 500);
+		}
+	});
 }

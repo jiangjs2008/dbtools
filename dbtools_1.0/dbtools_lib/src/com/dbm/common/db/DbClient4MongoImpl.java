@@ -153,7 +153,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	 * db.collection.insert(), db.collection.update(), db.collection.remove(),
 	 */
 	@Override
-	public boolean directExec(String action) {
+	public int directExec(String action) {
 		// 判断SQL类型
 		if (action.startsWith("db.createCollection(")) {
 			// 创建表
@@ -178,7 +178,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 			dbObj.getCollection(tblName).drop();
 
 		}
-		return false;
+		return 1;
 	}
 
 	/**

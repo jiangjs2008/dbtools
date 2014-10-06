@@ -186,7 +186,7 @@ public class DbClient4DefaultImpl extends DbClient {
 	}
 
 	@Override
-	public boolean directExec(String action) {
+	public int directExec(String action) {
 		// single update sql
 		try {
 			if (rs != null) {
@@ -199,15 +199,12 @@ public class DbClient4DefaultImpl extends DbClient {
 		try {
 			stmt = _dbConn.createStatement();
 			int rslt = stmt.executeUpdate(action);
-			if (rslt == 0) {
-				logger.error("更新不成功: " + action);
-				return false;
-			}
+			return rslt;
 
 		} catch (Exception exp) {
+			logger.error("directExec更新不成功: " + action);
 			throw new BaseExceptionWrapper(exp);
 		}
-		return true;
 	}
 
 	// 当前页数

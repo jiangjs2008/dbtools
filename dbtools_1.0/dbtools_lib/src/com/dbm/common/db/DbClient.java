@@ -128,7 +128,7 @@ public abstract class DbClient {
 	/**
 	 * 判断执行数据库脚本的类型<br>
 	 * crud
-	 * 0:unkown 1:select 2:create/update/delete/insert/drop...
+	 * 0:unkown, 1:select, 2:update/delete/insert, 3:create/alter/drop...
 	 *
 	 * @param action 数据库脚本
 	 *
@@ -146,11 +146,12 @@ public abstract class DbClient {
 		// 判断SQL类型
 		if ("select".equalsIgnoreCase(typeStr)) {
 			sqlType = 1;
-		} else if ("create".equalsIgnoreCase(typeStr) || "update".equalsIgnoreCase(typeStr)
-				|| "insert".equalsIgnoreCase(typeStr) || "delete".equalsIgnoreCase(typeStr)
-				|| "alter".equalsIgnoreCase(typeStr.substring(0, 5))
-				|| "drop".equalsIgnoreCase(typeStr.substring(0, 4)) ) {
+		} else if ("update".equalsIgnoreCase(typeStr)
+				|| "insert".equalsIgnoreCase(typeStr) || "delete".equalsIgnoreCase(typeStr) ) {
 			sqlType = 2;
+		} else if ("create".equalsIgnoreCase(typeStr) 
+				|| "alter".equalsIgnoreCase(typeStr.substring(0, 5)) || "drop".equalsIgnoreCase(typeStr.substring(0, 4)) ) {
+			sqlType = 3;
 		} else {
 			throw new WarningException(20001);
 		}
@@ -172,9 +173,9 @@ public abstract class DbClient {
 	 *
 	 * @param action 数据库脚本
 	 *
-	 * @return boolean 执行结果
+	 * @return int 执行结果
 	 */
-	public abstract boolean directExec(String sqlStr);
+	public abstract int directExec(String sqlStr);
 
 
 	protected String getLimitString(String sql, int pageNum) {
