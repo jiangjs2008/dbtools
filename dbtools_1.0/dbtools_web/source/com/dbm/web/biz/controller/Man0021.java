@@ -7,7 +7,7 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +18,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.PropUtil;
-import com.dbm.common.util.StringUtil;
 import com.dbm.web.util.SQLsSession;
 
 /**
@@ -61,7 +60,7 @@ public class Man0021 extends DefaultController {
 		if (start == -1) {
 			pageNum = 1;
 		} else {
-			int lmt = StringUtil.parseInt(PropUtil.getAppConfig("page.data.count"));
+			int lmt = NumberUtils.toInt(PropUtil.getAppConfig("page.data.count"));
 			pageNum = start / lmt + 1;
 		}
 

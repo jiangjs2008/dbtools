@@ -8,7 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,7 +24,6 @@ import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
 import com.dbm.common.util.SecuUtil;
-import com.dbm.common.util.StringUtil;
 import com.dbm.web.util.SQLsSession;
 
 /**
@@ -82,7 +81,7 @@ public class Man001 extends DefaultController {
 			return item.toJSONString();
 		}
 
-		int favrId = StringUtil.parseInt(requestParam.get("favrid"), -1);
+		int favrId = NumberUtils.toInt(requestParam.get("favrid"), -1);
 		if (favrId < 0) {
 			return item.toJSONString();
 		}
@@ -120,7 +119,7 @@ public class Man001 extends DefaultController {
 		try {
 			DbClientFactory.createDbClient(connInfo.action);
 			DbClient dbClient = DbClientFactory.getDbClient();
-			int dataLimit = StringUtil.parseInt(PropUtil.getAppConfig("page.data.count"));
+			int dataLimit = NumberUtils.toInt(PropUtil.getAppConfig("page.data.count"));
 			dbClient.setPageSize(dataLimit);
 
 			if (!dbClient.start(new String[] { connInfo.driver, favr.url, userId, passwd })) {
@@ -141,6 +140,7 @@ public class Man001 extends DefaultController {
 
 			HttpSession session = request.getSession(true);
 			session.setAttribute("_userid", session.getId());
+			SQLsSession.setCurrFavrInfo(favr);
 
 			return new ModelAndView("man002").addObject("dbInfo", JSON.toJSONString(dbInfo)).addObject("dataLimit", dataLimit);
 

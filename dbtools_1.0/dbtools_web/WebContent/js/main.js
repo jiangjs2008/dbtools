@@ -201,7 +201,26 @@ function logout() {
 }
 
 function sqlHistory() {
+	var clientid = getCookie("clientid");
+	if (clientid == '') {
+		return;
+	}
 
+	$('#grid2').omGrid({
+		dataSource : "/dbm/ajax/biz/sqlhis001.do?clientid=" + clientid + "&t=" + parseInt(Math.random()*100000),
+		width : 'auto',
+		height: '305',
+		limit : 10,
+		colModel : [ {header : '时间', name : 'time', width : 165},
+					 {header : 'SQL文', name : 'sqls', width : 640} ]
+	 });
+	 $( "#dialog").omDialog({
+		width : 962,
+		height: 350,
+		modal: true,
+		resizable:false,
+		title: 'SQL脚本执行纪录'
+	});
 }
 
 

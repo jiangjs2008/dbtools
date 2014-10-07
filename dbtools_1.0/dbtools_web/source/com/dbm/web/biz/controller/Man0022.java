@@ -6,8 +6,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
-import com.dbm.common.util.StringUtil;
+import com.dbm.web.util.SQLsSession;
 
 /**
  * [name]<br>
@@ -115,7 +116,7 @@ public class Man0022 extends DefaultController {
 				}
 
 				// 列的注释 REMARKS
-				columnInfo.put("remark", StringUtil.NVL(columnRs.getString(12)));
+				columnInfo.put("remark", columnRs.getString(12));
 
 				// 默认值 COLUMN_DEF
 				columnInfo.put("colvalue", columnRs.getString(13));
@@ -220,7 +221,7 @@ public class Man0022 extends DefaultController {
 				// 列名称 COLUMN_NAME
 				columnInfo.put("colname", columnRs.getString(9));
 				// 列排序序列(ASC_OR_DESC)
-				columnInfo.put("asc", StringUtil.NVL(columnRs.getString(10)));
+				columnInfo.put("asc", columnRs.getString(10));
 
 				allData.add(columnInfo);
 			}
@@ -258,6 +259,46 @@ public class Man0022 extends DefaultController {
 		} else {
 			return tblName;
 		}
+	}
+
+	/**
+	 * 获取SQL脚本执行纪录
+	 *
+	 * @param requestParam HTTP请求参数
+	 *
+	 * @return String SQL脚本执行纪录
+	 */
+	@RequestMapping("/ajax/biz/sqlhis001.do")
+	@ResponseBody
+	public String getSqlHis(@RequestParam Map<String,String> requestParam){
+		logger.debug("/sale/cmp0010.do =>getCmp0010View()");
+		JSONObject rsltJObj = new JSONObject();
+		rsltJObj.put("total", 0);
+		rsltJObj.put("rows", "{}");
+
+		String clientId = requestParam.get("clientid");
+		if (clientId == null || clientId.length() == 0) {
+			logger.error("执行时错误 参数不对");
+			rsltJObj.put("ecd", "5");
+			return rsltJObj.toJSONString();
+		}
+		Map<String, String> vmap = SQLsSession.getSqlHis(clientId);
+		ArrayList<HashMap<String, String>> allData = new ArrayList<HashMap<String, String>>();
+
+		if (vmap != null) {
+			for (Entry<String, String> entry : vmap.entrySet()) {
+				HashMap<String, String> columnInfo = new HashMap<String, String>(2);
+				columnInfo.put("sqls", entry.getKey());
+				columnInfo.put("time", entry.getValue());
+				allData.add(columnInfo);
+			}
+		}
+
+		rsltJObj.put("ecd", "0");
+		rsltJObj.put("total", allData.size());
+		rsltJObj.put("rows", allData);
+
+		return rsltJObj.toJSONString();
 	}
 
 }

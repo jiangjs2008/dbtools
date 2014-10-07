@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 
@@ -15,7 +16,6 @@ import com.dbm.common.log.LoggerWrapper;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
-import com.dbm.common.util.StringUtil;
 
 /**
  * [name]<br>
@@ -48,14 +48,14 @@ public class WebPropUtil extends PropUtil {
 				JSONObject json = JSON.parseObject((String) m.getValue());
 
 				FavrBean favrBean = new FavrBean();
-				favrBean.favrId = StringUtil.parseInt((String) m.getKey());
+				favrBean.favrId = NumberUtils.toInt((String) m.getKey());
 				favrBean.name = json.getString("name");
 				favrBean.driverId = json.getIntValue("driverId");
 				favrBean.description = json.getString("description");
 				favrBean.url = json.getString("url");
 				favrBean.user = json.getString("user");
 				favrBean.password = json.getString("password");
-				favrBean.useFlg = StringUtil.parseInt(json.getString("useFlg"), 0) == 1;
+				favrBean.useFlg = NumberUtils.toInt(json.getString("useFlg"), 0) == 1;
 
 				favrList[favrBean.favrId] = favrBean;
 			}
@@ -71,7 +71,7 @@ public class WebPropUtil extends PropUtil {
 			connList = new ConnBean[p.size()];
 			int driverId = 0;
 			for (Map.Entry<Object, Object> m : p.entrySet()) {
-				driverId = StringUtil.parseInt((String) m.getKey());
+				driverId = NumberUtils.toInt((String) m.getKey());
 				if (driverId == 0) {
 					continue;
 				}
@@ -100,7 +100,7 @@ public class WebPropUtil extends PropUtil {
 			p.load(is);
 			is.close();
 			for (Map.Entry<Object, Object> m : p.entrySet()) {
-				LoggerWrapper.addMessage(StringUtil.parseInt((String) m.getKey()), (String) m.getValue());
+				LoggerWrapper.addMessage(NumberUtils.toInt((String) m.getKey()), (String) m.getValue());
 			}
 			p.clear();
 			logger.debug("app prop file init success");
