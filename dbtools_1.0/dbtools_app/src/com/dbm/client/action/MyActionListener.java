@@ -20,10 +20,10 @@ import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.ui.Session;
 import com.dbm.client.ui.tbldata.MyDefaultTableModel;
 import com.dbm.client.ui.tbllist.TableCellEditorListener;
+import com.dbm.client.util.StringUtil;
 import com.dbm.client.util.TableUtil;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
-import com.dbm.common.util.StringUtil;
 
 public class MyActionListener extends AbstractActionListener {
 

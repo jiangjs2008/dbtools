@@ -8,13 +8,14 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.log.LoggerWrapper;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
-import com.dbm.common.util.StringUtil;
 
 /**
  * [name]<br>
@@ -45,7 +46,7 @@ public class AppPropUtil extends PropUtil {
 				JSONObject json = JSON.parseObject((String) m.getValue());
 
 				FavrBean favrBean = new FavrBean();
-				favrBean.favrId = StringUtil.parseInt((String) m.getKey());
+				favrBean.favrId = NumberUtils.toInt((String) m.getKey());
 
 				favrBean.name = json.getString("name");
 				favrBean.driverId = json.getIntValue("driverId");
@@ -66,7 +67,7 @@ public class AppPropUtil extends PropUtil {
 			connList = new ConnBean[p.size()];
 			int driverId = 0;
 			for (Map.Entry<Object, Object> m : p.entrySet()) {
-				driverId = StringUtil.parseInt((String) m.getKey());
+				driverId = NumberUtils.toInt((String) m.getKey());
 				if (driverId == 0) {
 					continue;
 				}
@@ -92,7 +93,7 @@ public class AppPropUtil extends PropUtil {
 			p.load(is);
 			is.close();
 			for (Map.Entry<Object, Object> m : p.entrySet()) {
-				LoggerWrapper.addMessage(StringUtil.parseInt((String) m.getKey()), (String) m.getValue());
+				LoggerWrapper.addMessage(NumberUtils.toInt((String) m.getKey()), (String) m.getValue());
 			}
 			p.clear();
 			logger.debug("app prop file init success");

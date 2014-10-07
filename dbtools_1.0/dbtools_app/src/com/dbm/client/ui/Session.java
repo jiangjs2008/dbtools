@@ -3,10 +3,11 @@ package com.dbm.client.ui;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
-import com.dbm.common.util.StringUtil;
 
 public class Session {
 
@@ -21,7 +22,7 @@ public class Session {
 	/**
 	 * 每页表示件数
 	 */
-	public final static int PageDataLimit = StringUtil.parseInt(PropUtil.getAppConfig("page.data.count"));
+	public final static int PageDataLimit = NumberUtils.toInt(PropUtil.getAppConfig("page.data.count"));
 
 	/**
 	 * 

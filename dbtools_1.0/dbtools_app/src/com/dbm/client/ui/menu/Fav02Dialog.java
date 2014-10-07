@@ -36,14 +36,17 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.alibaba.fastjson.JSON;
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.menu.FavrMenuActionListener;
 import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.util.AppPropUtil;
+import com.dbm.client.util.StringUtil;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
-import com.dbm.common.util.StringUtil;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -239,9 +242,11 @@ public class Fav02Dialog extends javax.swing.JDialog {
 
 			case 2:
 				// 若是其他项目被编辑，则必须判断改过的值是否与初始值一致
-				if (!Integer.toString(favBean.driverId).equals(obj)) {
+				String strObj = StringUtils.trimToNull((String) obj);
+				int objValue = NumberUtils.toInt(strObj);
+				if (favBean.driverId != objValue) {
 					isUpdate = true;
-					favBean.driverId = StringUtil.parseInt((String) obj);
+					favBean.driverId = objValue;
 				}
 				break;
 			case 3:
@@ -330,7 +335,7 @@ public class Fav02Dialog extends javax.swing.JDialog {
 						menu.add(jMenuItem22);
 						jMenuItem22.setName("favr:" + Integer.toString(fbInfo.favrId));
 						jMenuItem22.setText(fbInfo.name);
-						jMenuItem22.setToolTipText(StringUtil.printTipText(fbInfo.url, "user :=  " + StringUtil.NVL(fbInfo.user)));
+						jMenuItem22.setToolTipText(StringUtil.printTipText(fbInfo.url, "user :=  " + StringUtils.trimToEmpty(fbInfo.user)));
 						jMenuItem22.addActionListener(connAction);
 					}
 				}

@@ -26,6 +26,8 @@ import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.CursorChanger;
 import com.dbm.client.action.data.PageJumpActionListener;
@@ -38,7 +40,6 @@ import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.log.LoggerWrapper;
-import com.dbm.common.util.StringUtil;
 
 public class TableTreeClickListener extends MouseAdapter implements TreeWillExpandListener {
 
@@ -173,7 +174,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 			DbClient dbClient = DbClientFactory.getDbClient();
 			String realName = _tblName;
-			String[] tblNameArr = StringUtil.split(_tblName, ".");
+			String[] tblNameArr = StringUtils.split(_tblName, '.');
 			if (tblNameArr.length == 2) {
 				realName = tblNameArr[1];
 			}
@@ -229,7 +230,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 					columnInfo.add(columnRs.getString(13));
 
 					// 列的注释(REMARKS)
-					columnInfo.add(StringUtil.NVL(columnRs.getString(12)));
+					columnInfo.add(columnRs.getString(12));
 					
 					allData.add(columnInfo);
 				}
@@ -265,7 +266,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 			DbClient dbClient = DbClientFactory.getDbClient();
 			String realName = _tblName;
-			String[] tblNameArr = StringUtil.split(_tblName, ".");
+			String[] tblNameArr = StringUtils.split(_tblName, '.');
 			if (tblNameArr.length == 2) {
 				realName = tblNameArr[1];
 			}
@@ -304,7 +305,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 //					}
 
 					// 过滤器条件(FILTER_CONDITION)
-					columnInfo.add(StringUtil.NVL(columnRs.getString(12)));
+					columnInfo.add(columnRs.getString(12));
 
 					allData.add(columnInfo);
 				}

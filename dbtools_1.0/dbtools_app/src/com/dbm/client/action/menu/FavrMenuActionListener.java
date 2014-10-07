@@ -2,6 +2,8 @@ package com.dbm.client.action.menu;
 
 import java.awt.event.ActionEvent;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.ui.Session;
 import com.dbm.client.ui.help.Msg01Dialog;
@@ -11,7 +13,6 @@ import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
-import com.dbm.common.util.StringUtil;
 
 public class FavrMenuActionListener extends AbstractActionListener {
 
@@ -33,7 +34,7 @@ public class FavrMenuActionListener extends AbstractActionListener {
 		int id = 0;
 		if (menuId.startsWith("favr:")) {
 			menuId = menuId.substring(5);
-			id = StringUtil.parseInt(menuId, -1);
+			id = NumberUtils.toInt(menuId, -1);
 			if (id >= 0) {
 				FavrBean favrInfo = PropUtil.getFavrInfo(id);
 				Session.setCurrFavrInfo(favrInfo);
@@ -41,7 +42,7 @@ public class FavrMenuActionListener extends AbstractActionListener {
 
 		} else if (menuId.startsWith("conn:")) {
 			menuId = menuId.substring(5);
-			id = StringUtil.parseInt(menuId, -1);
+			id = NumberUtils.toInt(menuId, -1);
 			if (id >= 0) {
 				ConnBean connInfo = PropUtil.getDbConnInfo(id);
 				Session.setCurrConnInfo(connInfo);

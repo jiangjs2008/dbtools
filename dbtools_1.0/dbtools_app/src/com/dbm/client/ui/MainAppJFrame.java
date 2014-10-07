@@ -47,6 +47,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.MyActionListener;
 import com.dbm.client.action.data.CloseActionListener;
@@ -63,11 +65,11 @@ import com.dbm.client.ui.tbldata.TableCellSelectedListener;
 import com.dbm.client.ui.tbldata.TableHeaderSelectedListener;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTreeClickListener;
+import com.dbm.client.util.StringUtil;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
-import com.dbm.common.util.StringUtil;
 
 /**
  * [name]<br>
@@ -452,7 +454,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 			jMenu2.add(jMenuItem22);
 			jMenuItem22.setName("favr:" + Integer.toString(fbInfo.favrId));
 			jMenuItem22.setText(fbInfo.name);
-			jMenuItem22.setToolTipText(StringUtil.printTipText(fbInfo.url, "user :=  " + StringUtil.NVL(fbInfo.user)));
+			jMenuItem22.setToolTipText(StringUtil.printTipText(fbInfo.url, "user :=  " + StringUtils.trimToEmpty(fbInfo.user)));
 			jMenuItem22.addActionListener(connAction);
 		}
 

@@ -10,9 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import com.dbm.client.action.AbstractActionListener;
+import com.dbm.client.util.StringUtil;
 import com.dbm.common.log.LoggerWrapper;
-import com.dbm.common.util.StringUtil;
-
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo

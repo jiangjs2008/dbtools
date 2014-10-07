@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import javax.swing.JTextField;
 
-import com.dbm.common.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 画面对象(JButton,JPanel,JTable...)与数据之间的适配器<br>
@@ -57,7 +57,7 @@ public class AppUIAdapter {
 	public static void setGuiDbUrl(String targetIpAddr) {
 		JTextField txtField = (JTextField) AppUIAdapter.getUIObj(AppUIAdapter.DbUrlTxtField);
 		if (txtField != null) {
-			String[] addr = StringUtil.str2Array(txtField.getText(), ":");
+			String[] addr = StringUtils.split(txtField.getText(), ':');
 			if (addr == null || addr.length == 0 || addr.length == 1) {
 				// input error, have not db info
 				txtField.setText(targetIpAddr + ":");

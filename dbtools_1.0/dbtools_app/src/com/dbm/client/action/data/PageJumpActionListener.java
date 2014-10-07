@@ -13,6 +13,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.ui.Session;
@@ -23,7 +26,6 @@ import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.error.BaseException;
 import com.dbm.common.error.BaseExceptionWrapper;
-import com.dbm.common.util.StringUtil;
 
 /**
  * 数据多页显示时的翻页控制
@@ -219,7 +221,8 @@ public class PageJumpActionListener extends AbstractActionListener {
 			}
 			// 指定页数
 			inputText = inputPageTxtField.getText();
-			int inputPage = StringUtil.parseInt(inputText);
+			inputText = StringUtils.trimToNull(inputText);
+			int inputPage = NumberUtils.toInt(inputText);
 			if (inputPage == 0 || inputPage == currPage || _pageCnt < inputPage) {
 				inputPageTxtField.setText("");
 				return;
