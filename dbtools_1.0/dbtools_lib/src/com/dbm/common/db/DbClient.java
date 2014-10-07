@@ -14,7 +14,6 @@ import java.util.List;
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
 import com.dbm.common.log.LoggerWrapper;
-import com.dbm.common.util.StringUtil;
 
 /**
  * [class]<br>
@@ -275,7 +274,7 @@ public abstract class DbClient {
 				} else {
 					items[0] = rs.getString("TABLE_SCHEM") + "." + rs.getString("TABLE_NAME");
 				}
-				items[1] = StringUtil.NVL(rs.getString("REMARKS"));
+				items[1] = rs.getString("REMARKS");
 				list.add(items);
 			}
 		} catch (SQLException ex) {
