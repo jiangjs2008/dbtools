@@ -282,7 +282,7 @@ public class Man0022 extends DefaultController {
 			rsltJObj.put("ecd", "5");
 			return rsltJObj.toJSONString();
 		}
-		Map<String, String> vmap = SQLsSession.getSqlHis(clientId);
+		Map<String, String> vmap = SQLsSession.getSqlHis(clientId, null);
 		ArrayList<HashMap<String, String>> allData = new ArrayList<HashMap<String, String>>();
 
 		if (vmap != null) {

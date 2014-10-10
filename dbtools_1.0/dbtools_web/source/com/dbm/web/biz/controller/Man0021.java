@@ -81,7 +81,7 @@ public class Man0021 extends DefaultController {
 		// 将用户的SQL脚本存入缓存
 		String clientId = requestParam.get("clientid");
 		if (clientId != null && clientId.length() > 0) {
-			SQLsSession.saveSQLsSession(clientId, sqlScript);
+			SQLsSession.saveSQLsSession(clientId, null, sqlScript);
 		}
 
 		try {
