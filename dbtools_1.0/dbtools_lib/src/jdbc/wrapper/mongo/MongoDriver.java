@@ -47,15 +47,17 @@ public class MongoDriver extends AbstractDriver {
 
 		String userName = info.getProperty("user");
 		String passwd = info.getProperty("password");
-		String dbUrl = "mongodb://" + userName + ":" + passwd + "@" + dbType[1];
+		String dbUrl = null;
+		if (userName == null || userName.length() == 0) {
+			dbUrl = url;
+		} else {
+			dbUrl = "mongodb://" + userName + ":" + passwd + "@" + dbType[1];
+		}
 		DB dbObj = null;
 		try {
 
 			MongoClient mongoClient = new MongoClient(new MongoClientURI(dbUrl));
 			dbObj = mongoClient.getDB(dbArr[1]);
-
-			//MongoClient mongoClient = new MongoClient(urlArr[0], StringUtil.parseInt(urlArr[1]));
-			//mongoClient.getMongoClientOptions().getConnectTimeout()connectTimeout = 10;
 
 		} catch (Exception exp) {
 			throw new SQLException("create MongoClient " + url + " error: " + exp.toString());

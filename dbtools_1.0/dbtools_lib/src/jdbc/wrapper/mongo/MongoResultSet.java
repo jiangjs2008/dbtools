@@ -121,6 +121,9 @@ public class MongoResultSet extends AbstractResultSet {
 	@Override
 	public String getString(String columnName) throws SQLException {
 		int col = findColumn(columnName);
+		if (col == -1) {
+			return null;
+		}
 		return datas[rowIdx][col];
 	}
 
