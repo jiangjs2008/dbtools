@@ -47,16 +47,12 @@
 	</listener>
 
 	<servlet>
-		<servlet-name>tspweb</servlet-name>
+		<servlet-name>dbm</servlet-name>
 		<servlet-class>com.dbm.web.DispatcherServletEx</servlet-class>
-		<init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value>/WEB-INF/tsp-servlet.xml</param-value>
-		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>tspweb</servlet-name>
+		<servlet-name>dbm</servlet-name>
 		<url-pattern>*.do</url-pattern>
 	</servlet-mapping>
 
