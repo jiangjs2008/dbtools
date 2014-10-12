@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
 import com.dbm.common.log.LoggerWrapper;
@@ -255,7 +257,7 @@ public abstract class DbClient {
 	 * @param tableNamePattern
 	 * @param types
 	 *
-	 * @return
+	 * @return List<String[]> 表定义一览：{"表名"，"注释"}
 	 */
 	public List<String[]> getTableList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
 		ArrayList<String[]> list = new ArrayList<String[]>();
@@ -272,9 +274,9 @@ public abstract class DbClient {
 				if (schemaName == null || schemaName.isEmpty()) {
 					items[0] = rs.getString("TABLE_NAME");
 				} else {
-					items[0] = rs.getString("TABLE_SCHEM") + "." + rs.getString("TABLE_NAME");
+					items[0] = schemaName + "." + rs.getString("TABLE_NAME");
 				}
-				items[1] = rs.getString("REMARKS");
+				items[1] = StringUtils.trimToEmpty(rs.getString("REMARKS"));
 				list.add(items);
 			}
 		} catch (SQLException ex) {
