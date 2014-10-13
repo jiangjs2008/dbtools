@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.error.WarningException;
 import com.dbm.common.log.LoggerWrapper;
@@ -267,16 +265,21 @@ public abstract class DbClient {
 			DatabaseMetaData dm = conn.getMetaData();
 
 			rs = dm.getTables(catalog, schemaPattern, tableNamePattern, types);
-			String schemaName = null;
+			String value = null;
 			while (rs.next()) {
-				schemaName = rs.getString("TABLE_SCHEM");
+				value = rs.getString("TABLE_SCHEM");
 				String[] items = new String[2];
-				if (schemaName == null || schemaName.isEmpty()) {
+				if (value == null || value.isEmpty()) {
 					items[0] = rs.getString("TABLE_NAME");
 				} else {
-					items[0] = schemaName + "." + rs.getString("TABLE_NAME");
+					items[0] = value + "." + rs.getString("TABLE_NAME");
 				}
-				items[1] = StringUtils.trimToEmpty(rs.getString("REMARKS"));
+
+				value = rs.getString("REMARKS");
+				if (value == null) {
+					value = "";
+				}
+				items[1] = value;
 				list.add(items);
 			}
 		} catch (SQLException ex) {
