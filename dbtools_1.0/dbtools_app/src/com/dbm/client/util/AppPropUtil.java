@@ -5,8 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -89,13 +91,16 @@ public class AppPropUtil extends PropUtil {
 			appenv.load(is);
 			is.close();
 
-			is = new FileInputStream(_cfgPath + "/conf/message.properties");
-			p.load(is);
-			is.close();
-			for (Map.Entry<Object, Object> m : p.entrySet()) {
-				LoggerWrapper.addMessage(NumberUtils.toInt((String) m.getKey()), (String) m.getValue());
+			ResourceBundle rb = ResourceBundle.getBundle("messages", Locale.CHINESE);
+			for (String mkey : rb.keySet()) {
+				LoggerWrapper.addMessage(NumberUtils.toInt(mkey), (String) rb.getString(mkey));
 			}
-			p.clear();
+
+			rb = ResourceBundle.getBundle("guilabels", Locale.CHINESE);
+			for (String mkey : rb.keySet()) {
+				appenv.put(mkey, (String) rb.getString(mkey));
+			}
+
 			logger.debug("app prop file init success");
 
 		} catch (Exception exp) {

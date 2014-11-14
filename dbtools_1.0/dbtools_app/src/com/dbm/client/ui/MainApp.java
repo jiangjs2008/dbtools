@@ -30,12 +30,11 @@ public class MainApp {
 	* Auto-generated main method to display this JFrame
 	*/
 	public static void main(String[] args) {
-		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandlerFactory.getExceptionHandler());
-		Thread.currentThread().setUncaughtExceptionHandler(ExceptionHandlerFactory.getExceptionHandler());
-
 		ss = new SplashScreen("Splash.png");
 		ss.showScreen();
 
+		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandlerFactory.getExceptionHandler());
+		Thread.currentThread().setUncaughtExceptionHandler(ExceptionHandlerFactory.getExceptionHandler());
 		AppPropUtil.load();
 
 		SwingUtilities.invokeLater(new Runnable() {
