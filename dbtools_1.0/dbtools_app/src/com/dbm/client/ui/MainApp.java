@@ -1,5 +1,7 @@
 package com.dbm.client.ui;
 
+import java.net.URL;
+
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.xml.DOMConfigurator;
@@ -20,7 +22,7 @@ public class MainApp {
 
 	 static {
 		 // log4j初期化
-		 String url = System.getProperty("user.dir") + "/conf/log4j.xml";
+		 final URL url = MainApp.class.getClassLoader().getResource("log4j.xml");  
 		 DOMConfigurator.configure(url);
 	 }
 

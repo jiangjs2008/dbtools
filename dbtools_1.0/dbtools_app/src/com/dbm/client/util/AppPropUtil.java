@@ -87,7 +87,7 @@ public class AppPropUtil extends PropUtil {
 			}
 			p.clear();
 
-			is = new FileInputStream(_cfgPath + "/conf/config.properties");
+			is = AppPropUtil.class.getClassLoader().getResourceAsStream("config.properties");
 			appenv.load(is);
 			is.close();
 
