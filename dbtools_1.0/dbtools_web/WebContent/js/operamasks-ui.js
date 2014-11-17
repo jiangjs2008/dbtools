@@ -4169,7 +4169,7 @@ $.extend($.om.sortable, {
 			 */
 			colModel:false,
 			/**
-			 * 列数据模型从dataSource取得
+			 * 自动列宽(不需要定义各列的宽度，根据CELL内容自动设置)
 			 * 自定义字段
 			 */
 			autoColModel:false,
