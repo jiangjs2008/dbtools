@@ -224,14 +224,14 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 						columnInfo.add("");
 					}
 
-					// 是否自动增加(IS_AUTOINCREMENT)
-					columnInfo.add(columnRs.getString(23));
+					// 列的注释(REMARKS)
+					columnInfo.add(columnRs.getString(12));
 					// 默认值(COLUMN_DEF)
 					columnInfo.add(columnRs.getString(13));
 
-					// 列的注释(REMARKS)
-					columnInfo.add(columnRs.getString(12));
-					
+					// 是否自动增加(IS_AUTOINCREMENT)
+					columnInfo.add(columnRs.getString(23));
+
 					allData.add(columnInfo);
 				}
 
@@ -286,23 +286,16 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 					// 序号
 					columnInfo.add(Integer.toString(no));
 					no ++;
+
+					// 是否不唯一(NON_UNIQUE)
+					columnInfo.add(columnRs.getString(4));
+					// 索引类别(INDEX_QUALIFIER)
+					columnInfo.add(columnRs.getString(5));
 					// 索引名称(INDEX_NAME)
 					colName = columnRs.getString(6);
 					columnInfo.add(colName);
 					// 索引类型(TYPE)
 					columnInfo.add(columnRs.getString(7));
-					// 索引类别(INDEX_QUALIFIER)
-					columnInfo.add(columnRs.getString(5));
-
-					// 是否不唯一(NON_UNIQUE)
-					columnInfo.add(columnRs.getString(4));
-//					if (columnRs.getInt(11) == 1) {
-//						// 可为空
-//						columnInfo.add("Y");
-//					} else {
-//						// 不可为空
-//						columnInfo.add("");
-//					}
 
 					// 过滤器条件(FILTER_CONDITION)
 					columnInfo.add(columnRs.getString(12));
