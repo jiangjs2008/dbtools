@@ -38,7 +38,7 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	private DBCollection _tblObj = null;
 	private DBCursor _cur = null;
 
-	private ArrayList<String> colNameList = null;
+	private String[] colNameList = null;
 	private ArrayList<DBObject> dataList = null;
 
 	private int curDataIdx = -1;
@@ -94,22 +94,18 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		if (_cur.hasNext()) {
 			dataList = new ArrayList<DBObject>(dataCount);
 
+			HashMap<String, Object> nameMap = new HashMap<String, Object>();
 			while (_cur.hasNext()) {
 				DBObject data = _cur.next();
+				nameMap.putAll(data.toMap());
 				dataList.add(data);
 			}
 
 			if (colNameList == null) {
-				colNameList = new ArrayList<String>();
-				colNameList.addAll(_cur.curr().keySet());
+				colNameList = new String[nameMap.size()];
+				nameMap.keySet().toArray(colNameList);
 
-				// 生成元信息
-				String[] nameArray = new String[colNameList.size()];
-				for (int i = 0; i < nameArray.length; i ++) {
-					nameArray[i] = colNameList.get(i).toString();
-				}
-				
-				mrsr = new MongoResultSetMetaData(nameArray);
+				mrsr = new MongoResultSetMetaData(colNameList);
 			}
 
 		} else {
@@ -168,10 +164,10 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		if (rowObj == null) {
 			return null;
 		} else {
-//			if (columnIndex >= rowObj.size()) {
-//				return null;
-//			}
-			Object objValue = rowObj.get(colNameList.get(columnIndex));
+			if (columnIndex > colNameList.length) {
+				return null;
+			}
+			Object objValue = rowObj.get(colNameList[columnIndex - 1]);
 			if (objValue == null) {
 				return null;
 			} else {
@@ -208,12 +204,11 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 		if (rowObj == null) {
 			return null;
 		} else {
-//			if (columnIndex >= rowObj.size()) {
-//				logger.error("IndexOutOfBoundsException");
-//				return "";
-//			} else {
-				return rowObj.get(colNameList.get(columnIndex));
-//			}
+			if (columnIndex > colNameList.length) {
+				return null;
+			} else {
+				return rowObj.get(colNameList[columnIndex - 1]);
+			}
 		}
 	}
 
