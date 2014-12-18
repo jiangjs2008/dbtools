@@ -7,6 +7,8 @@
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">
 <title>系统异常</title>
+<script type="text/javascript" src="/dbm/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/dbm/js/operamasks-ui.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	var errcnt = '${errlimit}';

@@ -100,15 +100,20 @@ public class Man001 extends DefaultController {
 	public ModelAndView getMain(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
 		HttpSession session = request.getSession(true);
 		Integer errCnt = (Integer) session.getAttribute("errCnt");
+		if (errCnt == null) {
+			errCnt = 0;
+		}
 		if (errCnt != null && errCnt > 6) {
 			return new ModelAndView("syserror").addObject("errlimit", "1");
 		}
 		String userName = StringUtils.trimToNull(requestParam.get("username"));
 		String password = StringUtils.trimToNull(requestParam.get("password"));
 		if (userName == null || userName == null) {
+			session.setAttribute("errCnt", errCnt + 1);
 			return new ModelAndView("index").addObject("ecd", "1");
 		}
 		if (!userName.equals("Y3h1c2VyMjAxNA==") || !password.equals("Y3hAMjAxNF8jUHE=")) {
+			session.setAttribute("errCnt", errCnt + 1);
 			return new ModelAndView("index").addObject("ecd", "1");
 		}
 		return new ModelAndView("man001");
