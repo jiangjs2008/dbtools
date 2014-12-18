@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -95,6 +96,23 @@ public class Man001 extends DefaultController {
 		return item.toJSONString();
 	}
 
+	@RequestMapping("/index.do")
+	public ModelAndView getMain(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
+		HttpSession session = request.getSession(true);
+		Integer errCnt = (Integer) session.getAttribute("errCnt");
+		if (errCnt != null && errCnt > 6) {
+			return new ModelAndView("syserror").addObject("errlimit", "1");
+		}
+		String userName = StringUtils.trimToNull(requestParam.get("username"));
+		String password = StringUtils.trimToNull(requestParam.get("password"));
+		if (userName == null || userName == null) {
+			return new ModelAndView("index").addObject("ecd", "1");
+		}
+		if (!userName.equals("Y3h1c2VyMjAxNA==") || !password.equals("Y3hAMjAxNF8jUHE=")) {
+			return new ModelAndView("index").addObject("ecd", "1");
+		}
+		return new ModelAndView("man001");
+	}
 
 	@RequestMapping(value="/login.do", method=RequestMethod.POST)
 	public ModelAndView login(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {

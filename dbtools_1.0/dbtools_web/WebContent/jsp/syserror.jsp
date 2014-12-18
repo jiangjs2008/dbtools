@@ -8,22 +8,32 @@
 <meta http-equiv="expires" content="0">
 <title>系统异常</title>
 <script type="text/javascript">
+$(document).ready(function() {
+	var errcnt = '${errlimit}';
+	if (errcnt == '1') {
+		var tmplListUl = $('#tmpllist');
+		tmplListUl.empty();
+		tmplListUl.append("再见！");
+	}
+});
 function goLogin() {
 	location.href = '/dbm/index.html';
 }
 </script>
 </head>
 
-<body style="background-color: #E6E6E6;padding-top:120px;text-align:center">
+<body style="background-color: #E6E6E6">
+<div id="tmpllist" style="margin:0 auto;padding-top:120px;text-align:center">
 <table border="0" align="center">
 <tbody>
 	<tr>
 		<td>系统异常，请联系客服。</td>
 	</tr>
-	<tr style="height:100px;">
+	<tr style="height:200px;">
 		<td><input type="button" id="login" value="回到登陆画面" onclick="javascript:goLogin();"/></td>
 	</tr>
 </tbody>
 </table>
+</div>
 </body>
 </html>
