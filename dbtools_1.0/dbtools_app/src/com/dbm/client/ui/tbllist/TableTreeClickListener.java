@@ -228,7 +228,6 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 					columnInfo.add(columnRs.getString(12));
 					// 默认值(COLUMN_DEF)
 					columnInfo.add(columnRs.getString(13));
-
 					// 是否自动增加(IS_AUTOINCREMENT)
 					columnInfo.add(columnRs.getString(23));
 
@@ -289,6 +288,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 					// 是否不唯一(NON_UNIQUE)
 					columnInfo.add(columnRs.getString(4));
+
 					// 索引类别(INDEX_QUALIFIER)
 					columnInfo.add(columnRs.getString(5));
 					// 索引名称(INDEX_NAME)
