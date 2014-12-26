@@ -16,7 +16,12 @@
                timestamp="[%y-%m-%d %H:%M:%S.%s]"
                format=" {${thread}} ${log.message}"/>
                
-  <!-- 
+  <!-- 		//		
+cxuser2014
+cx@2014_#Pq
+
+Y3h1c2VyMjAxNA==  
+Y3hAMjAxNF8jUHE=
      - Alternative pseudo-TTCC log format
      -
      - <log-handler name="" level="all" path="stdout:"
@@ -44,6 +49,7 @@
 
     <host id="" root-directory=".">
       <web-app id="/dbm" root-directory="D:\w-ctcw\dbTools_2.0\WebContent"/>
+       <web-app id="/omui" root-directory="C:\Temp\omui"/>
     </host>
   </cluster>
 </resin>

@@ -180,5 +180,4 @@ public class Man001 extends DefaultController {
 		return new ModelAndView("man001");
 	}
 
-
 }

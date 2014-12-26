@@ -171,6 +171,7 @@ function execScript() {
 
 function showErrMsg(data) {
 	// 显示错误信息
+	optSqlStr = "";
 	// 0:成功, 1:更新成功, 2:更新失败(数据没有被更新), 3:查询失败(注意不是查询结果为0件), 4:执行时发生异常, 5:输入参数不对, 9:系统异常
 	if (data.ecd == '1') {
 		$.omMessageBox.waiting({ content: 'SQL语句执行成功！' });
