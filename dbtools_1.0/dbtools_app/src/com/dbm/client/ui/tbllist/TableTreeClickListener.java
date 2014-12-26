@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -26,8 +25,6 @@ import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.CursorChanger;
 import com.dbm.client.action.data.PageJumpActionListener;
@@ -40,6 +37,7 @@ import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.log.LoggerWrapper;
+import com.dbm.common.util.MetaDataUtil;
 
 public class TableTreeClickListener extends MouseAdapter implements TreeWillExpandListener {
 
@@ -171,72 +169,8 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 		@Override
 		public void doActionPerformed(ActionEvent e) {
+			Vector<Vector<String>> allData = MetaDataUtil.getTblDefInfo(_tblName);
 
-			DbClient dbClient = DbClientFactory.getDbClient();
-			String realName = _tblName;
-			String[] tblNameArr = StringUtils.split(_tblName, '.');
-			if (tblNameArr.length == 2) {
-				realName = tblNameArr[1];
-			}
-
-			Vector<Vector<String>> allData = null;
-			try {
-				DatabaseMetaData dmd = dbClient.getConnection().getMetaData();
-				// 取得指定表的主键信息
-				ResultSet pkRs = dmd.getPrimaryKeys(null, null, realName);
-				ArrayList<String> pkList = new ArrayList<String>();
-				while (pkRs.next()) {
-					pkList.add(pkRs.getString(4));
-				}
-				// 取得指定表的所有列的信息
-				ResultSet columnRs = dmd.getColumns(null, null, realName, "%");
-				String colName = null;
-				Vector<String> columnInfo = null;
-				allData = new Vector<Vector<String>>();
-				int no = 1;
-				while (columnRs.next()) {
-					columnInfo = new Vector<String>(7);
-					// 序号
-					columnInfo.add(Integer.toString(no));
-					no ++;
-					// 列名(COLUMN_NAME )
-					colName = columnRs.getString(4);
-					columnInfo.add(colName);
-					// 类型名(TYPE_NAME)
-					columnInfo.add(columnRs.getString(6));
-					// 列的大小(COLUMN_SIZE)
-					columnInfo.add(columnRs.getString(7));
-
-					// 是否为主键
-					if (pkList.indexOf(colName) >= 0) {
-						// 是主键
-						columnInfo.add("Y");
-					} else {
-						columnInfo.add("");
-					}
-
-					// 是否可为空(NULLABLE)
-					if (columnRs.getInt(11) == 1) {
-						// 可为空
-						columnInfo.add("Y");
-					} else {
-						// 不可为空
-						columnInfo.add("");
-					}
-
-					// 列的注释(REMARKS)
-					columnInfo.add(columnRs.getString(12));
-					// 默认值(COLUMN_DEF)
-					columnInfo.add(columnRs.getString(13));
-					// 是否自动增加(IS_AUTOINCREMENT)
-					columnInfo.add(columnRs.getString(23));
-
-					allData.add(columnInfo);
-				}
-
-			} catch (SQLException exp) {
-				throw new BaseExceptionWrapper(exp);
-			}
 			Inf01Dialog inf01 = new Inf01Dialog();
 			inf01.setColumnInfo(allData);
 			inf01.setVisible(true);
@@ -262,50 +196,8 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 		@Override
 		public void doActionPerformed(ActionEvent e) {
+			Vector<Vector<String>> allData = MetaDataUtil.getTblIdxInfo(_tblName);
 
-			DbClient dbClient = DbClientFactory.getDbClient();
-			String realName = _tblName;
-			String[] tblNameArr = StringUtils.split(_tblName, '.');
-			if (tblNameArr.length == 2) {
-				realName = tblNameArr[1];
-			}
-
-			Vector<Vector<String>> allData = null;
-			try {
-				DatabaseMetaData dmd = dbClient.getConnection().getMetaData();
-
-				// 取得指定表的索引信息
-				ResultSet columnRs = dmd.getIndexInfo(null, null, realName, true, true);
-				String colName = null;
-				Vector<String> columnInfo = null;
-				allData = new Vector<Vector<String>>();
-				int no = 1;
-				while (columnRs.next()) {
-					columnInfo = new Vector<String>(7);
-					// 序号
-					columnInfo.add(Integer.toString(no));
-					no ++;
-
-					// 是否不唯一(NON_UNIQUE)
-					columnInfo.add(columnRs.getString(4));
-
-					// 索引类别(INDEX_QUALIFIER)
-					columnInfo.add(columnRs.getString(5));
-					// 索引名称(INDEX_NAME)
-					colName = columnRs.getString(6);
-					columnInfo.add(colName);
-					// 索引类型(TYPE)
-					columnInfo.add(columnRs.getString(7));
-
-					// 过滤器条件(FILTER_CONDITION)
-					columnInfo.add(columnRs.getString(12));
-
-					allData.add(columnInfo);
-				}
-
-			} catch (SQLException exp) {
-				throw new BaseExceptionWrapper(exp);
-			}
 			Inf02Dialog inf02 = new Inf02Dialog();
 			inf02.setColumnInfo(allData);
 			inf02.setVisible(true);

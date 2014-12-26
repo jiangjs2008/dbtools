@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.Arrays;
 import java.util.Vector;
 
 import javax.swing.JScrollPane;
@@ -43,16 +44,15 @@ public class Inf01Dialog extends javax.swing.JDialog {
 	private JScrollPane jScrollPane1;
 	private JTable jTable2;
 
-	private static String[] tblHeader = new String[] { "NO.", "Name", "Type", "Size", "PK", "Nullable", "Remarks" };
-
+	private static Vector<String> tblHeader = new Vector<String>(Arrays.asList("NO.", "Name", "Type", "Size", "PK", "Nullable", "Autoinc", "Default", "Remarks" ));
 
 	public Inf01Dialog() {
 		super();
 		setLayout(new BorderLayout());
 
 		// set location
-		int width = 700;
-		int height = 400;
+		int width = 850;
+		int height = 350;
 		setSize(width, height);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation((dim.width - width) / 2, (dim.height - height) / 2);
@@ -72,12 +72,7 @@ public class Inf01Dialog extends javax.swing.JDialog {
 	}
 
 	public void setColumnInfo(Vector<Vector<String>> allData) {
-		Vector<String> columnInfo = new Vector<String>(7);
-		for (int i = 0; i < tblHeader.length; i++) {
-			columnInfo.add(tblHeader[i]);
-		}
-
-		TableModel tableModel = new DefaultTableModel(allData, columnInfo);
+		TableModel tableModel = new DefaultTableModel(allData, tblHeader);
 		jTable2.setModel(tableModel);
 		TableUtil.fitTableColumns(jTable2, null);
 	}
