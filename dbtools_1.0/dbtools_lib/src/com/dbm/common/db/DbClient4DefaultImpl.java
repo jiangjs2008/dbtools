@@ -57,7 +57,15 @@ public class DbClient4DefaultImpl extends DbClient {
 			if (_dbArgs[2] == null || _dbArgs[2].isEmpty()) {
 				_dbConn = DriverManager.getConnection(_dbArgs[1]);
 			} else {
-				_dbConn = DriverManager.getConnection(_dbArgs[1], _dbArgs[2], _dbArgs[3]);
+		        java.util.Properties info = new java.util.Properties();
+		        info.put("remarksReporting", "true");
+		        if (_dbArgs[2] != null) {
+		            info.put("user", _dbArgs[2]);
+		        }
+		        if (_dbArgs[3] != null) {
+		            info.put("password", _dbArgs[3]);
+		        }
+				_dbConn = DriverManager.getConnection(_dbArgs[1], info);
 			}
 			_isConnected = true;
 
