@@ -4629,7 +4629,7 @@ $.extend($.om.sortable, {
 			var bodyTds = $(".bDiv table tr:first-child").children();
 
 			var cellWidth = [];
-			cellWidth[0] = 45;
+			cellWidth[0] = 60;
 
 			// 重新设置表头列宽度
 			var headerTable = $(".hDivBox table");
@@ -4685,7 +4685,7 @@ $.extend($.om.sortable, {
 			el.children().children().each(function (j, obj2) {
 				$(obj2).children().children().each(function (j, obj3) {
 					if (j == 0) {
-						$(obj3).css("width", "45");
+						$(obj3).css("width", "60");
 					} else {
 						var itemWidth = cms[j - 1].width;
 						if (itemWidth != undefined) {
@@ -4711,7 +4711,7 @@ $.extend($.om.sortable, {
 			}
 			//渲染序号列
 			if(op.showIndex){
-				var cell=$('<th></th>').attr({axis:'indexCol',align:'center'}).addClass('indexCol').append($('<div class="indexheader" style="text-align:center;width:45px;"></div>'));
+				var cell=$('<th></th>').attr({axis:'indexCol',align:'center'}).addClass('indexCol').append($('<div class="indexheader" style="text-align:center;width:60px;"></div>'));
 				tr.append(cell);
 				indexWidth=25;
 			}
@@ -4745,8 +4745,8 @@ $.extend($.om.sortable, {
 				allColsWidth += cmWidth;
 				tr.append(th);
 			}
-			el.prepend(thead);
-
+			//el.prepend(thead);
+			$('table',this.hDiv).empty();
 			$('table',this.hDiv).append(thead);
 			this.thead=thead;
 			thead = null;
@@ -4781,7 +4781,7 @@ $.extend($.om.sortable, {
 				'<div class="btnseparator"></div>'+
 				'<div class="pGroup"><span class="pPageStat"></span></div>'+
 				'</div>');
-			var pageText = $.om.lang._get(op,"omGrid","pageText").replace(/{totalPage}/, '<span>1</span>').replace(/{index}/, '<input type="text" size="4" value="1" />');
+			var pageText = $.om.lang._get(op,"omGrid","pageText").replace(/{totalPage}/, '<span>1</span>').replace(/{index}/, '<input type="text" style="width:50px" value="1" />');
 			$('.pControl',pDiv).html(pageText);
 			el.parent().after(pDiv);
 			$('.pReload', pDiv).click(function() {
@@ -4919,15 +4919,14 @@ $.extend($.om.sortable, {
 						self._trigger("onSuccess",null,data,textStatus,request);
 					}
 					// 设置表头
-					if (nowPage == 1 && op.autoColModel) {
+					if (op.autoColModel) {
 						op.colModel = data.colmodel;
 						op._haveColData = true;
-						if (self._oldPage == undefined || self._oldPage == 1) {
-							// 如果是从其它页返回到第一页，则不重建表头
-							self._buildTableHead();
-							self._resetHeight();
-						}
+
+						self._buildTableHead();
+						self._resetHeight();
 					}
+
 					// 设置数据列
 					self._addData(data);
 					for(var i=0 , len=op._onRefreshCallbacks.length; i<len; i++){
@@ -5043,7 +5042,7 @@ $.extend($.om.sortable, {
 					}else if(axis.substring(0,3)=='col'){
 						var colIndex=axis.substring(3);
 						html=rowValues[colIndex];
-						if(colModel[colIndex].wrap != undefined){
+						if (colModel[colIndex] != undefined && colModel[colIndex].wrap != undefined) {
 							wrap=true;
 						}
 					}else{
