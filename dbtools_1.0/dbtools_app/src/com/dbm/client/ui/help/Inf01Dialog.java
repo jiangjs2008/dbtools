@@ -52,8 +52,8 @@ public class Inf01Dialog extends javax.swing.JDialog {
 
 		// set location
 		int width = 850;
-		int height = 350;
-		setSize(width, height);
+		int height = 320;
+		setPreferredSize(new java.awt.Dimension(width, height));
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation((dim.width - width) / 2, (dim.height - height) / 2);
 
@@ -62,7 +62,6 @@ public class Inf01Dialog extends javax.swing.JDialog {
 		jTable2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTable2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jTable2.setCellSelectionEnabled(true);
-		//jTable2.setPreferredSize(new java.awt.Dimension(700, 134));
 
 		jScrollPane1 = new JScrollPane(jTable2);
 		add(jScrollPane1, BorderLayout.CENTER);

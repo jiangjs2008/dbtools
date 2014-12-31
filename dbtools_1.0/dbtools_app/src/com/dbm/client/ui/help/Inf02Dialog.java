@@ -42,7 +42,7 @@ public class Inf02Dialog extends javax.swing.JDialog {
 	private static final long serialVersionUID = -7113020314733218145L;
 	private JScrollPane jScrollPane1;
 	private JTable jTable2;
-	private static Vector<String> tblHeader = new Vector<String>(Arrays.asList("NO.", "Name", "Type", "Size", "PK", "Nullable", "Remarks" ));
+	private static Vector<String> tblHeader = new Vector<String>(Arrays.asList("NO.", "Name", "Type", "non-unique", "ColNum", "ColName", "Order" ));
 
 	public Inf02Dialog() {
 		super();
@@ -50,8 +50,8 @@ public class Inf02Dialog extends javax.swing.JDialog {
 
 		// set location
 		int width = 700;
-		int height = 400;
-		setSize(width, height);
+		int height = 300;
+		setPreferredSize(new java.awt.Dimension(width, height));
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation((dim.width - width) / 2, (dim.height - height) / 2);
 
