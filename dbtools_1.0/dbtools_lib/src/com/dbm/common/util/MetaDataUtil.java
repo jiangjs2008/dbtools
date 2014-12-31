@@ -166,6 +166,7 @@ public class MetaDataUtil {
 			Vector<String> columnInfo = null;
 			allData = new Vector<Vector<String>>();
 			int no = 1;
+			String col14Value = null;
 
 			while (columnRs.next()) {
 				columnInfo = new Vector<String>(6);
@@ -173,12 +174,7 @@ public class MetaDataUtil {
 				no ++;
 
 				// 是否不唯一(NON_UNIQUE)
-				tempValue = columnRs.getString(4);
-				if ("YES".equalsIgnoreCase(tempValue) || "true".equalsIgnoreCase(tempValue) || "1".equals(tempValue)) {
-					columnInfo.add("Y");
-				} else {
-					columnInfo.add("");
-				}
+				col14Value = columnRs.getString(4);
 
 				// 索引名称(INDEX_NAME)
 				columnInfo.add(columnRs.getString(6));
@@ -194,6 +190,12 @@ public class MetaDataUtil {
 					tempValue = "3:tableIndexOther";
 				}
 				columnInfo.add(tempValue);
+
+				if ("YES".equalsIgnoreCase(col14Value) || "true".equalsIgnoreCase(col14Value) || "1".equals(col14Value)) {
+					columnInfo.add("Y");
+				} else {
+					columnInfo.add("");
+				}
 
 				// 索引中的列序列号(ORDINAL_POSITION)
 				columnInfo.add(columnRs.getString(8));
