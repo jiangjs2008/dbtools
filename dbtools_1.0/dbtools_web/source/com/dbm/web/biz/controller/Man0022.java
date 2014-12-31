@@ -26,8 +26,8 @@ import com.dbm.web.util.SQLsSession;
 @Controller
 public class Man0022 extends DefaultController {
 
-	private final static String[] tbldefHeader = new String[] { "", "colname", "type", "size", "pk", "nullable", "remark", "colvalue", "autoinc" };
-	private final static String[] tblidxHeader = new String[] { "", "nun", "name", "type", "ord", "colname", "asc" };
+	private final static String[] tbldefHeader = new String[] { "", "colname", "type", "size", "pk", "nullable", "autoinc", "colvalue", "remark" };
+	private final static String[] tblidxHeader = new String[] { "", "name", "type", "nun", "ord", "colname", "asc" };
 
 	/**
 	 * 获取表定义信息
@@ -57,7 +57,7 @@ public class Man0022 extends DefaultController {
 			ArrayList<HashMap<String, String>> defData = new ArrayList<HashMap<String, String>>(allData.size());
 			for (Vector<String> obj : allData) {
 				HashMap<String, String> columnInfo = new HashMap<String, String>(8);
-				for (int i = 1; i < 8; i ++) {
+				for (int i = 1; i < 9; i ++) {
 					columnInfo.put(tbldefHeader[i], obj.get(i));
 				}
 				defData.add(columnInfo);
@@ -96,7 +96,7 @@ public class Man0022 extends DefaultController {
 			ArrayList<HashMap<String, String>> idxData = new ArrayList<HashMap<String, String>>(allData.size());
 			for (Vector<String> obj : allData) {
 				HashMap<String, String> columnInfo = new HashMap<String, String>(6);
-				for (int i = 1; i < 6; i ++) {
+				for (int i = 1; i < 7; i ++) {
 					columnInfo.put(tblidxHeader[i], obj.get(i));
 				}
 				idxData.add(columnInfo);

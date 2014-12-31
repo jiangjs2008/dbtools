@@ -306,7 +306,7 @@ function onSelectNode(item) {
 						 {header : '注释', name : 'remark', width : 250} ]
 		 });
 		 $( "#dialog").omDialog({
-			width : 962,
+			width : 975,
 			height: 350,
 			modal: true,
 			resizable:false,
@@ -327,7 +327,7 @@ function onSelectNode(item) {
 						 {header : '排序', name : 'asc', width : 30, align : 'center' } ]
 		 });
 		 $( "#dialog").omDialog({
-			width : 962,
+			width : 850,
 			height: 350,
 			modal: true,
 			resizable:false,
