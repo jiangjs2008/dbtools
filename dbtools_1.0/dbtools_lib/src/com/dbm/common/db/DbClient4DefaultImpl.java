@@ -58,6 +58,7 @@ public class DbClient4DefaultImpl extends DbClient {
 				_dbConn = DriverManager.getConnection(_dbArgs[1]);
 			} else {
 		        java.util.Properties info = new java.util.Properties();
+		        //info.put("charSet", "GBK");
 		        info.put("remarksReporting", "true");
 		        if (_dbArgs[2] != null) {
 		            info.put("user", _dbArgs[2]);
@@ -69,6 +70,11 @@ public class DbClient4DefaultImpl extends DbClient {
 			}
 			_isConnected = true;
 
+		} catch (Exception exp) {
+			logger.error(exp);
+			return false;
+		}
+		try {
 		     DatabaseMetaData dbMeta = _dbConn.getMetaData();
 		     logger.info(dbMeta.getDatabaseProductName() + " ## " + dbMeta.getDatabaseProductVersion());
 		     logger.info(dbMeta.getDriverName() + " ## " + dbMeta.getDriverVersion());
@@ -109,12 +115,10 @@ public class DbClient4DefaultImpl extends DbClient {
 		    	 // 在事务commit 或rollback 后，ResultSet 被关闭
 		    	 logger.debug("ResultSet.CLOSE_CURSORS_AT_COMMIT");
 		     }
-		     return true;
-
 		} catch (Exception exp) {
 			logger.error(exp);
-			return false;
 		}
+		return true;
 	}
 
 	@Override
@@ -287,12 +291,17 @@ public class DbClient4DefaultImpl extends DbClient {
 			allRowSet = new CachedRowSetImpl();
 			allRowSet.setPageSize(_pageSize);
 
-			allRowSet.populate(rs, (pageNum - 1) * _pageSize);
+			allRowSet.populate(rs, (pageNum - 1) * _pageSize + 1);
 			return allRowSet;
 
 		} catch (SQLException exp) {
 			throw new BaseExceptionWrapper(exp);
 		}
+	}
+
+	@Override
+	protected String getLimitString(String tblName, int pageNum) {
+		return "select * from " + tblName;
 	}
 
 	@Override
