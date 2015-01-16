@@ -51,35 +51,25 @@ public class MongoCachedRowSetImpl extends AbstractCachedRowSet {
 	public MongoCachedRowSetImpl(DB dbObj, String tblName, BasicDBList reqObj, int pageNum, int limit) {
 		// 查询所有的数据
 		_tblObj = dbObj.getCollection(tblName);
+		if (reqObj == null || reqObj.size() == 0) {
+			_cur = _tblObj.find();
+		} else if (reqObj.size() == 1) {
+			_cur = _tblObj.find((DBObject) reqObj.get(0));
+		} else if (reqObj.size() == 2) {
+			_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
+		} else if (reqObj.size() == 3) {
+			_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1)).sort((DBObject) reqObj.get(2));
+		} else if (reqObj.size() == 4) {
+			DBObject lmtObj = (DBObject) reqObj.get(3);
+			int lmtValue = (Integer) lmtObj.get("limit");
+			_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1)).sort((DBObject) reqObj.get(2)).limit(lmtValue);
+		}
 
 		if (pageNum == 0) {
 			// 不分页
-			if (reqObj == null || reqObj.size() == 0) {
-				_cur = _tblObj.find();
-			} else if (reqObj.size() == 1) {
-				_cur = _tblObj.find((DBObject) reqObj.get(0));
-			} else {
-				_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
-			}
-
 		} else if (pageNum == 1) {
-			if (reqObj == null || reqObj.size() == 0) {
-				_cur = _tblObj.find();
-			} else if (reqObj.size() == 1) {
-				_cur = _tblObj.find((DBObject) reqObj.get(0));
-			} else {
-				_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
-			}
 			_cur = _cur.limit(limit);
-
 		} else {
-			if (reqObj == null || reqObj.size() == 0) {
-				_cur = _tblObj.find();
-			} else if (reqObj.size() == 1) {
-				_cur = _tblObj.find((DBObject) reqObj.get(0));
-			} else {
-				_cur = _tblObj.find((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
-			}
 			_cur = _cur.skip((pageNum - 1) * limit).limit(limit);
 		}
 		dataCount = _cur.size();

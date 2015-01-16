@@ -34,7 +34,9 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 
 	/**
 	 * MongoDb目前支持的操作：<br>
-	 * db.collection.find/findOne(), db.collection.count()
+	 * db.collection.find({},{}).sort({}).limit(N)
+	 * db.collection.findOne({},{},{})
+	 * db.collection.count({})
 	 */
 	@Override
 	public ResultSet directQuery(String sqlStr, int pageNum) {
@@ -57,7 +59,46 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 			// 查询
 			BasicDBList reqObj = getReqDbObj(sqlStr, findIdx + 6);
 			if (reqObj == null) {
-				return null;
+				reqObj = new BasicDBList();
+				reqObj.add(null);
+				reqObj.add(null);
+			} else if (reqObj.size() == 0) {
+				reqObj.add(null);
+				reqObj.add(null);
+			} else if (reqObj.size() == 1) {
+				reqObj.add(null);
+			}
+
+			BasicDBList reqObj3 = null;
+			int sortIdx = sqlStr.indexOf(").sort(");
+			if (sortIdx > 1) {
+				reqObj3 = getReqDbObj(sqlStr, sortIdx + 7);
+			}
+
+			BasicDBObject lmtObj = null;
+			int lmtIdx = sqlStr.indexOf(").limit(");
+			if (lmtIdx > 1) {
+				int lmtIdxEnd = sqlStr.indexOf(")", lmtIdx + 7);
+				if (lmtIdxEnd > 1) {
+					String lmtStr = sqlStr.substring(lmtIdx + 8, lmtIdxEnd);
+					lmtObj = new BasicDBObject("limit", Integer.parseInt(lmtStr.trim()));
+				} else {
+					// TODO--错误的SQL语句
+					
+				}
+			}
+
+			if (lmtObj == null) {
+				if (reqObj3 != null && reqObj3.size() > 0) {
+					reqObj.add(reqObj3.get(0));
+				}
+			} else {
+				if (reqObj3 != null && reqObj3.size() > 0) {
+					reqObj.add(reqObj3.get(0));
+				} else {
+					reqObj.add(null);
+				}
+				reqObj.add(lmtObj);
 			}
 
 			// 先取得该查询的数据总件数
@@ -83,12 +124,14 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 			}
 
 			BasicDBObject rsltObj = null;
-			if (reqObj.size() == 1) {
+			if (reqObj.size() == 0) {
+				rsltObj = (BasicDBObject) dbObj.getCollection(tblName).findOne();
+			} else if (reqObj.size() == 1) {
 				rsltObj = (BasicDBObject) dbObj.getCollection(tblName).findOne((DBObject) reqObj.get(0));
 			} else if (reqObj.size() == 2) {
 				rsltObj = (BasicDBObject) dbObj.getCollection(tblName).findOne((DBObject) reqObj.get(0), (DBObject) reqObj.get(1));
-			} else {
-				rsltObj = (BasicDBObject) dbObj.getCollection(tblName).findOne();
+			} else if (reqObj.size() == 3) {
+				rsltObj = (BasicDBObject) dbObj.getCollection(tblName).findOne((DBObject) reqObj.get(0), (DBObject) reqObj.get(1), (DBObject) reqObj.get(2));
 			}
 			if (rsltObj != null) {
 				_size = rsltObj.size();
