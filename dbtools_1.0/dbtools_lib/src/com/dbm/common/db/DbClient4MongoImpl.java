@@ -34,7 +34,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 
 	/**
 	 * MongoDb目前支持的操作：<br>
-	 * db.collection.find({},{}).sort({}).limit(N)
+	 * db.collection.find({},{}).sort({}).limit(N)   // 查询条件 输出项目 排序
 	 * db.collection.findOne({},{},{})
 	 * db.collection.count({})
 	 */
@@ -197,6 +197,7 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 	 */
 	@Override
 	public int directExec(String action) {
+		action = action.trim();
 		// 判断SQL类型
 		if (action.startsWith("db.createCollection(")) {
 			// 创建表
@@ -213,13 +214,31 @@ public class DbClient4MongoImpl extends DbClient4DefaultImpl {
 				dbObj.createCollection(tblName, null);
 			}
 
-		} else if (action.indexOf(".drop()") > 0) {
-			// 删除表
+		} else {
 			int dot_1st = action.indexOf(".");
 			int dot_2nd = action.indexOf(".", dot_1st + 1);
+			if (dot_1st < 1 || dot_2nd < 1) {
+				
+			}
+			
 			String tblName = action.substring(dot_1st + 1, dot_2nd);
-			dbObj.getCollection(tblName).drop();
-
+			if (action.indexOf(".drop()") > 0) {
+				// 删除表
+				dbObj.getCollection(tblName).drop();
+	
+			} else if (action.indexOf(".insert(") > 0) {
+				// 插入数据
+				
+				
+			} else if (action.indexOf(".update(") > 0) {
+				// 更新数据
+				
+				
+			} else if (action.indexOf(".remove(") > 0) {
+				// 删除数据
+				
+				
+			}
 		}
 		return 1;
 	}
