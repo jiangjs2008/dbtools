@@ -18,7 +18,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.PropUtil;
-import com.dbm.web.util.SQLsSession;
 
 /**
  * [name]<br>
@@ -30,7 +29,6 @@ import com.dbm.web.util.SQLsSession;
  */
 @Controller
 public class Man0021 extends DefaultController {
-
 
 	@RequestMapping("/ajax/sqlscript.do")
 	@ResponseBody
@@ -76,12 +74,6 @@ public class Man0021 extends DefaultController {
 			rsltJObj.put("ecd", "9");
 			rsltJObj.put("emsg", "数据库联接不正常");
 			return rsltJObj.toJSONString();
-		}
-
-		// 将用户的SQL脚本存入缓存
-		String clientId = requestParam.get("clientid");
-		if (clientId != null && clientId.length() > 0) {
-			SQLsSession.saveSQLsSession(clientId, null, sqlScript);
 		}
 
 		try {

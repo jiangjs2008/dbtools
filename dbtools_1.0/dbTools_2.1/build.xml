@@ -2,8 +2,8 @@
 <project default="createwar" basedir=".">
 
 <property name="dest.dir" location="./build"/>
-<property name="war.name" value="dbm.war"/>
-<property name="jboss.dir"  value="webapp:cx.2014@172.60.100.106:/opt/jboss-eap-6.2/standalone/deployments"/>
+<property name="war.name" value="dbm2.war"/>
+
 
 <!-- 生成Webapp war文件-->
 <target name="createwar">
@@ -16,38 +16,5 @@
 	</war>
 </target>
 
-<target name="createwar-hb">
-	<delete file="${dest.dir}/${war.name}" />
-	<copy file="__favrinfo-hb.properties" tofile="./WebContent/WEB-INF/classes/__favrinfo.properties" overwrite="true" />
-	<war warfile="${dest.dir}/${war.name}" webxml="./WebContent/WEB-INF/web.xml" >
-		<fileset dir="./WebContent">
-			<exclude name="WEB-INF/tmp/" />
-			<exclude name="WEB-INF/work/" />
-			<exclude name="WEB-INF/lib/db2jcc4.jar" />
-			<exclude name="WEB-INF/lib/ojdbc7.jar" />
-		</fileset>
-	</war>
-</target>
-
-<target name="createwar-sem">
-	<delete file="${dest.dir}/${war.name}" />
-	<copy file="__favrinfo-dn.properties" tofile="./WebContent/WEB-INF/classes/__favrinfo.properties" overwrite="true" />
-	<war warfile="${dest.dir}/${war.name}" webxml="./WebContent/WEB-INF/web.xml" >
-		<fileset dir="./WebContent">
-			<exclude name="WEB-INF/tmp/" />
-			<exclude name="WEB-INF/work/" />
-			<exclude name="WEB-INF/lib/db2jcc4.jar" />
-			<exclude name="WEB-INF/lib/mysql-connector-java-5.1.33-bin.jar" />
-		</fileset>
-	</war>
-</target>
-
-<target name="deploytoLocalJboss" depends="createwar">
-	<copy file="${dest.dir}/${war.name}" todir="D:\app\jboss-eap-6.2.0\standalone\deployments" overwrite="true" />
-</target>
-
-<target name="deploytoRemoteJboss" depends="createwar">
-	<scp file="${dest.dir}/${war.name}" todir="${jboss.dir}" trust="true" />
-</target>
 
 </project>

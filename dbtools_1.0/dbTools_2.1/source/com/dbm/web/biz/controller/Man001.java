@@ -1,30 +1,28 @@
 package com.dbm.web.biz.controller;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.ConnBean;
-import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
 import com.dbm.common.util.SecuUtil;
-import com.dbm.web.util.SQLsSession;
 
 /**
  * [name]<br>
@@ -37,105 +35,26 @@ import com.dbm.web.util.SQLsSession;
 @Controller
 public class Man001 extends DefaultController {
 
-	@RequestMapping("/ajax/getdblist.do")
+
+	@RequestMapping(value="/login.do", method=RequestMethod.GET)
 	@ResponseBody
-	public String getDbList() {
-		try {
-			FavrBean[] favrList = PropUtil.getFavrInfo();
-			ArrayList<JSONObject> columnInfo = new ArrayList<JSONObject>();
-			for (FavrBean favr : favrList) {
-				if (favr == null) {
-					continue;
-				}
-				JSONObject item = new JSONObject();
-				item.put("description", favr.description);
-				item.put("name", favr.name);
-				item.put("favrid", favr.favrId);
-				columnInfo.add(item);
-			}
-			return JSON.toJSONString(columnInfo);
+	public String login(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
+		JSONObject rsObj = new JSONObject();
 
-		} catch (Exception exp) {
-			logger.error("", exp);
-			return "";
-		}
-	}
+		String userId = StringUtils.trimToNull(request.getHeader("s1"));
+		String passwd = StringUtils.trimToNull(request.getHeader("s2"));
+		String url = StringUtils.trimToNull(requestParam.get("s1"));
+		int driverId = NumberUtils.toInt(requestParam.get("s2"));
 
-	@RequestMapping("/ajax/createopid.do")
-	@ResponseBody
-	public String createOpId() {
-		JSONObject item = new JSONObject();
-		item.put("opid", SQLsSession.createOpId());
-		return item.toJSONString();
-	}
-
-	@RequestMapping("/ajax/getdblogininfo.do")
-	@ResponseBody
-	public String getDbLoginInfo(@RequestParam Map<String,String> requestParam) {
-
-		JSONObject item = new JSONObject();
-
-		int deployType = NumberUtils.toInt(PropUtil.getAppConfig("deploy.type"));
-		if (deployType == 1) {
-			// 本程序部署在远程服务器上，为确保安全性，必须手动输入用户名及密码
-			return item.toJSONString();
-		}
-
-		int favrId = NumberUtils.toInt(requestParam.get("favrid"), -1);
-		if (favrId < 0) {
-			return item.toJSONString();
-		}
-
-		FavrBean favr = PropUtil.getFavrInfo(favrId);
-
-		item.put("status", "ok");
-		item.put("account", SecuUtil.decryptBASE64(favr.user));
-		item.put("password", SecuUtil.decryptBASE64(favr.password));
-
-		return item.toJSONString();
-	}
-
-	@RequestMapping("/index.do")
-	public ModelAndView getMain(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
-		HttpSession session = request.getSession(true);
-		Integer errCnt = (Integer) session.getAttribute("errCnt");
-		if (errCnt == null) {
-			errCnt = 0;
-		}
-		if (errCnt != null && errCnt > 6) {
-			return new ModelAndView("syserror").addObject("errlimit", "1");
-		}
-//		String userName = StringUtils.trimToNull(requestParam.get("username"));
-//		String password = StringUtils.trimToNull(requestParam.get("password"));
-//		if (userName == null || userName == null) {
-//			session.setAttribute("errCnt", errCnt + 1);
-//			return new ModelAndView("index").addObject("ecd", "1");
-//		}
-//		if (!userName.equals("Y3h1c2VyMjAxNA==") || !password.equals("Y3hAMjAxNF8jUHE=")) {
-//			session.setAttribute("errCnt", errCnt + 1);
-//			return new ModelAndView("index").addObject("ecd", "1");
-//		}
-		return new ModelAndView("man001");
-	}
-
-	@RequestMapping(value="/login.do", method=RequestMethod.POST)
-	public ModelAndView login(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
-		int favrId = NumberUtils.toInt(requestParam.get("favrid"), -1);
-		if (favrId < 0) {
-			return new ModelAndView("man001").addObject("ecd", 5);
-		}
-		String userId = requestParam.get("user");
-		String passwd = requestParam.get("pwd");
-
-		FavrBean favr = PropUtil.getFavrInfo(favrId);
-		if (!userId.equals(favr.user) || !passwd.equals(favr.password)) {
-			return new ModelAndView("man001").addObject("ecd", 1);
+		if (url == null || userId == null || passwd == null || driverId == 0) {
+			rsObj.put("ecd", 1);
+			return rsObj.toJSONString();
 		}
 
 		// 连接信息
 		userId = SecuUtil.decryptBASE64(userId);
 		passwd = SecuUtil.decryptBASE64(passwd);
-		ConnBean connInfo = PropUtil.getDbConnInfo(favr.driverId);
+		ConnBean connInfo = PropUtil.getDbConnInfo(driverId);
 
 		// 登陆到数据库
 		try {
@@ -144,8 +63,56 @@ public class Man001 extends DefaultController {
 			int dataLimit = NumberUtils.toInt(PropUtil.getAppConfig("page.data.count"));
 			dbClient.setPageSize(dataLimit);
 
-			if (!dbClient.start(new String[] { connInfo.driver, favr.url, userId, passwd })) {
-				return new ModelAndView("man001").addObject("ecd", 6);
+			if (!dbClient.start(new String[] { connInfo.driver, url, userId, passwd })) {
+				rsObj.put("ecd", 2);
+				return rsObj.toJSONString();
+			}
+
+			try {
+				DatabaseMetaData dbMeta = dbClient.getConnection().getMetaData();
+
+				rsObj.put("procInfo", dbMeta.getDatabaseProductName() + " ## " + dbMeta.getDatabaseProductVersion() + " ## " + dbMeta.getDatabaseMajorVersion() + " ## " + dbMeta.getDatabaseMinorVersion());
+				rsObj.put("driverInfo", dbMeta.getDriverName() + " ## " + dbMeta.getDriverVersion() + " ## " + dbMeta.getDriverMajorVersion() + " ## " + dbMeta.getDriverMinorVersion());
+				rsObj.put("jdbcInfo", dbMeta.getJDBCMajorVersion() + " ## " + dbMeta.getJDBCMinorVersion());
+
+				if (dbMeta.supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY)) {
+					// 默认的cursor 类型，仅仅支持结果集forward ，不支持backforward ，random ，last，first 等操作。
+					rsObj.put("scrollType", ResultSet.TYPE_FORWARD_ONLY);
+				} else if (dbMeta.supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE)) {
+					// 支持结果集backforward ，random ，last ，first 等操作，对其它session对数据库中数据做出的更改是不敏感的。
+					rsObj.put("scrollType", ResultSet.TYPE_SCROLL_INSENSITIVE);
+				} else if (dbMeta.supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE)) {
+					// 支持结果集backforward ，random ，last ，first 等操作，对其它session对数据库中数据做出的更改是敏感的，
+					// 即其他session 修改了数据库中的数据，会反应到本结果集中。
+					rsObj.put("scrollType", ResultSet.TYPE_SCROLL_SENSITIVE);
+				}
+
+				if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+					rsObj.put("updateType", 1);
+				} else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+					rsObj.put("updateType", 2);
+				} else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+					rsObj.put("updateType", 3);
+				} else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) {
+					rsObj.put("updateType", 4);
+				} else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+					rsObj.put("updateType", 5);
+				} else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+					rsObj.put("updateType", 6);
+				}
+
+				// 判断ResultSetHoldability需要注意的地方：
+				// 1 ：Oracle 只支持HOLD_CURSORS_OVER_COMMIT 。
+				// 2 ：当Statement 执行下一个查询，生成第二个ResultSet 时，第一个ResultSet会被关闭，这和是否支持支持HOLD_CURSORS_OVER_COMMIT 无关。
+				if (dbMeta.supportsResultSetHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+					// 在事务commit 或rollback 后，ResultSet 仍然可用。
+					rsObj.put("commitType", ResultSet.HOLD_CURSORS_OVER_COMMIT);
+				} else if (dbMeta.supportsResultSetHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+					// 在事务commit 或rollback 后，ResultSet 被关闭
+					rsObj.put("commitType", ResultSet.CLOSE_CURSORS_AT_COMMIT);
+				}
+			} catch (Exception exp) {
+				logger.error(exp);
 			}
 
 			// 显示数据库内容：表、视图等等
@@ -160,23 +127,26 @@ public class Man001 extends DefaultController {
 				dbInfo.add(objMap);
 			}
 
-			HttpSession session = request.getSession(true);
-			session.setAttribute("_userid", session.getId());
-			SQLsSession.setCurrFavrInfo(favr);
-
-			return new ModelAndView("man002").addObject("dbInfo", JSON.toJSONString(dbInfo)).addObject("dataLimit", dataLimit);
+			rsObj.put("ecd", 0);
+			rsObj.put("dbInfo", dbInfo);
+			rsObj.put("dataLimit", dataLimit);
+			return rsObj.toJSONString();
 
 		} catch (Exception exp) {
 			logger.error("登陆到数据库时发生错误", exp);
-			return new ModelAndView("man001").addObject("ecd", 9);
+			rsObj.put("ecd", 9);
+			return rsObj.toJSONString();
 		}
 	}
 
 	@RequestMapping("/logout.do")
-	public ModelAndView logout() {
+	@ResponseBody
+	public String logout() {
 		// 关闭数据库连接
 		DbClientFactory.close();
-		return new ModelAndView("man001");
+		JSONObject rsObj = new JSONObject();
+		rsObj.put("ecd", 0);
+		return rsObj.toJSONString();
 	}
 
 }

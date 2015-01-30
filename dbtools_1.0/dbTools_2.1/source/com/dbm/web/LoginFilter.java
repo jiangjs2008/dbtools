@@ -42,8 +42,10 @@ public class LoginFilter implements Filter {
 			}
 		}
 		// 验证用户(用户名，密码，校验码)
-		
-		
+		String userId = httpRequest.getHeader("s1");
+		String passWd = httpRequest.getHeader("s2");
+		String qurCode = httpRequest.getHeader("s3");
+
 		// 验证会话状态
 		
 		

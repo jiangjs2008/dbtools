@@ -3,7 +3,6 @@ package com.dbm.web.biz.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Vector;
 
 import org.springframework.stereotype.Controller;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.util.MetaDataUtil;
-import com.dbm.web.util.SQLsSession;
 
 /**
  * [name]<br>
@@ -103,46 +101,6 @@ public class Man0022 extends DefaultController {
 			}
 			rsltJObj.put("rows", idxData);
 		}
-
-		return rsltJObj.toJSONString();
-	}
-
-	/**
-	 * 获取SQL脚本执行纪录
-	 *
-	 * @param requestParam HTTP请求参数
-	 *
-	 * @return String SQL脚本执行纪录
-	 */
-	@RequestMapping("/ajax/biz/sqlhis001.do")
-	@ResponseBody
-	public String getSqlHis(@RequestParam Map<String,String> requestParam){
-		logger.debug("/sale/cmp0010.do =>getCmp0010View()");
-		JSONObject rsltJObj = new JSONObject();
-		rsltJObj.put("total", 0);
-		rsltJObj.put("rows", "{}");
-
-		String clientId = requestParam.get("clientid");
-		if (clientId == null || clientId.length() == 0) {
-			logger.error("执行时错误 参数不对");
-			rsltJObj.put("ecd", "5");
-			return rsltJObj.toJSONString();
-		}
-		Map<String, String> vmap = SQLsSession.getSqlHis(clientId, null);
-		ArrayList<HashMap<String, String>> allData = new ArrayList<HashMap<String, String>>();
-
-		if (vmap != null) {
-			for (Entry<String, String> entry : vmap.entrySet()) {
-				HashMap<String, String> columnInfo = new HashMap<String, String>(2);
-				columnInfo.put("sqls", entry.getKey());
-				columnInfo.put("time", entry.getValue());
-				allData.add(columnInfo);
-			}
-		}
-
-		rsltJObj.put("ecd", "0");
-		rsltJObj.put("total", allData.size());
-		rsltJObj.put("rows", allData);
 
 		return rsltJObj.toJSONString();
 	}
