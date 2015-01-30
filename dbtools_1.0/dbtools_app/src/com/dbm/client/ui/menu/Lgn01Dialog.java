@@ -1,9 +1,7 @@
 package com.dbm.client.ui.menu;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -61,17 +59,15 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 1L;
-	/**
-	 * instances of the log class
-	 */
-	private static LoggerWrapper logger = new LoggerWrapper(Lgn01Dialog.class);
 
 	private JTextField jTextField1;
 	private JTextField jTextField2;
 	private JTextField jTextField3;
 	private JPasswordField jTextField4;
 
-
+	/**
+	 * 缺省构造函数
+	 */
 	public Lgn01Dialog() {
 		super();
 
@@ -86,6 +82,9 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 		});
 	}
 
+	/**
+	 * 创建画面
+	 */
 	private void initGUI() {
 		JPanel jPanel1 = new JPanel();
 		getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -203,7 +202,6 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 				connInfo = Session.getCurrConnInfo();
 			}
 
-			// 登陆到数据库
 			DbClientFactory.createDbClient(connInfo.action);
 			DbClient dbClient = DbClientFactory.getDbClient();
 
@@ -212,7 +210,14 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 //				AppUIAdapter.setUIObj(AppUIAdapter.DbUrlTxtField, jTextField2);
 //			}
 
-			if (!dbClient.start(new String[] { connInfo.driver, item2, item3, item4 })) {
+			String[] connArgs = null;
+			if (favrInfo.wrapperUrl == null) {
+				connArgs = new String[] { connInfo.driver, item2, item3, item4 };
+			} else {
+				connArgs = new String[] { connInfo.driver, item2, item3, item4, favrInfo.wrapperUrl, Integer.toString(connInfo.driverid) };
+			}
+
+			if (!dbClient.start(connArgs)) {
 				Msg01Dialog.showMsgDialog(40005);
 				return;
 			}
@@ -236,8 +241,12 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 		}
 	}
 
+	/**
+	 * 根节点(Database)的展开和关闭事件处理
+	 *
+	 */
 	private final static class MyExpansionListener implements TreeExpansionListener {
-
+		@Override
 		public void treeExpanded(TreeExpansionEvent evt) {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) evt.getPath().getLastPathComponent();
 			if (node instanceof TableTypesGroupNode) {
@@ -246,7 +255,7 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 				((BaseNode) node).expand(dbClient.getTableList(null, null, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
 			}
 		}
-
+		@Override
 		public void treeCollapsed(TreeExpansionEvent evt) {
 		}
 	}
