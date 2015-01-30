@@ -3,8 +3,6 @@
  */
 package com.dbm.common.db;
 
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,7 +15,12 @@ import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.spi.SyncProviderException;
 import javax.sql.rowset.spi.SyncResolver;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.error.BaseExceptionWrapper;
+import com.dbm.common.util.HttpUtil;
 import com.sun.rowset.CachedRowSetImpl;
 
 /**
@@ -25,7 +28,7 @@ import com.sun.rowset.CachedRowSetImpl;
  *
  * @author JiangJusheng
  */
-public class DbClient4DefaultImpl extends DbClient {
+public class DbClient4HttpWrapperImpl extends DbClient {
 
 	protected Statement stmt = null;
 	protected ResultSet rs = null;
@@ -49,81 +52,58 @@ public class DbClient4DefaultImpl extends DbClient {
 		_dbArgs = args;
 		// connect to db 
 		try {
-			// 注* 如果是app程序，注册jdbc驱动这一步骤可以省略
-			// 但如果是web应用，必须手动注册jdbc驱动(虽然jdbc4.0标准中说可以不用，具体原因不明)
-			Class.forName(_dbArgs[0]);
-
-			DriverManager.setLoginTimeout(10);
-			if (_dbArgs[2] == null || _dbArgs[2].isEmpty()) {
-				_dbConn = DriverManager.getConnection(_dbArgs[1]);
-			} else {
-		        java.util.Properties info = new java.util.Properties();
-		        //info.put("charSet", "GBK");
-		        info.put("remarksReporting", "true");
-		        if (_dbArgs[2] != null) {
-		            info.put("user", _dbArgs[2]);
-		        }
-		        if (_dbArgs[3] != null) {
-		            info.put("password", _dbArgs[3]);
-		        }
-				_dbConn = DriverManager.getConnection(_dbArgs[1], info);
+			String rs = HttpUtil.getBody4Get(args[4]);
+			if (rs == null) {
+				
+				return false;
 			}
-			_isConnected = true;
+			JSONObject rsObj = JSON.parseObject(rs);
+			if (rsObj.getIntValue("ecd") == 0) {
+				_isConnected = true;
+			} else {
+				
+			}
+
+			logger.info(rsObj.getString("procInfo"));
+			logger.info(rsObj.getString("driverInfo"));
+			logger.info(rsObj.getString("jdbcInfo"));
+
+			int scrollType = NumberUtils.toInt(rsObj.getString("scrollType"));
+			if (scrollType == ResultSet.TYPE_FORWARD_ONLY) {
+				logger.debug("ResultSet.TYPE_FORWARD_ONLY");
+			} else if (scrollType == ResultSet.TYPE_SCROLL_INSENSITIVE) {
+				logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE");
+			} else if (scrollType == ResultSet.TYPE_SCROLL_SENSITIVE) {
+				logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE");
+			}
+
+			int updateType = NumberUtils.toInt(rsObj.getString("updateType"));
+			if (updateType == 1) {
+				logger.debug("ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY");
+			} else if (updateType == 2) {
+				logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY");
+			} else if (updateType == 3) {
+				logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY");
+			} else if (updateType == 4) {
+				logger.debug("ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE");
+			} else if (updateType == 5) {
+				logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE");
+			} else if (updateType == 6) {
+				logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE");
+			}
+
+			int commitType = NumberUtils.toInt(rsObj.getString("commitType"));
+			if (commitType == ResultSet.HOLD_CURSORS_OVER_COMMIT) {
+				// 在事务commit 或rollback 后，ResultSet 仍然可用。
+				logger.debug("ResultSet.HOLD_CURSORS_OVER_COMMIT");
+			} else if (commitType == ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+				// 在事务commit 或rollback 后，ResultSet 被关闭
+				logger.debug("ResultSet.CLOSE_CURSORS_AT_COMMIT");
+			}
 
 		} catch (Exception exp) {
 			logger.error(exp);
 			return false;
-		}
-		if (args.length > 4) {
-			// 如果是代理访问，则不输出数据库基本信息
-			return true;
-		}
-		try {
-		     DatabaseMetaData dbMeta = _dbConn.getMetaData();
-
-		     logger.info(dbMeta.getDatabaseProductName() + " ## " + dbMeta.getDatabaseProductVersion() + " ## " + dbMeta.getDatabaseMajorVersion() + " ## " + dbMeta.getDatabaseMinorVersion());
-		     logger.info(dbMeta.getDriverName() + " ## " + dbMeta.getDriverVersion() + " ## " + dbMeta.getDriverMajorVersion() + " ## " + dbMeta.getDriverMinorVersion());
-		     logger.info(dbMeta.getJDBCMajorVersion() + " ## " + dbMeta.getJDBCMinorVersion());
-
-		     if (dbMeta.supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY)) {
-		    	 // 默认的cursor 类型，仅仅支持结果集forward ，不支持backforward ，random ，last ，first 等操作。
-		    	 logger.debug("ResultSet.TYPE_FORWARD_ONLY");
-		     } else if (dbMeta.supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE)) {
-		    	 // 支持结果集backforward ，random ，last ，first 等操作，对其它session 对数据库中数据做出的更改是不敏感的。
-		    	 logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE");
-		     } else if (dbMeta.supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE)) {
-		    	 // 支持结果集backforward ，random ，last ，first 等操作，对其它session 对数据库中数据做出的更改是敏感的，
-		    	 // 即其他session 修改了数据库中的数据，会反应到本结果集中。
-		    	 logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE");
-		     }
-
-		     if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-		    	 logger.debug("ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY");
-		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-		    	 logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY");
-		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-		    	 logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY");
-		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) {
-		    	 logger.debug("ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE");
-		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-		    	 logger.debug("ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE");
-		     } else if (dbMeta.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-		    	 logger.debug("ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE");
-		     }
-
-		     // 判断ResultSetHoldability
-		     // 需要注意的地方：
-		     // 1 ：Oracle 只支持HOLD_CURSORS_OVER_COMMIT 。
-		     // 2 ：当Statement 执行下一个查询，生成第二个ResultSet 时，第一个ResultSet 会被关闭，这和是否支持支持HOLD_CURSORS_OVER_COMMIT 无关。
-		     if (dbMeta.supportsResultSetHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-		    	 // 在事务commit 或rollback 后，ResultSet 仍然可用。
-		    	 logger.debug("ResultSet.HOLD_CURSORS_OVER_COMMIT");
-		     } else if (dbMeta.supportsResultSetHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-		    	 // 在事务commit 或rollback 后，ResultSet 被关闭
-		    	 logger.debug("ResultSet.CLOSE_CURSORS_AT_COMMIT");
-		     }
-		} catch (Exception exp) {
-			logger.error(exp);
 		}
 		return true;
 	}
