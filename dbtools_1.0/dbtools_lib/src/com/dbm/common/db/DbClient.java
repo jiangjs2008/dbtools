@@ -216,7 +216,7 @@ public abstract class DbClient {
 	/**
 	 * 关闭数据库连接
 	 */
-	abstract void close();
+	public abstract void close();
 
 	/**
 	 * 取得DB对象分类信息，如：表、视图等等

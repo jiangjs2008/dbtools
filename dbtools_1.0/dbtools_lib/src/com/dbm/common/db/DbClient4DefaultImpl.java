@@ -129,7 +129,7 @@ public class DbClient4DefaultImpl extends DbClient {
 	}
 
 	@Override
-	void close() {
+	public void close() {
 		_isConnected = false;
 		try {
 			if (rs != null) {

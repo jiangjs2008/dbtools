@@ -12,7 +12,7 @@ import javax.sql.rowset.CachedRowSet;
 import oracle.jdbc.rowset.OracleCachedRowSet;
 import oracle.sql.Datum;
 import oracle.sql.ROWID;
-import oracle.sql.STRUCT;
+import java.sql.Struct;
 
 import com.dbm.common.error.BaseExceptionWrapper;
 
@@ -71,14 +71,15 @@ public class DbClient4Oracle9iImpl extends DbClient4DefaultImpl {
 		if (obj == null) {
 			return "";
 		}
-		if (obj instanceof STRUCT) {
+		if (obj instanceof Struct) {
+			Struct objValue = (Struct) obj;
 			// 如果是空间数据类型
 			try {
-				Object[] sps = ((STRUCT) ((STRUCT) obj).getAttributes()[2]).getAttributes();
+				Object[] sps = ((Struct) objValue.getAttributes()[2]).getAttributes();
 				return sps[0].toString() + ", " + sps[1].toString() ;
 			} catch (SQLException ex) {
 				logger.error(ex);
-				return ((STRUCT) obj).debugString();
+				return objValue.toString();
 			}
 
 		} else if (obj instanceof ROWID) {
