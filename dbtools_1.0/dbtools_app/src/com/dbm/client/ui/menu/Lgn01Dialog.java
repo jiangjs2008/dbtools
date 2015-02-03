@@ -26,7 +26,6 @@ import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTypesGroupNode;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
-import com.dbm.common.log.LoggerWrapper;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
