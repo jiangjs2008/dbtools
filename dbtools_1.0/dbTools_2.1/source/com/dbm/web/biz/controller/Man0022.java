@@ -5,12 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dbm.common.db.DbClient;
 import com.dbm.common.util.MetaDataUtil;
 
 /**
@@ -36,12 +40,14 @@ public class Man0022 extends DefaultController {
 	 */
 	@RequestMapping("/ajax/biz/inf001.do")
 	@ResponseBody
-	public String getTblDefInfo(@RequestParam Map<String,String> requestParam){
+	public String getTblDefInfo(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
 		logger.debug("/ajax/biz/inf001.do =>getTblDefInfo()");
 		JSONObject rsltJObj = new JSONObject();
 		String realName = requestParam.get("tblname");
 
-		Vector<Vector<String>> allData = MetaDataUtil.getTblDefInfo(realName);
+		HttpSession session = request.getSession();
+		DbClient dbClient = (DbClient) session.getAttribute("dbclient");
+		Vector<Vector<String>> allData = MetaDataUtil.getTblDefInfo(dbClient, realName);
 		if (allData == null) {
 			logger.error("无法获取表定义信息 " + realName);
 			rsltJObj.put("total", 0);
@@ -75,12 +81,14 @@ public class Man0022 extends DefaultController {
 	 */
 	@RequestMapping("/ajax/biz/inf002.do")
 	@ResponseBody
-	public String getTblIdxInfo(@RequestParam Map<String,String> requestParam){
+	public String getTblIdxInfo(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
 		logger.debug("/ajax/biz/inf002.do =>getTblIdxInfo()");
 		JSONObject rsltJObj = new JSONObject();
 		String realName = requestParam.get("tblname");
 
-		Vector<Vector<String>> allData = MetaDataUtil.getTblIdxInfo(realName);
+		HttpSession session = request.getSession();
+		DbClient dbClient = (DbClient) session.getAttribute("dbclient");
+		Vector<Vector<String>> allData = MetaDataUtil.getTblIdxInfo(dbClient, realName);
 		if (allData == null) {
 			logger.error("无法获取索引定义信息 " + realName);
 			rsltJObj.put("total", 0);

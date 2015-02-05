@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.log.LoggerWrapper;
 
 /**
@@ -33,14 +32,9 @@ public class MetaDataUtil {
 	 *
 	 * @return Vector<Vector<String>> 表定义信息
 	 */
-	public static Vector<Vector<String>> getTblDefInfo(String tblName) {
+	public static Vector<Vector<String>> getTblDefInfo(DbClient dbClient, String tblName) {
 		Vector<Vector<String>> allData = null;
 		try {
-			DbClient dbClient = DbClientFactory.getDbClient();
-			if (dbClient == null) {
-				logger.error("数据库联接不正常");
-				return null;
-			}
 			String realName = getRealTblName(dbClient, tblName);
 			if (realName == null) {
 				logger.error("执行时错误 参数不对");
@@ -136,14 +130,9 @@ public class MetaDataUtil {
 	 *
 	 * @return Vector<Vector<String>> 表定义信息
 	 */
-	public static Vector<Vector<String>> getTblIdxInfo(String tblName) {
+	public static Vector<Vector<String>> getTblIdxInfo(DbClient dbClient, String tblName) {
 		Vector<Vector<String>> allData = null;
 		try {
-			DbClient dbClient = DbClientFactory.getDbClient();
-			if (dbClient == null) {
-				logger.error("数据库联接不正常");
-				return null;
-			}
 			String realName = getRealTblName(dbClient, tblName);
 			if (realName == null) {
 				logger.error("执行时错误 参数不对");

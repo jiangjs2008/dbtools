@@ -7,6 +7,9 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.PropUtil;
 
 /**
@@ -32,7 +34,7 @@ public class Man0021 extends DefaultController {
 
 	@RequestMapping("/ajax/sqlscript.do")
 	@ResponseBody
-	public String mpc0110query(@RequestParam Map<String,String> requestParam) {
+	public String mpc0110query(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
 		String sqlScript = requestParam.get("sqlscript");
 		JSONObject rsltJObj = new JSONObject();
 		rsltJObj.put("total", 0);
@@ -68,7 +70,8 @@ public class Man0021 extends DefaultController {
 			return rsltJObj.toJSONString();
 		}
 
-		DbClient dbClient = DbClientFactory.getDbClient();
+		HttpSession session = request.getSession();
+		DbClient dbClient = (DbClient) session.getAttribute("dbclient");
 		if (dbClient == null) {
 			logger.error("数据库联接不正常");
 			rsltJObj.put("ecd", "9");

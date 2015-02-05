@@ -5,9 +5,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Controller;
@@ -15,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.PropUtil;
 
 /**
@@ -32,12 +32,13 @@ import com.dbm.common.property.PropUtil;
 @Controller
 public class Man002 extends DefaultController {
 
-	@RequestMapping("/ajax/gettbllist.do")
+	@RequestMapping("/gettbllist.do")
 	@ResponseBody
-	public String getTblList(@RequestParam Map<String,String> requestParam) {
+	public String getTblList(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
 		String tblName = requestParam.get("catalog");
 
-		DbClient dbClient = DbClientFactory.getDbClient();
+		HttpSession session = request.getSession();
+		DbClient dbClient = (DbClient) session.getAttribute("dbclient");
 		String schema = null;
 		try {
 			if (dbClient.hasSchema()) {
@@ -48,21 +49,15 @@ public class Man002 extends DefaultController {
 		}
 		List<String[]> tblList = dbClient.getTableList(null, schema, "%", new String[] { tblName });
 
-		// 显示数据库内容：表、视图等等
-		ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(tblList.size());
-		for (String[] items : tblList) {
-			HashMap<String, Object> objMap = new HashMap<String, Object>(2);
-			objMap.put("text", items[0]);
-			objMap.put("remarks", items[1]);
-			dbInfo.add(objMap);
-		}
-
-		return JSON.toJSONString(dbInfo);
+		JSONObject rsObj = new JSONObject();
+		rsObj.put("ecd", 0);
+		rsObj.put("dbInfo", tblList);
+		return rsObj.toJSONString();
 	}
 
 	@RequestMapping("/ajax/griddata.do")
 	@ResponseBody
-	public String mpc0120dispinfo(@RequestParam Map<String,String> requestParam) {
+	public String mpc0120dispinfo(@RequestParam Map<String,String> requestParam, HttpServletRequest request) {
 		logger.debug("/ajax/sale/mpc0120dispinfo.do =>mpc0120dispinfo()");
 		String _tblName = null;
 		try {
@@ -82,7 +77,8 @@ public class Man002 extends DefaultController {
 		JSONObject rsltJObj = new JSONObject();
 		try {
 
-			DbClient dbClient = DbClientFactory.getDbClient();
+			HttpSession session = request.getSession();
+			DbClient dbClient = (DbClient) session.getAttribute("dbclient");
 			if (dbClient == null) {
 				logger.error("数据库联接不正常");
 				rsltJObj.put("ecd", "9");

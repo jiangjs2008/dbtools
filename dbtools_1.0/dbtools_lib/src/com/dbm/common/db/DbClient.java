@@ -221,7 +221,7 @@ public abstract class DbClient {
 	/**
 	 * 取得DB对象分类信息，如：表、视图等等
 	 */
-	public List<String> getTableTypes() {
+	public List<String> getCatalogList() {
 		List<String> rslt = new ArrayList<String>();
 		ResultSet rs = null;
 		try {

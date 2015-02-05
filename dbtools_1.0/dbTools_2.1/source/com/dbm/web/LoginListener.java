@@ -5,7 +5,7 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import com.dbm.common.db.DbClientFactory;
+import com.dbm.common.db.DbClient;
 
 /**
  * [name]<br>
@@ -29,7 +29,10 @@ public class LoginListener implements HttpSessionListener,HttpSessionAttributeLi
 	 */
 	@Override
 	public void sessionDestroyed(HttpSessionEvent event) {
-		DbClientFactory.close();
+		DbClient dbClient = (DbClient) event.getSession().getAttribute("dbclient");
+		if (dbClient != null) {
+			dbClient.close();
+		}
 	}
 
 	/**
@@ -45,7 +48,10 @@ public class LoginListener implements HttpSessionListener,HttpSessionAttributeLi
 	@Override
 	public void attributeRemoved(HttpSessionBindingEvent event) {
 		if (event.getName().equals("_userid")) {
-			DbClientFactory.close();
+			DbClient dbClient = (DbClient) event.getSession().getAttribute("dbclient");
+			if (dbClient != null) {
+				dbClient.close();
+			}
 		}
 	}
 

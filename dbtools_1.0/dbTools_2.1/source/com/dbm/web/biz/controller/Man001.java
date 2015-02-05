@@ -2,12 +2,11 @@ package com.dbm.web.biz.controller;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -51,6 +50,9 @@ public class Man001 extends DefaultController {
 			return rsObj.toJSONString();
 		}
 
+		HttpSession session = request.getSession();
+		session.invalidate();
+
 		// 连接信息
 		userId = SecuUtil.decryptBASE64(userId);
 		passwd = SecuUtil.decryptBASE64(passwd);
@@ -58,8 +60,8 @@ public class Man001 extends DefaultController {
 
 		// 登陆到数据库
 		try {
-			DbClientFactory.createDbClient(connInfo.action);
-			DbClient dbClient = DbClientFactory.getDbClient();
+			DbClient dbClient = DbClientFactory.createDbClient(connInfo.action);
+			session.setAttribute("dbclient", dbClient);
 			int dataLimit = NumberUtils.toInt(PropUtil.getAppConfig("page.data.count"));
 			dbClient.setPageSize(dataLimit);
 
@@ -115,21 +117,7 @@ public class Man001 extends DefaultController {
 				logger.error(exp);
 			}
 
-			// 显示数据库内容：表、视图等等
-			List<String> objList = dbClient.getTableTypes();
-			ArrayList<HashMap<String, Object>> dbInfo = new ArrayList<HashMap<String, Object>>(objList.size());
-			for (String item : objList) {
-				HashMap<String, Object> objMap = new HashMap<String, Object>(2);
-				objMap.put("text", item);
-				objMap.put("hasChildren", true);
-				objMap.put("isCatalog", true);
-				objMap.put("isQuery", false);
-				dbInfo.add(objMap);
-			}
-
 			rsObj.put("ecd", 0);
-			rsObj.put("dbInfo", dbInfo);
-			rsObj.put("dataLimit", dataLimit);
 			return rsObj.toJSONString();
 
 		} catch (Exception exp) {
@@ -139,11 +127,30 @@ public class Man001 extends DefaultController {
 		}
 	}
 
+	@RequestMapping("/getcatalog.do")
+	@ResponseBody
+	public String getTableTypes(HttpServletRequest request) {
+
+		JSONObject rsObj = new JSONObject();
+		// 显示数据库内容：表、视图等等
+		HttpSession session = request.getSession();
+		DbClient dbClient = (DbClient) session.getAttribute("dbclient");
+		List<String> objList = dbClient.getCatalogList();
+
+		rsObj.put("ecd", 0);
+		rsObj.put("dbInfo", objList);
+		return rsObj.toJSONString();
+	}
+
 	@RequestMapping("/logout.do")
 	@ResponseBody
-	public String logout() {
+	public String logout(HttpServletRequest request) {
 		// 关闭数据库连接
-		DbClientFactory.close();
+		HttpSession session = request.getSession();
+		DbClient dbClient = (DbClient) session.getAttribute("dbclient");
+		if (dbClient != null) {
+			dbClient.close();
+		}
 		JSONObject rsObj = new JSONObject();
 		rsObj.put("ecd", 0);
 		return rsObj.toJSONString();

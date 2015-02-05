@@ -17,25 +17,14 @@ import com.dbm.common.error.BaseExceptionWrapper;
  */
 public class DbClientFactory {
 
-	private static DbClient dbClient = null;
-
-	public static void createDbClient(String implClass) {
+	public static DbClient createDbClient(String implClass) {
 		try {
-			dbClient = (DbClient) DbClientFactory.class.getClassLoader().loadClass(implClass).newInstance();
+			DbClient dbClient = (DbClient) DbClientFactory.class.getClassLoader().loadClass(implClass).newInstance();
+			return dbClient;
 		} catch (Throwable exp) {
 			throw new BaseExceptionWrapper(exp);
 		}
 	}
 
-	public static DbClient getDbClient() {
-		return dbClient;
-	}
-
-	public static void close() {
-		if (dbClient != null) {
-			dbClient.close();
-			dbClient = null;
-		}
-	}
 }
 
