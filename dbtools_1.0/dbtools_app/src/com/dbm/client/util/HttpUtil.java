@@ -21,7 +21,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.dbm.client.util.HttpUtil;
+import com.dbm.client.ui.Session;
+import com.dbm.common.property.FavrBean;
 
 
 
@@ -188,6 +189,11 @@ public class HttpUtil {
 		try {
 
 			httpGet = new HttpGet(webUrl);
+			
+			FavrBean favr = Session.getCurrFavrInfo();
+			httpGet.addHeader("s1", favr.user);
+			httpGet.addHeader("s2", favr.password);
+			//httpGet.addHeader("s3", value);
 
 			// 设置连接超时
 			RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(10000).setConnectTimeout(10000).build();

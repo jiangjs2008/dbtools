@@ -8,16 +8,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.List;
 
 import javax.sql.rowset.CachedRowSet;
-import javax.sql.rowset.spi.SyncProviderException;
-import javax.sql.rowset.spi.SyncResolver;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dbm.client.util.HttpUtil;
 import com.dbm.common.db.DbClient;
@@ -34,6 +32,7 @@ public class DbClient4HttpWrapperImpl extends DbClient {
 	protected Statement stmt = null;
 	protected ResultSet rs = null;
 	CachedRowSet allRowSet = null;
+	private String wrapperUrl = null;
 
 	@Override
 	public String getTableDataAt(int rowNum, int colNum) {
@@ -51,19 +50,19 @@ public class DbClient4HttpWrapperImpl extends DbClient {
 	@Override
 	public boolean start(String[] args) {
 		_dbArgs = args;
+		wrapperUrl = args[4];
 		// connect to db 
 		try {
-			String rs = HttpUtil.getBody4Get(args[4]);
+			String rs = HttpUtil.getBody4Get(args[4] + "/login.do?s1=" + args[1] + "&s2=" + args[5]);
 			if (rs == null) {
 				
 				return false;
 			}
 			JSONObject rsObj = JSON.parseObject(rs);
-			if (rsObj.getIntValue("ecd") == 0) {
-				_isConnected = true;
-			} else {
-				
+			if (rsObj.getIntValue("ecd") != 0) {
+				return false;
 			}
+			_isConnected = true;
 
 			logger.info(rsObj.getString("procInfo"));
 			logger.info(rsObj.getString("driverInfo"));
@@ -295,109 +294,54 @@ public class DbClient4HttpWrapperImpl extends DbClient {
 	@Override
 	public void defaultUpdate(HashMap<Integer, HashMap<Integer, String>> params,
 			ArrayList<HashMap<Integer, String>> addParams, ArrayList<Integer> delParams) {
-		int colNum = 0;
-		String colValue = null;
-		try {
-			getConnection().setAutoCommit(false);
-			// 更新
-			if (params != null && params.size() > 0) {
-				int rowNum = 0;
-				for (Iterator<Entry<Integer, HashMap<Integer, String>>> iter = params.entrySet().iterator(); iter.hasNext(); ) {
 
-					Entry<Integer, HashMap<Integer, String>> entry = iter.next();
-					rowNum = entry.getKey();
+	}
 
-					// update data
-					allRowSet.absolute(rowNum);
-
-					HashMap<Integer, String> rowMap = entry.getValue();
-					for (Iterator<Entry<Integer, String>> iter2 = rowMap.entrySet().iterator(); iter2.hasNext(); ) {
-	
-						Entry<Integer, String> entry2 = iter2.next();
-						colNum = entry2.getKey();
-						colValue = entry2.getValue();
-
-						allRowSet.updateString(colNum, colValue);
-					}
-
-					allRowSet.updateRow();
-				}
-			}
-
-			// 追加
-			if (addParams != null && addParams.size() > 0) {
-				for (HashMap<Integer, String> addLine : addParams) {
-					// insert data
-					allRowSet.moveToInsertRow();
-
-					for (Iterator<Entry<Integer, String>> iter2 = addLine.entrySet().iterator(); iter2.hasNext(); ) {
-						
-						Entry<Integer, String> entry2 = iter2.next();
-						colNum = entry2.getKey();
-						colValue = entry2.getValue();
-
-						allRowSet.updateString(colNum, colValue);
-					}
-
-					allRowSet.insertRow();
-					allRowSet.moveToCurrentRow();
-				}
-			}
-
-			// 删除
-			if (delParams != null && delParams.size() > 0) {
-				for (Integer rowNum : delParams) {
-					allRowSet.absolute(rowNum);
-					allRowSet.deleteRow();
-				}
-			}
-
-			allRowSet.acceptChanges(_dbConn);
-
-		} catch (SyncProviderException exp) {
-			SyncResolver resolver = exp.getSyncResolver();
-			try {
-				// value in crs
-				Object crsValue = null;
-				// value in the SyncResolver object
-				Object resolverValue = null;
-				// value to be persistent
-				//Object resolvedValue = null;
-
-				while (resolver.nextConflict()) {
-					int status = resolver.getStatus();
-					logger.debug("resolver status: " + status);
-					if (status == SyncResolver.UPDATE_ROW_CONFLICT) {
-						int row = resolver.getRow();
-						rs.absolute(row);
-						int colCount = rs.getMetaData().getColumnCount();
-						for (int j = 1; j <= colCount; j++) {
-							if (resolver.getConflictValue(j) != null) {
-								// value in crs
-								crsValue = rs.getObject(j);
-								logger.debug("value in crs: " + crsValue);
-								// value in the SyncResolver object
-								resolverValue = resolver.getConflictValue(j);
-								logger.debug("value in the SyncResolver object: " + resolverValue);
-								// ...
-								// compare crsValue and resolverValue
-								// to determine the value to be persistent
-								//resolvedValue = crsValue;
-								//resolver.setResolvedValue(j, resolvedValue);
-							}
-						}
-					}
-				}
-			} catch (SQLException exp2) {
-				logger.error(exp2);
-			}
-
-			throw new BaseExceptionWrapper(exp);
-		} catch (SQLException exp) {
-			throw new BaseExceptionWrapper(exp);
-		} catch (Exception exp) {
-			throw new BaseExceptionWrapper(exp);
+	/**
+	 * 取得DB对象分类信息，如：表、视图等等
+	 */
+	@Override
+	public List<String> getCatalogList() {
+		String rs = HttpUtil.getBody4Get(wrapperUrl + "/getcatalog.do");
+		if (rs == null) {
+			return null;
+		}
+		JSONObject rsObj = JSON.parseObject(rs);
+		if (rsObj.getIntValue("ecd") == 0) {
+			List<String> rslt = (List<String>) rsObj.get("dbInfo");
+			return rslt;
+		} else {
+			return null;
 		}
 	}
 
+	/**
+	 * 取得DB所属对象一览，如表、视图一览
+	 *
+	 * @param catalog
+	 * @param schemaPattern
+	 * @param tableNamePattern
+	 * @param types
+	 *
+	 * @return List<String[]> 表定义一览：{"表名"，"注释"}
+	 */
+	public List<String[]> getTableList(String catalog, String schemaPattern, String tableNamePattern, String[] types) {
+		String rs = HttpUtil.getBody4Get(wrapperUrl + "/gettbllist.do?catalog=" + types[0]);
+		if (rs == null) {
+			return null;
+		}
+		JSONObject rsObj = JSON.parseObject(rs);
+		if (rsObj.getIntValue("ecd") == 0) {
+			List<String[]> rslt = new ArrayList<String[]>();
+			JSONArray rslt2 = (JSONArray) rsObj.get("dbInfo");
+			for (Object item : rslt2) {
+				String[] tblInfos = new String[2];
+				((JSONArray) item).toArray(tblInfos);
+				rslt.add(tblInfos);
+			}
+			return rslt;
+		} else {
+			return null;
+		}
+	}
 }

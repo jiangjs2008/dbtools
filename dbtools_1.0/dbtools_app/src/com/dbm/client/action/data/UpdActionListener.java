@@ -12,10 +12,10 @@ import javax.swing.table.TableCellEditor;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Session;
 import com.dbm.client.ui.help.Msg01Dialog;
 import com.dbm.client.ui.help.Msg02Dialog;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 
 /**
  * [name]<br>
@@ -145,7 +145,7 @@ public class UpdActionListener extends AbstractActionListener {
 	@Override
 	protected void doActionPerformed(ActionEvent e) {
 		logger.debug("UpdActionListener tbl: " + tblName);
-		DbClient dbClient = DbClientFactory.getDbClient();
+		DbClient dbClient = Session.getDbClient();
 		if (dbClient == null) {
 			// 数据库未连接
 			return;

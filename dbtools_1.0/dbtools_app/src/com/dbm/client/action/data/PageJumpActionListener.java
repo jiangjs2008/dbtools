@@ -23,7 +23,6 @@ import com.dbm.client.ui.tbldata.MyDefaultTableModel;
 import com.dbm.client.ui.tbllist.TableCellEditorListener;
 import com.dbm.client.util.TableUtil;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.error.BaseException;
 import com.dbm.common.error.BaseExceptionWrapper;
 
@@ -58,7 +57,7 @@ public class PageJumpActionListener extends AbstractActionListener {
 	 * @param currPage 当前页数
 	 */
 	public void displayTableData(ResultSet rowSet, int currPage) {
-		dbClient = DbClientFactory.getDbClient();
+		dbClient = Session.getDbClient();
 		this._rowSet = rowSet;
 		this.currPage = currPage;
 		// 总件数

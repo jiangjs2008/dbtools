@@ -46,6 +46,9 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -63,10 +66,12 @@ import com.dbm.client.ui.menu.Fav02Dialog;
 import com.dbm.client.ui.menu.Sec01Dialog;
 import com.dbm.client.ui.tbldata.TableCellSelectedListener;
 import com.dbm.client.ui.tbldata.TableHeaderSelectedListener;
+import com.dbm.client.ui.tbllist.BaseNode;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.client.ui.tbllist.TableTreeClickListener;
+import com.dbm.client.ui.tbllist.TableTypesGroupNode;
 import com.dbm.client.util.StringUtil;
-import com.dbm.common.db.DbClientFactory;
+import com.dbm.common.db.DbClient;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
@@ -128,7 +133,10 @@ public class MainAppJFrame extends javax.swing.JFrame {
 	protected void processWindowEvent(final WindowEvent pEvent) {
 		if (pEvent.getID() == WindowEvent.WINDOW_CLOSING) {
 			// 结束程序
-			DbClientFactory.close();
+			DbClient dbClient = Session.getDbClient();
+			if (dbClient != null) {
+				dbClient.close();
+			}
 			setVisible(false);
 			System.exit(0);
 		} else {
@@ -179,6 +187,8 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		TableTreeClickListener treeListener = new TableTreeClickListener();
 		jTree1.addMouseListener(treeListener);
 		jTree1.addTreeWillExpandListener(treeListener);
+		jTree1.addTreeExpansionListener(new MyExpansionListener());
+
 		AppUIAdapter.setUIObj(AppUIAdapter.TableTreeUIObj, jTree1);
 
 		JScrollPane jscroll = new JScrollPane(jTree1);
@@ -341,7 +351,10 @@ public class MainAppJFrame extends javax.swing.JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// 结束程序
-				DbClientFactory.close();
+				DbClient dbClient = Session.getDbClient();
+				if (dbClient != null) {
+					dbClient.close();
+				}
 				setVisible(false);
 				System.exit(0);
 			}
@@ -558,4 +571,22 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		});
 	}
 
+	/**
+	 * 根节点(Database)的展开和关闭事件处理
+	 *
+	 */
+	private final static class MyExpansionListener implements TreeExpansionListener {
+		@Override
+		public void treeExpanded(TreeExpansionEvent evt) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) evt.getPath().getLastPathComponent();
+			if (node instanceof TableTypesGroupNode) {
+				// 显示DB所属对象一览
+				DbClient dbClient = Session.getDbClient();
+				((BaseNode) node).expand(dbClient.getTableList(null, null, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
+			}
+		}
+		@Override
+		public void treeCollapsed(TreeExpansionEvent evt) {
+		}
+	}
 }

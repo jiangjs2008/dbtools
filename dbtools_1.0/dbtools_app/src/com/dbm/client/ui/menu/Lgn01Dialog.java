@@ -13,17 +13,14 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.dbm.client.action.AbstractActionListener;
+import com.dbm.client.db.DbClient4HttpWrapperImpl;
+import com.dbm.client.db.DbClient4TcpWrapperImpl;
 import com.dbm.client.ui.AppUIAdapter;
 import com.dbm.client.ui.Session;
 import com.dbm.client.ui.help.Msg01Dialog;
-import com.dbm.client.ui.tbllist.BaseNode;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
-import com.dbm.client.ui.tbllist.TableTypesGroupNode;
 import com.dbm.common.db.DbClient;
 import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.ConnBean;
@@ -76,7 +73,10 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				DbClientFactory.close();
+				DbClient dbClient = Session.getDbClient();
+				if (dbClient != null) {
+					dbClient.close();
+				}
 			}
 		});
 	}
@@ -96,7 +96,10 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 		jButton1.addActionListener(new AbstractActionListener() {
 			@Override
 			protected void doActionPerformed(ActionEvent e) {
-				DbClientFactory.close();
+				DbClient dbClient = Session.getDbClient();
+				if (dbClient != null) {
+					dbClient.close();
+				}
 				setVisible(false);
 			}
 		});
@@ -176,7 +179,7 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 	private class ConnActionListener extends AbstractActionListener {
 		@Override
 		protected void doActionPerformed(ActionEvent e) {
-			if (DbClientFactory.getDbClient() != null) {
+			if (Session.getDbClient() != null) {
 				// 已存在数据库连接
 				return;
 			}
@@ -201,8 +204,16 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 				connInfo = Session.getCurrConnInfo();
 			}
 
-			DbClientFactory.createDbClient(connInfo.action);
-			DbClient dbClient = DbClientFactory.getDbClient();
+			String actionCls = connInfo.action;
+			if (favrInfo.wrapperUrl != null) {
+				if (favrInfo.wrapperUrl.startsWith("http")) {
+					actionCls = DbClient4HttpWrapperImpl.class.getName();
+				} else if (favrInfo.wrapperUrl.startsWith("tcpip")) {
+					actionCls = DbClient4TcpWrapperImpl.class.getName();
+				}
+			}
+			DbClient dbClient = DbClientFactory.createDbClient(actionCls);
+			Session.setDbClient(dbClient);
 
 //			if (dbClient instanceof DbClient4SQLiteImpl) {
 //				// TODO --特殊情况：连接手机上的sqlite时需要再修正一次连接URL
@@ -224,10 +235,9 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 			dbClient.setPageSize(Session.PageDataLimit);
 
 			// 显示数据库内容：表、视图等等
-			List<String> objList = dbClient.getTableTypes();
+			List<String> objList = dbClient.getCatalogList();
 			if (objList != null && objList.size() > 0) {
 				JTree jTree1 = (JTree) AppUIAdapter.getUIObj(AppUIAdapter.TableTreeUIObj);
-				jTree1.addTreeExpansionListener(new MyExpansionListener());
 
 				ObjectsTreeModel treeModel = (ObjectsTreeModel) jTree1.getModel();
 				treeModel.loadList(objList);
@@ -240,22 +250,4 @@ public class Lgn01Dialog extends javax.swing.JDialog {
 		}
 	}
 
-	/**
-	 * 根节点(Database)的展开和关闭事件处理
-	 *
-	 */
-	private final static class MyExpansionListener implements TreeExpansionListener {
-		@Override
-		public void treeExpanded(TreeExpansionEvent evt) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) evt.getPath().getLastPathComponent();
-			if (node instanceof TableTypesGroupNode) {
-				// 显示DB所属对象一览
-				DbClient dbClient = DbClientFactory.getDbClient();
-				((BaseNode) node).expand(dbClient.getTableList(null, null, "%", new String[] { ((TableTypesGroupNode) node).getCatalogIdentifier() }));
-			}
-		}
-		@Override
-		public void treeCollapsed(TreeExpansionEvent evt) {
-		}
-	}
 }

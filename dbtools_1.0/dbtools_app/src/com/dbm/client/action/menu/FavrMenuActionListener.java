@@ -9,7 +9,6 @@ import com.dbm.client.ui.Session;
 import com.dbm.client.ui.help.Msg01Dialog;
 import com.dbm.client.ui.menu.Lgn01Dialog;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
@@ -19,7 +18,7 @@ public class FavrMenuActionListener extends AbstractActionListener {
 	@Override
 	protected void doActionPerformed(ActionEvent e) {
 		// last db connection is not closed
-		DbClient dbClient = DbClientFactory.getDbClient();
+		DbClient dbClient = Session.getDbClient();
 		if (dbClient != null && dbClient.isConnected()) {
 			Msg01Dialog.showMsgDialog(10004);
 			return;

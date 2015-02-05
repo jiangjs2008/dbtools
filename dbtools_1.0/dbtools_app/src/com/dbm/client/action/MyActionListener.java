@@ -23,7 +23,6 @@ import com.dbm.client.ui.tbllist.TableCellEditorListener;
 import com.dbm.client.util.StringUtil;
 import com.dbm.client.util.TableUtil;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 
 public class MyActionListener extends AbstractActionListener {
 
@@ -147,7 +146,7 @@ public class MyActionListener extends AbstractActionListener {
 			jTable1Model.removeRow(curRowIdx);
 			// 显示复制的行数据,并添加到数据更新列表
 			int newRowIdx = curRowIdx + 1;
-			DbClient dbClient = DbClientFactory.getDbClient();
+			DbClient dbClient = Session.getDbClient();
 			if (dbClient != null) {
 				if (dbClient.getCurrPageNum() > 1) {
 					newRowIdx = (dbClient.getCurrPageNum() - 1) * Session.PageDataLimit + curRowIdx;

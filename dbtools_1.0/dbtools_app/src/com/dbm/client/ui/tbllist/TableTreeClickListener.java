@@ -30,11 +30,11 @@ import com.dbm.client.action.CursorChanger;
 import com.dbm.client.action.data.PageJumpActionListener;
 import com.dbm.client.action.data.UpdActionListener;
 import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Session;
 import com.dbm.client.ui.help.Inf00Dialog;
 import com.dbm.client.ui.help.Inf01Dialog;
 import com.dbm.client.ui.help.Inf02Dialog;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 import com.dbm.common.error.BaseExceptionWrapper;
 import com.dbm.common.log.LoggerWrapper;
 import com.dbm.common.util.MetaDataUtil;
@@ -86,7 +86,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 					logger.info("JPopupMenu 未定义");
 					return;
 				}
-				DbClient dbClient = DbClientFactory.getDbClient();
+				DbClient dbClient = Session.getDbClient();
 				if (dbClient == null) {
 					return;
 				}
@@ -130,8 +130,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 		@Override
 		public void doActionPerformed(ActionEvent e) {
-
-			DbClient dbClient = DbClientFactory.getDbClient();
+			DbClient dbClient = Session.getDbClient();
 			if (dbClient == null) {
 				return;
 			}
@@ -169,7 +168,8 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 		@Override
 		public void doActionPerformed(ActionEvent e) {
-			Vector<Vector<String>> allData = MetaDataUtil.getTblDefInfo(_tblName);
+			DbClient dbClient = Session.getDbClient();
+			Vector<Vector<String>> allData = MetaDataUtil.getTblDefInfo(dbClient, _tblName);
 
 			Inf01Dialog inf01 = new Inf01Dialog();
 			inf01.setColumnInfo(allData);
@@ -196,7 +196,8 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 
 		@Override
 		public void doActionPerformed(ActionEvent e) {
-			Vector<Vector<String>> allData = MetaDataUtil.getTblIdxInfo(_tblName);
+			DbClient dbClient = Session.getDbClient();
+			Vector<Vector<String>> allData = MetaDataUtil.getTblIdxInfo(dbClient, _tblName);
 
 			Inf02Dialog inf02 = new Inf02Dialog();
 			inf02.setColumnInfo(allData);
@@ -241,7 +242,7 @@ public class TableTreeClickListener extends MouseAdapter implements TreeWillExpa
 		UpdActionListener updMng = UpdActionListener.getInstance();
 		updMng.setTblName(tblName);
 
-		DbClient dbClient = DbClientFactory.getDbClient();
+		DbClient dbClient = Session.getDbClient();
 		dbClient.setTableName(tblName);
 		ResultSet rowSet = dbClient.defaultQuery(1);
 

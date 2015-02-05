@@ -5,6 +5,7 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.dbm.common.db.DbClient;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
@@ -50,6 +51,16 @@ public class Session {
 
 	public static void setCurrFavrInfo(FavrBean fvrInfo) {
 		fvrinfoItem = fvrInfo;
+	}
+
+	
+	private static DbClient dbClient = null;
+	public static DbClient getDbClient() {
+		return dbClient;
+	}
+
+	public static void setDbClient(DbClient dbObj) {
+		dbClient = dbObj;
 	}
 
 }

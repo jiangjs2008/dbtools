@@ -8,9 +8,9 @@ import javax.swing.JTextArea;
 
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.ui.AppUIAdapter;
+import com.dbm.client.ui.Session;
 import com.dbm.client.ui.help.Msg01Dialog;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 
 /**
  * [name]<br>
@@ -32,7 +32,7 @@ public class ExecActionListener extends AbstractActionListener {
 	@Override
 	public void doActionPerformed(ActionEvent e) {
 		logger.debug("ExecActionListener");
-		DbClient dbClient = DbClientFactory.getDbClient();
+		DbClient dbClient = Session.getDbClient();
 		if (dbClient == null) {
 			// 数据库未连接
 			return;

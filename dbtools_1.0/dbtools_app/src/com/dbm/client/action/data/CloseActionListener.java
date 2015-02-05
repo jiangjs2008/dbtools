@@ -13,20 +13,20 @@ import com.dbm.client.ui.Session;
 import com.dbm.client.ui.help.Msg01Dialog;
 import com.dbm.client.ui.tbllist.ObjectsTreeModel;
 import com.dbm.common.db.DbClient;
-import com.dbm.common.db.DbClientFactory;
 
 public class CloseActionListener extends AbstractActionListener {
 
 	@Override
 	public void doActionPerformed(ActionEvent e) {
 		// close current db connection
-		DbClient dbClient = DbClientFactory.getDbClient();
+		DbClient dbClient = Session.getDbClient();
 		if (dbClient == null || !dbClient.isConnected()) {
 			Msg01Dialog.showMsgDialog(10003);
 			return;
 		}
 		// 关闭数据库连接
-		DbClientFactory.close();
+		dbClient.close();
+
 		// 重置应用程序标题栏
 		((Frame) AppUIAdapter.getUIObj(AppUIAdapter.AppMainGUI)).setTitle(Session.APP_TITLE);
 

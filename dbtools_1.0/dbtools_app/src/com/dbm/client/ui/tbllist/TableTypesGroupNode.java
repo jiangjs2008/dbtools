@@ -35,6 +35,9 @@ public class TableTypesGroupNode extends BaseNode {
 	 */
 	@Override
 	public void expand(List<String[]> tables) {
+		if (tables == null || tables.size() == 0) {
+			return;
+		}
 		if (getChildCount() == 0) {
 			CursorChanger cc = new CursorChanger((Component) AppUIAdapter.getUIObj(AppUIAdapter.AppMainGUI));
 			cc.show();

@@ -54,6 +54,7 @@ public class AppPropUtil extends PropUtil {
 				favrBean.driverId = json.getIntValue("driverId");
 				favrBean.description = json.getString("description");
 				favrBean.url = json.getString("url");
+				favrBean.wrapperUrl = json.getString("wrapperUrl");
 				favrBean.user = json.getString("user");
 				favrBean.password = json.getString("password");
 				favrBean.useFlg = json.getBooleanValue("useFlg");
