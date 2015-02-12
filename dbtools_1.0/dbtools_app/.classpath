@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="lib/postgresql-9.2-1002.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/postgresforest510.jar"/>
 	<classpathentry kind="lib" path="lib/sqljdbc4.jar"/>
-	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.15-M1.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-2.12.3.jar" sourcepath="F:/zkysrc/mongo-java-driver-r2.12.3.zip"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.32-bin.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -19,5 +18,6 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.3.6.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.3.3.jar"/>
 	<classpathentry kind="lib" path="D:/app/apache-tomcat-7/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.8.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
