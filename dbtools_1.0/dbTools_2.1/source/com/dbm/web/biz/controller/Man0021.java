@@ -126,6 +126,11 @@ public class Man0021 extends DefaultController {
 				return rsltJObj.toJSONString();
 
 			} else {
+				// 记录操作日志
+				
+				
+				
+
 				// 更新数据
 				int rs = dbClient.directExec(sqlScript);
 				if (sqlType == 2) {

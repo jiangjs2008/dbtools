@@ -50,17 +50,16 @@ public class SQLiteCachedRowSetImpl extends AbstractCachedRowSet {
 		_rsm = new SQLiteResultSetMetaData(rs.getMetaData());
 
 		HashMap<String, Object> rowValue = null;
-		int colCnt = _rsm.getColumnCount();
+		int colCnt = _rsm.getColumnCount() + 1;
 		int i = 0;
 
 		while (rs.next()) {
 			rowValue = new HashMap<String, Object>();
 			for (i = 1; i < colCnt; i ++) {
-				rowValue.put(_rsm.getColumnName(i), rs.getObject(i));
+				rowValue.put(_rsm.getColumnName(i), rs.getObject(i + 1));
 			}
 			dataList.add(rowValue);
 		}
-		System.out.print("");
 	}
 
 	@Override
@@ -122,4 +121,12 @@ public class SQLiteCachedRowSetImpl extends AbstractCachedRowSet {
 		return _rsm;
 	}
 
+	@Override
+	public int size() {
+		if (dataList == null) {
+			return 0;
+		} else {
+			return dataList.size();
+		}
+	}
 }
