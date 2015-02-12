@@ -83,20 +83,20 @@ public class His01Dialog extends javax.swing.JDialog {
 
 		Vector<Vector<String>> allData = new Vector<Vector<String>>(_rowSet.size());
 		try {
-				for (int i = 1; i <= _rowSet.size(); i ++) {
-		
-					if (!_rowSet.next()) {
-						break;
-					}
-
-					Vector<String> colValue = new Vector<String>(3);
-					colValue.add(Integer.toString(i));
-		
-					for (int k = 1; k < 3; k ++) {
-						colValue.add((String) _rowSet.getObject(k));
-					}
-					allData.add(colValue);
+			for (int i = 1; i <= _rowSet.size(); i ++) {
+	
+				if (!_rowSet.next()) {
+					break;
 				}
+
+				Vector<String> colValue = new Vector<String>(3);
+				colValue.add(Integer.toString(i));
+	
+				for (int k = 1; k < 3; k ++) {
+					colValue.add((String) _rowSet.getObject(k));
+				}
+				allData.add(colValue);
+			}
 		} catch (SQLException exp) {
 			exp.printStackTrace();
 		}
