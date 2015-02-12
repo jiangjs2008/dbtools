@@ -50,8 +50,6 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.dbm.client.action.AbstractActionListener;
 import com.dbm.client.action.MyActionListener;
 import com.dbm.client.action.data.CloseActionListener;
@@ -76,6 +74,7 @@ import com.dbm.common.db.DbClient;
 import com.dbm.common.property.ConnBean;
 import com.dbm.common.property.FavrBean;
 import com.dbm.common.property.PropUtil;
+import com.dbm.common.util.SecuUtil;
 
 /**
  * [name]<br>
@@ -471,7 +470,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 			jMenu2.add(jMenuItem22);
 			jMenuItem22.setName("favr:" + Integer.toString(fbInfo.favrId));
 			jMenuItem22.setText(fbInfo.name);
-			jMenuItem22.setToolTipText(StringUtil.printTipText(fbInfo.url, "user :=  " + StringUtils.trimToEmpty(fbInfo.user)));
+			jMenuItem22.setToolTipText(StringUtil.printTipText(fbInfo.url, "user :=  " + SecuUtil.decryptBASE64(fbInfo.user)));
 			jMenuItem22.addActionListener(connAction);
 		}
 

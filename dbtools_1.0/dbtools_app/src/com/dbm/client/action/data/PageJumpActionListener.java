@@ -149,8 +149,11 @@ public class PageJumpActionListener extends AbstractActionListener {
 		}
 		MyDefaultTableModel jTable1Model = new MyDefaultTableModel();
 		jTable1Model.setDataVector(allData, colName);
-		// 最后一页加空行
-		jTable1Model.addRow(new String[]{});
+
+		if (currPage == _pageCnt) {
+			// 最后一页加空行
+			jTable1Model.addRow(new String[]{});
+		}
 		jTable1.setModel(jTable1Model);
 
 		DefaultCellEditor editor = new DefaultCellEditor(new JTextField());

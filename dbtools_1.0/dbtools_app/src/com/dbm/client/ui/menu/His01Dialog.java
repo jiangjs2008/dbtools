@@ -88,7 +88,7 @@ public class His01Dialog extends javax.swing.JDialog {
 					if (!_rowSet.next()) {
 						break;
 					}
-		
+
 					Vector<String> colValue = new Vector<String>(3);
 					colValue.add(Integer.toString(i));
 		
