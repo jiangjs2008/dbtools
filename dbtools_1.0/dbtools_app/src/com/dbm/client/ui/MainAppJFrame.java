@@ -63,6 +63,7 @@ import com.dbm.client.ui.menu.Drm01Dialog;
 import com.dbm.client.ui.menu.Drm02Dialog;
 import com.dbm.client.ui.menu.Fav01Dialog;
 import com.dbm.client.ui.menu.Fav02Dialog;
+import com.dbm.client.ui.menu.His01Dialog;
 import com.dbm.client.ui.menu.Sec01Dialog;
 import com.dbm.client.ui.tbldata.TableCellSelectedListener;
 import com.dbm.client.ui.tbldata.TableHeaderSelectedListener;
@@ -385,15 +386,19 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jMenu12.add(new JSeparator());
 
 		// 脚本历史查询
-		JMenuItem jMenuItem124 = new JMenuItem("Last Script");
-		KeyStroke lKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.CTRL_DOWN_MASK);
+		JMenuItem jMenuItem124 = new JMenuItem("History");
+		KeyStroke lKeyStroke = KeyStroke.getKeyStroke("control H");
 		jMenuItem124.setAccelerator(lKeyStroke);
 		jMenu12.add(jMenuItem124);
 
-		JMenuItem jMenuItem125 = new JMenuItem("Next Script");
-		KeyStroke nKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.CTRL_DOWN_MASK);
-		jMenuItem125.setAccelerator(nKeyStroke);
-		jMenu12.add(jMenuItem125);
+		jMenuItem124.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				His01Dialog dbDialog = new His01Dialog();
+				dbDialog.setVisible(true);
+			}
+		});
+
 
 		// separate line
 		jMenu12.add(new JSeparator());
