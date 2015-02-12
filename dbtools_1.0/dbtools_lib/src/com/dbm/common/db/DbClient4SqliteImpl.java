@@ -35,7 +35,23 @@ public class DbClient4SqliteImpl extends DbClient4DefaultImpl {
 
 			allRowSet = new SQLiteCachedRowSetImpl();
 			allRowSet.populate(rs);
+			return allRowSet;
 
+		} catch (SQLException exp) {
+			throw new BaseExceptionWrapper(exp);
+		}
+	}
+
+	@Override
+	protected CachedRowSet doDirectQueryImpl(String sqlStr, int pageNum) {
+		try {
+			// 查询表数据
+			String action = getLimitString(sqlStr, pageNum);
+			stmt = _dbConn.createStatement();
+			rs = stmt.executeQuery(action);
+
+			allRowSet = new SQLiteCachedRowSetImpl();
+			allRowSet.populate(rs);
 			return allRowSet;
 
 		} catch (SQLException exp) {
