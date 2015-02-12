@@ -208,7 +208,7 @@ public class MainAppJFrame extends javax.swing.JFrame {
 		jTable1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jTable1.setCellSelectionEnabled(true);
 		jTable1.addMouseListener(new TableCellSelectedListener());
-		jTable1.setRowHeight(18);
+		jTable1.setRowHeight(20);
 
 		// copy&paste action
 		MyActionListener myListener = new MyActionListener();
@@ -387,10 +387,9 @@ public class MainAppJFrame extends javax.swing.JFrame {
 
 		// 脚本历史查询
 		JMenuItem jMenuItem124 = new JMenuItem("History");
-		KeyStroke lKeyStroke = KeyStroke.getKeyStroke("control H");
-		jMenuItem124.setAccelerator(lKeyStroke);
 		jMenu12.add(jMenuItem124);
 
+		jMenuItem124.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK));
 		jMenuItem124.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -3,7 +3,7 @@ package com.dbm.client.ui.menu;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -11,9 +11,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+
+import jdbc.wrapper.sqlite.SQLiteCachedRowSetImpl;
 
 import com.dbm.client.ui.Session;
+import com.dbm.client.ui.tbldata.MyDefaultTableModel2;
 import com.dbm.client.util.TableUtil;
 import com.dbm.common.db.DbClient4SqliteImpl;
 
@@ -45,7 +47,7 @@ public class His01Dialog extends javax.swing.JDialog {
 	private JScrollPane jScrollPane1;
 	private JTable jTable2;
 
-	private static Vector<String> tblHeader = new Vector<String>(Arrays.asList("NO.", "Time", "Text" ));
+	private static Vector<String> tblHeader = new Vector<String>(Arrays.asList("NO.", "Time", "SQL Text" ));
 
 	public His01Dialog() {
 		super();
@@ -76,16 +78,40 @@ public class His01Dialog extends javax.swing.JDialog {
 		args[2] = "";
 		args[3] = "";
 		impl.start(args);
-		ResultSet rs = impl.directQuery("history", 1);
+		impl.setPageSize(500);
+		SQLiteCachedRowSetImpl _rowSet = (SQLiteCachedRowSetImpl) impl.directQuery("history", 1);
+
+		Vector<Vector<String>> allData = new Vector<Vector<String>>(_rowSet.size());
+		try {
+				for (int i = 1; i <= _rowSet.size(); i ++) {
 		
+					if (!_rowSet.next()) {
+						break;
+					}
 		
+					Vector<String> colValue = new Vector<String>(3);
+					colValue.add(Integer.toString(i));
+		
+					for (int k = 1; k < 3; k ++) {
+						colValue.add((String) _rowSet.getObject(k));
+					}
+					allData.add(colValue);
+				}
+		} catch (SQLException exp) {
+			exp.printStackTrace();
+		}
+
+		setColumnInfo(allData);
 		pack();
 		setModal(true);
 	}
 
-	public void setColumnInfo(Vector<Vector<String>> allData) {
-		TableModel tableModel = new DefaultTableModel(allData, tblHeader);
+	private void setColumnInfo(Vector<Vector<String>> allData) {
+		DefaultTableModel tableModel = new MyDefaultTableModel2();
+		tableModel.setDataVector(allData, tblHeader);
 		jTable2.setModel(tableModel);
+		jTable2.setRowHeight(20);
+
 		TableUtil.fitTableColumns(jTable2, null);
 	}
 }

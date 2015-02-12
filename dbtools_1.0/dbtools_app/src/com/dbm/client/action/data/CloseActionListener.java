@@ -26,6 +26,7 @@ public class CloseActionListener extends AbstractActionListener {
 		}
 		// 关闭数据库连接
 		dbClient.close();
+		Session.setDbClient(null);
 
 		// 重置应用程序标题栏
 		((Frame) AppUIAdapter.getUIObj(AppUIAdapter.AppMainGUI)).setTitle(Session.APP_TITLE);
